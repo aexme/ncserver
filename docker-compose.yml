@@ -14,7 +14,5 @@
     image: redis:alpine
     container_name: nextcloud-redis
     hostname: nextcloud-redis
-    networks:
-        - default
     restart: unless-stopped
     command: redis-server --requirepass test # Redis Passwort eingeben
