@@ -1,0 +1,20 @@
+ services:
+  nextcloud:
+    image: nextcloud:25-apache
+    restart: always
+    ports:
+      - 8080:80
+    volumes:
+      - ./src:/var/www/html
+    environment:
+      - NEXTCLOUD_DATA_DIR=/var/www/html/data
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+  nextcloud-redis:
+    image: redis:alpine
+    container_name: nextcloud-redis
+    hostname: nextcloud-redis
+    networks:
+        - default
+    restart: unless-stopped
+    command: redis-server --requirepass test # Redis Passwort eingeben
