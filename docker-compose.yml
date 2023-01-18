@@ -3,7 +3,7 @@
     image: nextcloud:25-apache
     restart: always
     ports:
-      - 8080:80
+      - 8082:80
     volumes:
       - ./src:/var/www/html
     environment:
