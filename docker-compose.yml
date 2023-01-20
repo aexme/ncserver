@@ -6,8 +6,9 @@
       - 8082:80
     volumes:
       - ./src:/var/www/html
+      - ./data:/var/www/nextcloud/data
     environment:
-      - NEXTCLOUD_DATA_DIR=/var/www/html/data
+      - NEXTCLOUD_DATA_DIR=/var/www/nextcloud/data
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
   nextcloud-redis:
