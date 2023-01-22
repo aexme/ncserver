@@ -26,10 +26,9 @@
 namespace OC\Core\Command;
 
 use OC\Core\Command\User\ListCommand;
-use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionAwareInterface;
+use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -39,9 +38,13 @@ class Base extends Command implements CompletionAwareInterface {
 	public const OUTPUT_FORMAT_JSON = 'json';
 	public const OUTPUT_FORMAT_JSON_PRETTY = 'json_pretty';
 
-	protected string $defaultOutputFormat = self::OUTPUT_FORMAT_PLAIN;
-	private bool $php_pcntl_signal = false;
-	private bool $interrupted = false;
+	protected $defaultOutputFormat = self::OUTPUT_FORMAT_PLAIN;
+
+	/** @var boolean */
+	private $php_pcntl_signal = false;
+
+	/** @var boolean */
+	private $interrupted = false;
 
 	protected function configure() {
 		$this
@@ -55,7 +58,13 @@ class Base extends Command implements CompletionAwareInterface {
 		;
 	}
 
-	protected function writeArrayInOutputFormat(InputInterface $input, OutputInterface $output, array $items, string $prefix = '  - '): void {
+	/**
+	 * @param InputInterface $input
+	 * @param OutputInterface $output
+	 * @param array $items
+	 * @param string $prefix
+	 */
+	protected function writeArrayInOutputFormat(InputInterface $input, OutputInterface $output, $items, $prefix = '  - ') {
 		switch ($input->getOption('output')) {
 			case self::OUTPUT_FORMAT_JSON:
 				$output->writeln(json_encode($items));
@@ -85,27 +94,9 @@ class Base extends Command implements CompletionAwareInterface {
 		}
 	}
 
-	protected function writeTableInOutputFormat(InputInterface $input, OutputInterface $output, array $items): void {
-		switch ($input->getOption('output')) {
-			case self::OUTPUT_FORMAT_JSON:
-				$output->writeln(json_encode($items));
-				break;
-			case self::OUTPUT_FORMAT_JSON_PRETTY:
-				$output->writeln(json_encode($items, JSON_PRETTY_PRINT));
-				break;
-			default:
-				$table = new Table($output);
-				$table->setRows($items);
-				if (!empty($items) && is_string(array_key_first(reset($items)))) {
-					$table->setHeaders(array_keys(reset($items)));
-				}
-				$table->render();
-				break;
-		}
-	}
-
-
 	/**
+	 * @param InputInterface $input
+	 * @param OutputInterface $output
 	 * @param mixed $item
 	 */
 	protected function writeMixedInOutputFormat(InputInterface $input, OutputInterface $output, $item) {
@@ -127,7 +118,7 @@ class Base extends Command implements CompletionAwareInterface {
 		}
 	}
 
-	protected function valueToString($value, bool $returnNull = true): ?string {
+	protected function valueToString($value, $returnNull = true) {
 		if ($value === false) {
 			return 'false';
 		} elseif ($value === true) {

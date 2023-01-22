@@ -55,7 +55,7 @@ class CalDavBackendTest extends AbstractCalDavBackend {
 	public function testCalendarOperations() {
 		$calendarId = $this->createTestCalendar();
 
-		// update its display name
+		// update it's display name
 		$patch = new PropPatch([
 			'{DAV:}displayname' => 'Unit test',
 			'{urn:ietf:params:xml:ns:caldav}calendar-description' => 'Calendar used for unit testing'
@@ -151,6 +151,9 @@ class CalDavBackendTest extends AbstractCalDavBackend {
 		$calendars = $this->backend->getCalendarsForUser(self::UNIT_TEST_USER);
 		$this->assertCount(1, $calendars);
 		$calendar = new Calendar($this->backend, $calendars[0], $l10n, $config, $logger);
+		$this->legacyDispatcher->expects($this->at(0))
+			->method('dispatch')
+			->with('\OCA\DAV\CalDAV\CalDavBackend::updateShares');
 		$this->backend->updateShares($calendar, $add, []);
 		$calendars = $this->backend->getCalendarsForUser(self::UNIT_TEST_USER1);
 		$this->assertCount(1, $calendars);

@@ -96,34 +96,33 @@ class AuthtokensTest extends TestCase {
 			->method('getToken')
 			->with('session123')
 			->willReturn($sessionToken);
-		$this->initialState->expects($this->exactly(2))
+		$this->initialState->expects($this->at(0))
 			->method('provideInitialState')
-			->withConsecutive(
+			->with('app_tokens', [
 				[
-					'app_tokens', [
-						[
-							'id' => 100,
-							'name' => null,
-							'lastActivity' => 0,
-							'type' => 0,
-							'canDelete' => false,
-							'current' => true,
-							'scope' => ['filesystem' => true],
-							'canRename' => false,
-						],
-						[
-							'id' => 200,
-							'name' => null,
-							'lastActivity' => 0,
-							'type' => 0,
-							'canDelete' => true,
-							'scope' => ['filesystem' => true],
-							'canRename' => true,
-						],
-					]
+					'id' => 100,
+					'name' => null,
+					'lastActivity' => 0,
+					'type' => 0,
+					'canDelete' => false,
+					'current' => true,
+					'scope' => ['filesystem' => true],
+					'canRename' => false,
 				],
-				['can_create_app_token', true],
-			);
+				[
+					'id' => 200,
+					'name' => null,
+					'lastActivity' => 0,
+					'type' => 0,
+					'canDelete' => true,
+					'scope' => ['filesystem' => true],
+					'canRename' => true,
+				],
+			]);
+
+		$this->initialState->expects($this->at(1))
+			->method('provideInitialState')
+			->with('can_create_app_token', true);
 
 		$form = $this->section->getForm();
 

@@ -28,7 +28,8 @@
 		<div :class="{'icon-loading-small': loading.delete || loading.disable || loading.wipe}"
 			class="avatar">
 			<img v-if="!loading.delete && !loading.disable && !loading.wipe"
-				:src="generateAvatar(user.id, isDarkTheme)"
+				:src="generateAvatar(user.id, 32)"
+				:srcset="generateAvatar(user.id, 64)+' 2x, '+generateAvatar(user.id, 128)+' 4x'"
 				alt=""
 				height="32"
 				width="32">
@@ -54,7 +55,6 @@
 		:sub-admins-groups="subAdminsGroups"
 		:user-actions="userActions"
 		:user="user"
-		:is-dark-theme="isDarkTheme"
 		:class="{'row--menu-opened': openedMenu}" />
 	<div v-else
 		:class="{
@@ -66,7 +66,8 @@
 		<div :class="{'icon-loading-small': loading.delete || loading.disable || loading.wipe}"
 			class="avatar">
 			<img v-if="!loading.delete && !loading.disable && !loading.wipe"
-				:src="generateAvatar(user.id, isDarkTheme)"
+				:src="generateAvatar(user.id, 32)"
+				:srcset="generateAvatar(user.id, 64)+' 2x, '+generateAvatar(user.id, 128)+' 4x'"
 				alt=""
 				height="32"
 				width="32">
@@ -106,7 +107,6 @@
 				ref="password"
 				:disabled="loading.password || loading.all"
 				:minlength="minPasswordLength"
-				maxlength="469"
 				:placeholder="t('settings', 'Add new password')"
 				autocapitalize="off"
 				autocomplete="new-password"
@@ -134,7 +134,7 @@
 			<input class="icon-confirm" type="submit" value="">
 		</form>
 		<div :class="{'icon-loading-small': loading.groups}" class="groups">
-			<NcMultiselect :close-on-select="false"
+			<Multiselect :close-on-select="false"
 				:disabled="loading.groups||loading.all"
 				:limit="2"
 				:multiple="true"
@@ -151,12 +151,12 @@
 				@select="addUserGroup"
 				@tag="createGroup">
 				<span slot="noResult">{{ t('settings', 'No results') }}</span>
-			</NcMultiselect>
+			</Multiselect>
 		</div>
 		<div v-if="subAdminsGroups.length>0 && settings.isAdmin"
 			:class="{'icon-loading-small': loading.subadmins}"
 			class="subadmins">
-			<NcMultiselect :close-on-select="false"
+			<Multiselect :close-on-select="false"
 				:disabled="loading.subadmins||loading.all"
 				:limit="2"
 				:multiple="true"
@@ -170,12 +170,12 @@
 				@remove="removeUserSubAdmin"
 				@select="addUserSubAdmin">
 				<span slot="noResult">{{ t('settings', 'No results') }}</span>
-			</NcMultiselect>
+			</Multiselect>
 		</div>
 		<div v-tooltip.auto="usedSpace"
 			:class="{'icon-loading-small': loading.quota}"
 			class="quota">
-			<NcMultiselect :allow-empty="false"
+			<Multiselect :allow-empty="false"
 				:disabled="loading.quota||loading.all"
 				:options="quotaOptions"
 				:placeholder="t('settings', 'Select user quota')"
@@ -191,7 +191,7 @@
 		<div v-if="showConfig.showLanguages"
 			:class="{'icon-loading-small': loading.languages}"
 			class="languages">
-			<NcMultiselect :allow-empty="false"
+			<Multiselect :allow-empty="false"
 				:disabled="loading.languages||loading.all"
 				:options="languages"
 				:placeholder="t('settings', 'No language set')"
@@ -212,17 +212,17 @@
 		<div class="userActions">
 			<div v-if="!loading.all"
 				class="toggleUserActions">
-				<NcActions>
-					<NcActionButton icon="icon-checkmark"
+				<Actions>
+					<ActionButton icon="icon-checkmark"
 						@click="editing = false">
 						{{ t('settings', 'Done') }}
-					</NcActionButton>
-				</NcActions>
+					</ActionButton>
+				</Actions>
 				<div v-click-outside="hideMenu" class="userPopoverMenuWrapper">
 					<button class="icon-more"
 						@click.prevent="toggleMenu" />
 					<div :class="{ 'open': openedMenu }" class="popovermenu">
-						<NcPopoverMenu :menu="userActions" />
+						<PopoverMenu :menu="userActions" />
 					</div>
 				</div>
 			</div>
@@ -240,10 +240,10 @@ import ClickOutside from 'vue-click-outside'
 import Vue from 'vue'
 import VTooltip from 'v-tooltip'
 import {
-	NcPopoverMenu,
-	NcMultiselect,
-	NcActions,
-	NcActionButton,
+	PopoverMenu,
+	Multiselect,
+	Actions,
+	ActionButton,
 } from '@nextcloud/vue'
 import UserRowSimple from './UserRowSimple'
 import UserRowMixin from '../../mixins/UserRowMixin'
@@ -254,10 +254,10 @@ export default {
 	name: 'UserRow',
 	components: {
 		UserRowSimple,
-		NcPopoverMenu,
-		NcActions,
-		NcActionButton,
-		NcMultiselect,
+		PopoverMenu,
+		Actions,
+		ActionButton,
+		Multiselect,
 	},
 	directives: {
 		ClickOutside,
@@ -295,10 +295,6 @@ export default {
 		externalActions: {
 			type: Array,
 			default: () => [],
-		},
-		isDarkTheme: {
-			type: Boolean,
-			required: true,
 		},
 	},
 	data() {
@@ -450,7 +446,7 @@ export default {
 		/**
 		 * Set user password
 		 *
-		 * @param {string} password The email address
+		 * @param {string} password The email adress
 		 */
 		updatePassword() {
 			const password = this.$refs.password.value
@@ -468,7 +464,7 @@ export default {
 		/**
 		 * Set user mailAddress
 		 *
-		 * @param {string} mailAddress The email address
+		 * @param {string} mailAddress The email adress
 		 */
 		updateEmail() {
 			const mailAddress = this.$refs.mailAddress.value

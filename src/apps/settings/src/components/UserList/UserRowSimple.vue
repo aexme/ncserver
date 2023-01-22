@@ -7,7 +7,8 @@
 				alt=""
 				width="32"
 				height="32"
-				:src="generateAvatar(user.id, isDarkTheme)" />
+				:src="generateAvatar(user.id, 32)"
+				:srcset="generateAvatar(user.id, 64)+' 2x, '+generateAvatar(user.id, 128)+' 4x'">
 		</div>
 		<!-- dirty hack to ellipsis on two lines -->
 		<div class="name">
@@ -56,18 +57,18 @@
 
 		<div class="userActions">
 			<div v-if="canEdit && !loading.all" class="toggleUserActions">
-				<NcActions>
-					<NcActionButton icon="icon-rename" @click="toggleEdit">
+				<Actions>
+					<ActionButton icon="icon-rename" @click="toggleEdit">
 						{{ t('settings', 'Edit User') }}
-					</NcActionButton>
-				</NcActions>
+					</ActionButton>
+				</Actions>
 				<div class="userPopoverMenuWrapper">
 					<button v-click-outside="hideMenu"
 						class="icon-more"
 						:aria-label="t('settings', 'Toggle user actions menu')"
 						@click.prevent="toggleMenu" />
 					<div class="popovermenu" :class="{ 'open': openedMenu }" :aria-expanded="openedMenu">
-						<NcPopoverMenu :menu="userActions" />
+						<PopoverMenu :menu="userActions" />
 					</div>
 				</div>
 			</div>
@@ -80,18 +81,18 @@
 </template>
 
 <script>
-import NcPopoverMenu from '@nextcloud/vue/dist/Components/NcPopoverMenu'
-import NcActions from '@nextcloud/vue/dist/Components/NcActions'
-import NcActionButton from '@nextcloud/vue/dist/Components/NcActionButton'
+import PopoverMenu from '@nextcloud/vue/dist/Components/PopoverMenu'
+import Actions from '@nextcloud/vue/dist/Components/Actions'
+import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
 import ClickOutside from 'vue-click-outside'
 import { getCurrentUser } from '@nextcloud/auth'
 import UserRowMixin from '../../mixins/UserRowMixin'
 export default {
 	name: 'UserRowSimple',
 	components: {
-		NcPopoverMenu,
-		NcActionButton,
-		NcActions,
+		PopoverMenu,
+		ActionButton,
+		Actions,
 	},
 	directives: {
 		ClickOutside,
@@ -128,10 +129,6 @@ export default {
 		},
 		settings: {
 			type: Object,
-			required: true,
-		},
-		isDarkTheme: {
-			type: Boolean,
 			required: true,
 		},
 	},

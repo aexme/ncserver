@@ -31,11 +31,11 @@
 			{{ t('settings', 'Enable or disable profile by default for new users.') }}
 		</p>
 
-		<NcCheckboxRadioSwitch type="switch"
+		<CheckboxRadioSwitch type="switch"
 			:checked.sync="initialProfileEnabledByDefault"
 			@update:checked="onProfileDefaultChange">
 			{{ t('settings', 'Enable') }}
-		</NcCheckboxRadioSwitch>
+		</CheckboxRadioSwitch>
 	</div>
 </template>
 
@@ -45,9 +45,8 @@ import { showError } from '@nextcloud/dialogs'
 
 import { saveProfileDefault } from '../../service/ProfileService'
 import { validateBoolean } from '../../utils/validate'
-import logger from '../../logger'
 
-import NcCheckboxRadioSwitch from '@nextcloud/vue/dist/Components/NcCheckboxRadioSwitch'
+import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
 
 const profileEnabledByDefault = loadState('settings', 'profileEnabledByDefault', true)
 
@@ -55,7 +54,7 @@ export default {
 	name: 'ProfileSettings',
 
 	components: {
-		NcCheckboxRadioSwitch,
+		CheckboxRadioSwitch,
 	},
 
 	data() {
@@ -91,7 +90,7 @@ export default {
 				this.initialProfileEnabledByDefault = isEnabled
 			} else {
 				showError(errorMessage)
-				logger.error(errorMessage, error)
+				this.logger.error(errorMessage, error)
 			}
 		},
 	},

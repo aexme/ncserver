@@ -26,17 +26,17 @@ describe('OCA.Comments.FilesPlugin tests', function() {
 	var testFiles;
 
 	beforeEach(function() {
-		var $content = $('<div id="app-content"></div>');
+		var $content = $('<div id="content"></div>');
 		$('#testArea').append($content);
 		// dummy file list
 		var $div = $(
 			'<div>' +
-			'<table class="files-filestable">' +
+			'<table id="filestable">' +
 			'<thead></thead>' +
-			'<tbody class="files-fileList"></tbody>' +
+			'<tbody id="fileList"></tbody>' +
 			'</table>' +
 			'</div>');
-		$('#app-content').append($div);
+		$('#content').append($div);
 
 		fileList = new OCA.Files.FileList($div);
 		OCA.Comments.FilesPlugin.attach(fileList);

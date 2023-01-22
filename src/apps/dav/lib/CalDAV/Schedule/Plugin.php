@@ -31,7 +31,6 @@ namespace OCA\DAV\CalDAV\Schedule;
 
 use DateTimeZone;
 use OCA\DAV\CalDAV\CalDavBackend;
-use OCA\DAV\CalDAV\Calendar;
 use OCA\DAV\CalDAV\CalendarHome;
 use OCP\IConfig;
 use Sabre\CalDAV\ICalendar;
@@ -189,7 +188,7 @@ class Plugin extends \Sabre\CalDAV\Schedule\Plugin {
 
 		// If parent::scheduleLocalDelivery set scheduleStatus to 1.2,
 		// it means that it was successfully delivered locally.
-		// Meaning that the ACL plugin is loaded and that a principal
+		// Meaning that the ACL plugin is loaded and that a principial
 		// exists for the given recipient id, no need to double check
 		/** @var \Sabre\DAVACL\Plugin $aclPlugin */
 		$aclPlugin = $this->server->getPlugin('acl');
@@ -302,14 +301,12 @@ EOF;
 					return null;
 				}
 
-				$isResourceOrRoom = strpos($principalUrl, 'principals/calendar-resources') === 0 ||
-					strpos($principalUrl, 'principals/calendar-rooms') === 0;
-
 				if (strpos($principalUrl, 'principals/users') === 0) {
 					[, $userId] = split($principalUrl);
 					$uri = $this->config->getUserValue($userId, 'dav', 'defaultCalendar', CalDavBackend::PERSONAL_CALENDAR_URI);
 					$displayName = CalDavBackend::PERSONAL_CALENDAR_NAME;
-				} elseif ($isResourceOrRoom) {
+				} elseif (strpos($principalUrl, 'principals/calendar-resources') === 0 ||
+						  strpos($principalUrl, 'principals/calendar-rooms') === 0) {
 					$uri = CalDavBackend::RESOURCE_BOOKING_CALENDAR_URI;
 					$displayName = CalDavBackend::RESOURCE_BOOKING_CALENDAR_NAME;
 				} else {
@@ -321,40 +318,9 @@ EOF;
 				/** @var CalendarHome $calendarHome */
 				$calendarHome = $this->server->tree->getNodeForPath($calendarHomePath);
 				if (!$calendarHome->childExists($uri)) {
-					// If the default calendar doesn't exist
-					if ($isResourceOrRoom) {
-						$calendarHome->getCalDAVBackend()->createCalendar($principalUrl, $uri, [
-							'{DAV:}displayname' => $displayName,
-						]);
-					} else {
-						// And we're not handling scheduling on resource/room booking
-						$userCalendars = [];
-						/**
-						 * If the default calendar of the user isn't set and the
-						 * fallback doesn't match any of the user's calendar
-						 * try to find the first "personal" calendar we can write to
-						 * instead of creating a new one.
-						 * A appropriate personal calendar to receive invites:
-						 * - isn't a calendar subscription
-						 * - user can write to it (no virtual/3rd-party calendars)
-						 * - calendar isn't a share
-						 */
-						foreach ($calendarHome->getChildren() as $node) {
-							if ($node instanceof Calendar && !$node->isSubscription() && $node->canWrite() && !$node->isShared() && !$node->isDeleted()) {
-								$userCalendars[] = $node;
-							}
-						}
-
-						if (count($userCalendars) > 0) {
-							// Calendar backend returns calendar by calendarorder property
-							$uri = $userCalendars[0]->getName();
-						} else {
-							// Otherwise if we have really nothing, create a new calendar
-							$calendarHome->getCalDAVBackend()->createCalendar($principalUrl, $uri, [
-								'{DAV:}displayname' => $displayName,
-							]);
-						}
-					}
+					$calendarHome->getCalDAVBackend()->createCalendar($principalUrl, $uri, [
+						'{DAV:}displayname' => $displayName,
+					]);
 				}
 
 				$result = $this->server->getPropertiesForPath($calendarHomePath . '/' . $uri, [], 1);
@@ -569,7 +535,7 @@ EOF;
 		}
 
 		// If more than one Free-Busy property was returned, it means that an event
-		// starts or ends inside this time-range, so it's not available and we return false
+		// starts or ends inside this time-range, so it's not availabe and we return false
 		if (count($freeBusyProperties) > 1) {
 			return false;
 		}

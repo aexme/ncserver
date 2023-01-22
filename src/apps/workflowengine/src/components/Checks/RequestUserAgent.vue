@@ -22,7 +22,7 @@
 
 <template>
 	<div>
-		<NcMultiselect :value="currentValue"
+		<Multiselect :value="currentValue"
 			:placeholder="t('workflowengine', 'Select a user agent')"
 			label="label"
 			track-by="pattern"
@@ -43,7 +43,7 @@
 				<!-- eslint-disable-next-line vue/no-v-html -->
 				<span v-else class="option__title" v-html="props.option.label" />
 			</template>
-		</NcMultiselect>
+		</Multiselect>
 		<input v-if="!isPredefined"
 			type="text"
 			:value="currentValue.pattern"
@@ -52,13 +52,13 @@
 </template>
 
 <script>
-import NcMultiselect from '@nextcloud/vue/dist/Components/NcMultiselect'
+import Multiselect from '@nextcloud/vue/dist/Components/Multiselect'
 import valueMixin from '../../mixins/valueMixin'
 
 export default {
 	name: 'RequestUserAgent',
 	components: {
-		NcMultiselect,
+		Multiselect,
 	},
 	mixins: [
 		valueMixin,

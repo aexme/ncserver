@@ -334,15 +334,16 @@ abstract class QBMapper {
 	 */
 	protected function findEntities(IQueryBuilder $query): array {
 		$result = $query->executeQuery();
-		try {
-			$entities = [];
-			while ($row = $result->fetch()) {
-				$entities[] = $this->mapRowToEntity($row);
-			}
-			return $entities;
-		} finally {
-			$result->closeCursor();
+
+		$entities = [];
+
+		while ($row = $result->fetch()) {
+			$entities[] = $this->mapRowToEntity($row);
 		}
+
+		$result->closeCursor();
+
+		return $entities;
 	}
 
 

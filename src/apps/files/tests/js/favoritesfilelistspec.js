@@ -28,29 +28,30 @@ describe('OCA.Files.FavoritesFileList tests', function() {
 	beforeEach(function() {
 		// init parameters and test table elements
 		$('#testArea').append(
-			'<div id="app-content">' +
+			'<div id="app-content-container">' +
 			// init horrible parameters
+			'<input type="hidden" id="dir" value="/"></input>' +
 			'<input type="hidden" id="permissions" value="31"></input>' +
 			// dummy controls
-			'<div class="files-controls">' +
+			'<div id="controls">' +
 			'   <div class="actions creatable"></div>' +
 			'   <div class="notCreatable"></div>' +
 			'</div>' +
 			// dummy table
 			// TODO: at some point this will be rendered by the fileList class itself!
-			'<table class="files-filestable list-container view-grid">' +
+			'<table id="filestable" class="list-container view-grid">' +
 			'<thead><tr>' +
-			'<th class="hidden column-name">' +
+			'<th id="headerName" class="hidden column-name">' +
 			'<a class="name columntitle" data-sort="name"><span>Name</span><span class="sort-indicator"></span></a>' +
 			'</th>' +
 			'<th class="hidden column-mtime">' +
 			'<a class="columntitle" data-sort="mtime"><span class="sort-indicator"></span></a>' +
 			'</th>' +
 			'</tr></thead>' +
-			'<tbody class="files-fileList"></tbody>' +
+			'<tbody id="fileList"></tbody>' +
 			'<tfoot></tfoot>' +
 			'</table>' +
-			'<div class="emptyfilelist emptycontent">Empty content message</div>' +
+			'<div id="emptycontent">Empty content message</div>' +
 			'</div>'
 		);
 	});
@@ -60,7 +61,7 @@ describe('OCA.Files.FavoritesFileList tests', function() {
 
 		beforeEach(function() {
 			fileList = new OCA.Files.FavoritesFileList(
-				$('#app-content')
+				$('#app-content-container')
 			);
 			OCA.Files.FavoritesPlugin.attach(fileList);
 

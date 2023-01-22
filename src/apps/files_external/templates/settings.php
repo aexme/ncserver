@@ -95,7 +95,7 @@ $canCreateMounts = $_['visibilityType'] === BackendService::VISIBILITY_ADMIN || 
 	}
 ?>
 
-<div class="emptyfilelist emptycontent hidden">
+<div id="emptycontent" class="hidden">
 	<div class="icon-external"></div>
 	<h2><?php p($l->t('No external storage configured or you don\'t have the permission to configure them')); ?></h2>
 </div>
@@ -173,11 +173,11 @@ $canCreateMounts = $_['visibilityType'] === BackendService::VISIBILITY_ADMIN || 
 					</td>
 				<?php endif; ?>
 				<td class="mountOptionsToggle hidden">
-					<button type="button" class="icon-more" aria-expanded="false" title="<?php p($l->t('Advanced settings')); ?>"></button>
+					<div class="icon-more" title="<?php p($l->t('Advanced settings')); ?>"></div>
 					<input type="hidden" class="mountOptions" value="" />
 				</td>
 				<td class="save hidden">
-					<button type="button" class="icon-checkmark" title="<?php p($l->t('Save')); ?>"></button>
+					<div class="icon-checkmark" title="<?php p($l->t('Save')); ?>"></div>
 				</td>
 			</tr>
 		</tbody>

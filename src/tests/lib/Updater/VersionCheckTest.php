@@ -66,21 +66,20 @@ class VersionCheckTest extends \Test\TestCase {
 		];
 
 		$this->config
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getSystemValueBool')
 			->with('has_internet_connection', true)
 			->willReturn(true);
 		$this->config
-			->expects($this->exactly(2))
+			->expects($this->at(1))
 			->method('getAppValue')
-			->withConsecutive(
-				['core', 'lastupdatedat'],
-				['core', 'lastupdateResult']
-			)
-			->willReturnOnConsecutiveCalls(
-				time(),
-				json_encode($expectedResult)
-			);
+			->with('core', 'lastupdatedat')
+			->willReturn(time());
+		$this->config
+			->expects($this->at(2))
+			->method('getAppValue')
+			->with('core', 'lastupdateResult')
+			->willReturn(json_encode($expectedResult));
 
 		$this->assertSame($expectedResult, $this->updater->check());
 	}
@@ -97,37 +96,38 @@ class VersionCheckTest extends \Test\TestCase {
 		];
 
 		$this->config
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getSystemValueBool')
 			->with('has_internet_connection', true)
 			->willReturn(true);
 		$this->config
-			->expects($this->exactly(4))
+			->expects($this->at(1))
 			->method('getAppValue')
-			->withConsecutive(
-				['core', 'lastupdatedat'],
-				['core', 'installedat'],
-				['core', 'installedat'],
-				['core', 'lastupdatedat'],
-			)
-			->willReturnOnConsecutiveCalls(
-				0,
-				'installedat',
-				'installedat',
-				'lastupdatedat'
-			);
+			->with('core', 'lastupdatedat')
+			->willReturn(0);
 		$this->config
-			->expects($this->once())
+			->expects($this->at(2))
 			->method('getSystemValue')
 			->with('updater.server.url', 'https://updates.nextcloud.com/updater_server/')
 			->willReturnArgument(1);
 		$this->config
-			->expects($this->exactly(2))
+			->expects($this->at(3))
 			->method('setAppValue')
-			->withConsecutive(
-				['core', 'lastupdatedat', $this->isType('integer')],
-				['core', 'lastupdateResult', json_encode($expectedResult)]
-			);
+			->with('core', 'lastupdatedat', $this->isType('integer'));
+		$this->config
+			->expects($this->at(5))
+			->method('getAppValue')
+			->with('core', 'installedat')
+			->willReturn('installedat');
+		$this->config
+			->expects($this->at(6))
+			->method('getAppValue')
+			->with('core', 'lastupdatedat')
+			->willReturn('lastupdatedat');
+		$this->config
+			->expects($this->at(7))
+			->method('setAppValue')
+			->with('core', 'lastupdateResult', json_encode($expectedResult));
 
 		$updateXml = '<?xml version="1.0"?>
 <owncloud>
@@ -149,37 +149,38 @@ class VersionCheckTest extends \Test\TestCase {
 
 	public function testCheckWithInvalidXml() {
 		$this->config
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getSystemValueBool')
 			->with('has_internet_connection', true)
 			->willReturn(true);
 		$this->config
-			->expects($this->exactly(4))
+			->expects($this->at(1))
 			->method('getAppValue')
-			->withConsecutive(
-				['core', 'lastupdatedat'],
-				['core', 'installedat'],
-				['core', 'installedat'],
-				['core', 'lastupdatedat'],
-			)
-			->willReturnOnConsecutiveCalls(
-				0,
-				'installedat',
-				'installedat',
-				'lastupdatedat'
-			);
+			->with('core', 'lastupdatedat')
+			->willReturn(0);
 		$this->config
-			->expects($this->once())
+			->expects($this->at(2))
 			->method('getSystemValue')
 			->with('updater.server.url', 'https://updates.nextcloud.com/updater_server/')
 			->willReturnArgument(1);
 		$this->config
-			->expects($this->exactly(2))
+			->expects($this->at(3))
 			->method('setAppValue')
-			->withConsecutive(
-				['core', 'lastupdatedat', $this->isType('integer')],
-				['core', 'lastupdateResult', '[]']
-			);
+			->with('core', 'lastupdatedat', $this->isType('integer'));
+		$this->config
+			->expects($this->at(5))
+			->method('getAppValue')
+			->with('core', 'installedat')
+			->willReturn('installedat');
+		$this->config
+			->expects($this->at(6))
+			->method('getAppValue')
+			->with('core', 'lastupdatedat')
+			->willReturn('lastupdatedat');
+		$this->config
+			->expects($this->at(7))
+			->method('setAppValue')
+			->with('core', 'lastupdateResult', '[]');
 
 		$updateXml = 'Invalid XML Response!';
 		$this->updater
@@ -203,37 +204,34 @@ class VersionCheckTest extends \Test\TestCase {
 		];
 
 		$this->config
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getSystemValueBool')
 			->with('has_internet_connection', true)
 			->willReturn(true);
 		$this->config
-			->expects($this->exactly(4))
+			->expects($this->at(1))
 			->method('getAppValue')
-			->withConsecutive(
-				['core', 'lastupdatedat'],
-				['core', 'installedat'],
-				['core', 'installedat'],
-				['core', 'lastupdatedat'],
-			)
-			->willReturnOnConsecutiveCalls(
-				0,
-				'installedat',
-				'installedat',
-				'lastupdatedat'
-			);
+			->with('core', 'lastupdatedat')
+			->willReturn(0);
 		$this->config
-			->expects($this->once())
+			->expects($this->at(2))
 			->method('getSystemValue')
 			->with('updater.server.url', 'https://updates.nextcloud.com/updater_server/')
 			->willReturnArgument(1);
 		$this->config
-			->expects($this->exactly(2))
+			->expects($this->at(3))
 			->method('setAppValue')
-			->withConsecutive(
-				['core', 'lastupdatedat', $this->isType('integer')],
-				['core', 'lastupdateResult', $this->isType('string')]
-			);
+			->with('core', 'lastupdatedat', $this->isType('integer'));
+		$this->config
+			->expects($this->at(5))
+			->method('getAppValue')
+			->with('core', 'installedat')
+			->willReturn('installedat');
+		$this->config
+			->expects($this->at(6))
+			->method('getAppValue')
+			->with('core', 'lastupdatedat')
+			->willReturn('lastupdatedat');
 
 		$updateXml = '<?xml version="1.0"?>
 <owncloud>
@@ -256,37 +254,38 @@ class VersionCheckTest extends \Test\TestCase {
 		$expectedResult = [];
 
 		$this->config
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getSystemValueBool')
 			->with('has_internet_connection', true)
 			->willReturn(true);
 		$this->config
-			->expects($this->exactly(4))
+			->expects($this->at(1))
 			->method('getAppValue')
-			->withConsecutive(
-				['core', 'lastupdatedat'],
-				['core', 'installedat'],
-				['core', 'installedat'],
-				['core', 'lastupdatedat'],
-			)
-			->willReturnOnConsecutiveCalls(
-				0,
-				'installedat',
-				'installedat',
-				'lastupdatedat'
-			);
+			->with('core', 'lastupdatedat')
+			->willReturn(0);
 		$this->config
-			->expects($this->once())
+			->expects($this->at(2))
 			->method('getSystemValue')
 			->with('updater.server.url', 'https://updates.nextcloud.com/updater_server/')
 			->willReturnArgument(1);
 		$this->config
-			->expects($this->exactly(2))
+			->expects($this->at(3))
 			->method('setAppValue')
-			->withConsecutive(
-				['core', 'lastupdatedat', $this->isType('integer')],
-				['core', 'lastupdateResult', json_encode($expectedResult)]
-			);
+			->with('core', 'lastupdatedat', $this->isType('integer'));
+		$this->config
+			->expects($this->at(5))
+			->method('getAppValue')
+			->with('core', 'installedat')
+			->willReturn('installedat');
+		$this->config
+			->expects($this->at(6))
+			->method('getAppValue')
+			->with('core', 'lastupdatedat')
+			->willReturn('lastupdatedat');
+		$this->config
+			->expects($this->at(7))
+			->method('setAppValue')
+			->with('core', 'lastupdateResult', json_encode($expectedResult));
 
 		$updateXml = '';
 		$this->updater
@@ -310,37 +309,34 @@ class VersionCheckTest extends \Test\TestCase {
 		];
 
 		$this->config
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getSystemValueBool')
 			->with('has_internet_connection', true)
 			->willReturn(true);
 		$this->config
-			->expects($this->exactly(4))
+			->expects($this->at(1))
 			->method('getAppValue')
-			->withConsecutive(
-				['core', 'lastupdatedat'],
-				['core', 'installedat'],
-				['core', 'installedat'],
-				['core', 'lastupdatedat'],
-			)
-			->willReturnOnConsecutiveCalls(
-				0,
-				'installedat',
-				'installedat',
-				'lastupdatedat'
-			);
+			->with('core', 'lastupdatedat')
+			->willReturn(0);
 		$this->config
-			->expects($this->once())
+			->expects($this->at(2))
 			->method('getSystemValue')
 			->with('updater.server.url', 'https://updates.nextcloud.com/updater_server/')
 			->willReturnArgument(1);
 		$this->config
-			->expects($this->exactly(2))
+			->expects($this->at(3))
 			->method('setAppValue')
-			->withConsecutive(
-				['core', 'lastupdatedat', $this->isType('integer')],
-				['core', 'lastupdateResult', $this->isType('string')]
-			);
+			->with('core', 'lastupdatedat', $this->isType('integer'));
+		$this->config
+			->expects($this->at(5))
+			->method('getAppValue')
+			->with('core', 'installedat')
+			->willReturn('installedat');
+		$this->config
+			->expects($this->at(6))
+			->method('getAppValue')
+			->with('core', 'lastupdatedat')
+			->willReturn('lastupdatedat');
 
 		// missing autoupdater element should still not fail
 		$updateXml = '<?xml version="1.0"?>
@@ -361,7 +357,7 @@ class VersionCheckTest extends \Test\TestCase {
 
 	public function testNoInternet() {
 		$this->config
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getSystemValueBool')
 			->with('has_internet_connection', true)
 			->willReturn(false);

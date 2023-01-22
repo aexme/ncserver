@@ -36,9 +36,6 @@ interface ISetDisplayNameBackend {
 	 * @param string $uid The username
 	 * @param string $displayName The new display name
 	 * @return bool
-	 *
-	 * @since 25.0.0 Throw InvalidArgumentException
-	 * @throws \InvalidArgumentException
 	 */
 	public function setDisplayName(string $uid, string $displayName): bool;
 }

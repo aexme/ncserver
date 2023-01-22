@@ -30,7 +30,9 @@ use OCP\IUserManager;
 use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 
 class Base extends \OC\Core\Command\Base {
-	protected IUserManager $userManager;
+
+	/** @var IUserManager */
+	protected $userManager;
 
 	/**
 	 * Return possible values for the named option

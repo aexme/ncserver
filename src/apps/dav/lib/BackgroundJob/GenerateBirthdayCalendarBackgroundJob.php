@@ -47,9 +47,12 @@ class GenerateBirthdayCalendarBackgroundJob extends QueuedJob {
 		$this->config = $config;
 	}
 
-	public function run($argument) {
-		$userId = $argument['userId'];
-		$purgeBeforeGenerating = $argument['purgeBeforeGenerating'] ?? false;
+	/**
+	 * @param array $arguments
+	 */
+	public function run($arguments) {
+		$userId = $arguments['userId'];
+		$purgeBeforeGenerating = $arguments['purgeBeforeGenerating'] ?? false;
 
 		// make sure admin didn't change his mind
 		$isGloballyEnabled = $this->config->getAppValue('dav', 'generateBirthdayCalendar', 'yes');

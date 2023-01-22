@@ -50,14 +50,22 @@ class ClientFlowLoginV2Controller extends Controller {
 	public const TOKEN_NAME = 'client.flow.v2.login.token';
 	public const STATE_NAME = 'client.flow.v2.state.token';
 
-	private LoginFlowV2Service $loginFlowV2Service;
-	private IURLGenerator $urlGenerator;
-	private IUserSession $userSession;
-	private ISession $session;
-	private ISecureRandom $random;
-	private Defaults $defaults;
-	private ?string $userId;
-	private IL10N $l10n;
+	/** @var LoginFlowV2Service */
+	private $loginFlowV2Service;
+	/** @var IURLGenerator */
+	private $urlGenerator;
+	/** @var ISession */
+	private $session;
+	/** @var IUserSession */
+	private $userSession;
+	/** @var ISecureRandom */
+	private $random;
+	/** @var Defaults */
+	private $defaults;
+	/** @var string */
+	private $userId;
+	/** @var IL10N */
+	private $l10n;
 
 	public function __construct(string $appName,
 								IRequest $request,

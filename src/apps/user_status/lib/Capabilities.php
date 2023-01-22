@@ -25,8 +25,8 @@ declare(strict_types=1);
  */
 namespace OCA\UserStatus;
 
+use OCA\UserStatus\Service\EmojiService;
 use OCP\Capabilities\ICapability;
-use OCP\IEmojiHelper;
 
 /**
  * Class Capabilities
@@ -34,10 +34,17 @@ use OCP\IEmojiHelper;
  * @package OCA\UserStatus
  */
 class Capabilities implements ICapability {
-	private IEmojiHelper $emojiHelper;
 
-	public function __construct(IEmojiHelper $emojiHelper) {
-		$this->emojiHelper = $emojiHelper;
+	/** @var EmojiService */
+	private $emojiService;
+
+	/**
+	 * Capabilities constructor.
+	 *
+	 * @param EmojiService $emojiService
+	 */
+	public function __construct(EmojiService $emojiService) {
+		$this->emojiService = $emojiService;
 	}
 
 	/**
@@ -47,7 +54,7 @@ class Capabilities implements ICapability {
 		return [
 			'user_status' => [
 				'enabled' => true,
-				'supports_emoji' => $this->emojiHelper->doesPlatformSupportEmoji(),
+				'supports_emoji' => $this->emojiService->doesPlatformSupportEmoji(),
 			],
 		];
 	}

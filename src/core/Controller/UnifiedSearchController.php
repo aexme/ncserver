@@ -40,10 +40,18 @@ use OCP\Search\ISearchQuery;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class UnifiedSearchController extends OCSController {
-	private SearchComposer $composer;
-	private IUserSession $userSession;
-	private IRouter $router;
-	private IURLGenerator $urlGenerator;
+
+	/** @var SearchComposer */
+	private $composer;
+
+	/** @var IUserSession */
+	private $userSession;
+
+	/** @var IRouter */
+	private $router;
+
+	/** @var IURLGenerator */
+	private $urlGenerator;
 
 	public function __construct(IRequest $request,
 								IUserSession $userSession,
@@ -63,6 +71,8 @@ class UnifiedSearchController extends OCSController {
 	 * @NoCSRFRequired
 	 *
 	 * @param string $from the url the user is currently at
+	 *
+	 * @return DataResponse
 	 */
 	public function getProviders(string $from = ''): DataResponse {
 		[$route, $parameters] = $this->getRouteInformation($from);

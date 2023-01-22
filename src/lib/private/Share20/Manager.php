@@ -41,7 +41,7 @@
  */
 namespace OC\Share20;
 
-use OCP\Cache\CappedMemoryCache;
+use OC\Cache\CappedMemoryCache;
 use OC\Files\Mount\MoveableMount;
 use OC\KnownUser\KnownUserService;
 use OC\Share20\Exception\ProviderException;
@@ -1304,11 +1304,11 @@ class Manager implements IManager {
 		return $provider->move($share, $recipientId);
 	}
 
-	public function getSharesInFolder($userId, Folder $node, $reshares = false, $shallow = true) {
+	public function getSharesInFolder($userId, Folder $node, $reshares = false) {
 		$providers = $this->factory->getAllProviders();
 
-		return array_reduce($providers, function ($shares, IShareProvider $provider) use ($userId, $node, $reshares, $shallow) {
-			$newShares = $provider->getSharesInFolder($userId, $node, $reshares, $shallow);
+		return array_reduce($providers, function ($shares, IShareProvider $provider) use ($userId, $node, $reshares) {
+			$newShares = $provider->getSharesInFolder($userId, $node, $reshares);
 			foreach ($newShares as $fid => $data) {
 				if (!isset($shares[$fid])) {
 					$shares[$fid] = [];
@@ -2011,7 +2011,7 @@ class Manager implements IManager {
 	/**
 	 * Copied from \OC_Util::isSharingDisabledForUser
 	 *
-	 * TODO: Deprecate function from OC_Util
+	 * TODO: Deprecate fuction from OC_Util
 	 *
 	 * @param string $userId
 	 * @return bool

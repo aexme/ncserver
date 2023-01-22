@@ -30,7 +30,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ResetBruteforceAttempts extends Base {
-	protected Throttler $throttler;
+
+	/** @var Throttler */
+	protected $throttler;
 
 	public function __construct(Throttler $throttler) {
 		$this->throttler = $throttler;

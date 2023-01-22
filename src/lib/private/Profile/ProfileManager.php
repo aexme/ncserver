@@ -44,7 +44,6 @@ use OCP\IConfig;
 use OCP\IUser;
 use OCP\L10N\IFactory;
 use OCP\Profile\ILinkAction;
-use OCP\Cache\CappedMemoryCache;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -82,8 +81,6 @@ class ProfileManager {
 
 	/** @var null|ILinkAction[] */
 	private $sortedActions = null;
-	/** @var CappedMemoryCache<ProfileConfig> */
-	private CappedMemoryCache $configCache;
 
 	private const CORE_APP_ID = 'core';
 
@@ -130,7 +127,6 @@ class ProfileManager {
 		$this->l10nFactory = $l10nFactory;
 		$this->logger = $logger;
 		$this->coordinator = $coordinator;
-		$this->configCache = new CappedMemoryCache();
 	}
 
 	/**
@@ -352,13 +348,13 @@ class ProfileManager {
 	 * Return the default profile config
 	 */
 	private function getDefaultProfileConfig(IUser $targetUser, ?IUser $visitingUser): array {
-		// Construct the default config for actions
+		// Contruct the default config for actions
 		$actionsConfig = [];
 		foreach ($this->getActions($targetUser, $visitingUser) as $action) {
 			$actionsConfig[$action->getId()] = ['visibility' => ProfileConfig::DEFAULT_VISIBILITY];
 		}
 
-		// Construct the default config for account properties
+		// Contruct the default config for account properties
 		$propertiesConfig = [];
 		foreach (ProfileConfig::DEFAULT_PROPERTY_VISIBILITY as $property => $visibility) {
 			$propertiesConfig[$property] = ['visibility' => $visibility];
@@ -374,10 +370,7 @@ class ProfileManager {
 	public function getProfileConfig(IUser $targetUser, ?IUser $visitingUser): array {
 		$defaultProfileConfig = $this->getDefaultProfileConfig($targetUser, $visitingUser);
 		try {
-			if (($config = $this->configCache[$targetUser->getUID()]) === null) {
-				$config = $this->configMapper->get($targetUser->getUID());
-				$this->configCache[$targetUser->getUID()] = $config;
-			}
+			$config = $this->configMapper->get($targetUser->getUID());
 			// Merge defaults with the existing config in case the defaults are missing
 			$config->setConfigArray(array_merge(
 				$defaultProfileConfig,

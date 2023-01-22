@@ -162,8 +162,6 @@ OC.L10N.register(
     "Please contact the organizer directly." : "Neem rechtstreeks contact op met de organisator.",
     "Are you accepting the invitation?" : "Neem je de uitnodiging aan?",
     "Tentative" : "Onder voorbehoud",
-    "Number of guests" : "Aantal gasten",
-    "Comment" : "Notitie",
     "Your attendance was updated successfully." : "Je deelname is succesvol bijgewerkt.",
     "Todos" : "Te doen",
     "{actor} created todo {todo} in list {calendar}" : "{actor} creëerde taak {todo} in lijst {calendar}",

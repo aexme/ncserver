@@ -40,10 +40,18 @@ declare(strict_types=1);
 			$provider = $data['provider'];
 			//Handle 2FA provider icons and theme
 			if ($provider instanceof \OCP\Authentication\TwoFactorAuth\IProvidesIcons) {
-				$icon = $provider->getDarkIcon();
+				if ($_['themedark']) {
+					$icon = $provider->getLightIcon();
+				} else {
+					$icon = $provider->getDarkIcon();
+				}
 				//fallback icon if the 2factor provider doesn't provide an icon.
 			} else {
-				$icon = image_path('core', 'actions/password.svg');
+				if ($_['themedark']) {
+					$icon = image_path('core', 'actions/password-white.svg');
+				} else {
+					$icon = image_path('core', 'actions/password.svg');
+				}
 			}
 			/** @var \OCP\Authentication\TwoFactorAuth\IPersonalProviderSettings $settings */
 			$settings = $data['settings'];

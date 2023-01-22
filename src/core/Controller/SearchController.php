@@ -28,20 +28,23 @@ namespace OC\Core\Controller;
 
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\ILogger;
 use OCP\IRequest;
 use OCP\ISearch;
 use OCP\Search\Result;
-use Psr\Log\LoggerInterface;
 
 class SearchController extends Controller {
-	private ISearch $searcher;
-	private LoggerInterface $logger;
+
+	/** @var ISearch */
+	private $searcher;
+	/** @var ILogger */
+	private $logger;
 
 	public function __construct(
 		string $appName,
 		IRequest $request,
 		ISearch $search,
-		LoggerInterface $logger
+		ILogger $logger
 	) {
 		parent::__construct($appName, $request);
 

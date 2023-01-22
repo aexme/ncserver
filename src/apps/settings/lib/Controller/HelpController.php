@@ -33,7 +33,6 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IGroupManager;
-use OCP\IL10N;
 use OCP\INavigationManager;
 use OCP\IRequest;
 use OCP\IURLGenerator;
@@ -46,8 +45,6 @@ class HelpController extends Controller {
 	private $urlGenerator;
 	/** @var IGroupManager */
 	private $groupManager;
-	/** @var IL10N */
-	private $l10n;
 
 	/** @var string */
 	private $userId;
@@ -58,15 +55,13 @@ class HelpController extends Controller {
 		INavigationManager $navigationManager,
 		IURLGenerator $urlGenerator,
 		?string $userId,
-		IGroupManager $groupManager,
-		IL10N $l10n
+		IGroupManager $groupManager
 	) {
 		parent::__construct($appName, $request);
 		$this->navigationManager = $navigationManager;
 		$this->urlGenerator = $urlGenerator;
 		$this->userId = $userId;
 		$this->groupManager = $groupManager;
-		$this->l10n = $l10n;
 	}
 
 	/**
@@ -78,14 +73,13 @@ class HelpController extends Controller {
 	 */
 	public function help(string $mode = 'user'): TemplateResponse {
 		$this->navigationManager->setActiveEntry('help');
-		$pageTitle = $this->l10n->t('Administrator documentation');
+
 		if ($mode !== 'admin') {
-			$pageTitle = $this->l10n->t('User documentation');
 			$mode = 'user';
 		}
 
 		$documentationUrl = $this->urlGenerator->getAbsoluteURL(
-			$this->urlGenerator->linkTo('', 'core/doc/' . $mode . '/index.html')
+			$this->urlGenerator->linkTo('core', 'doc/' . $mode . '/index.html')
 		);
 
 		$urlUserDocs = $this->urlGenerator->linkToRoute('settings.Help.help', ['mode' => 'user']);
@@ -97,7 +91,6 @@ class HelpController extends Controller {
 			'urlUserDocs' => $urlUserDocs,
 			'urlAdminDocs' => $urlAdminDocs,
 			'mode' => $mode,
-			'pageTitle' => $pageTitle,
 		]);
 		$policy = new ContentSecurityPolicy();
 		$policy->addAllowedFrameDomain('\'self\'');

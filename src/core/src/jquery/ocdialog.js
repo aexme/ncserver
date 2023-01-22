@@ -24,7 +24,6 @@
  */
 
 import $ from 'jquery'
-import { isA11yActivation } from '../Util/a11y'
 
 $.widget('oc.ocdialog', {
 	options: {
@@ -56,21 +55,6 @@ $.widget('oc.ocdialog', {
 			.insertBefore(this.element)
 		this.$dialog.append(this.element.detach())
 		this.element.removeAttr('title').addClass('oc-dialog-content').appendTo(this.$dialog)
-
-		// Activate the primary button on enter if there is a single input
-		if (self.element.find('input').length === 1) {
-			const $input = self.element.find('input')
-			$input.on('keydown', function(event) {
-				if (isA11yActivation(event)) {
-					if (self.$buttonrow) {
-						const $button = self.$buttonrow.find('button.primary')
-						if ($button && !$button.prop('disabled')) {
-							$button.click()
-						}
-					}
-				}
-			})
-		}
 
 		this.$dialog.css({
 			display: 'inline-block',
@@ -107,6 +91,18 @@ $.widget('oc.ocdialog', {
 				if (event.type === 'keyup') {
 					event.preventDefault()
 					return false
+				}
+				// If no button is selected we trigger the primary
+				if (
+					self.$buttonrow
+					&& self.$buttonrow.find($(event.target)).length === 0
+				) {
+					const $button = self.$buttonrow.find('button.primary')
+					if ($button && !$button.prop('disabled')) {
+						$button.trigger('click')
+					}
+				} else if (self.$buttonrow) {
+					$(event.target).trigger('click')
 				}
 				return false
 			}
@@ -157,10 +153,8 @@ $.widget('oc.ocdialog', {
 					self.$defaultButton = $button
 				}
 				self.$buttonrow.append($button)
-				$button.on('click keydown', function(event) {
-					if (isA11yActivation(event)) {
-						val.click.apply(self.element[0], arguments)
-					}
+				$button.click(function() {
+					val.click.apply(self.element[0], arguments)
 				})
 			})
 			this.$buttonrow.find('button')
@@ -177,13 +171,11 @@ $.widget('oc.ocdialog', {
 			break
 		case 'closeButton':
 			if (value) {
-				const $closeButton = $('<a class="oc-dialog-close" tabindex="0"></a>')
+				const $closeButton = $('<a class="oc-dialog-close"></a>')
 				this.$dialog.prepend($closeButton)
-				$closeButton.on('click keydown', function(event) {
-					if (isA11yActivation(event)) {
-						self.options.closeCallback && self.options.closeCallback()
-						self.close()
-					}
+				$closeButton.on('click', function() {
+					self.options.closeCallback && self.options.closeCallback()
+					self.close()
 				})
 			} else {
 				this.$dialog.find('.oc-dialog-close').remove()

@@ -30,9 +30,7 @@ namespace OCA\Files_Sharing\Tests\External;
 use OC\Federation\CloudIdManager;
 use OCA\Files_Sharing\Tests\TestCase;
 use OCP\Contacts\IManager;
-use OCP\EventDispatcher\IEventDispatcher;
 use OCP\Federation\ICloudIdManager;
-use OCP\ICacheFactory;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
 
@@ -70,13 +68,7 @@ class CacheTest extends TestCase {
 
 		$this->contactsManager = $this->createMock(IManager::class);
 
-		$this->cloudIdManager = new CloudIdManager(
-			$this->contactsManager,
-			$this->createMock(IURLGenerator::class),
-			$this->createMock(IUserManager::class),
-			$this->createMock(ICacheFactory::class),
-			$this->createMock(IEventDispatcher::class)
-		);
+		$this->cloudIdManager = new CloudIdManager($this->contactsManager, $this->createMock(IURLGenerator::class), $this->createMock(IUserManager::class));
 		$this->remoteUser = $this->getUniqueID('remoteuser');
 
 		$this->storage = $this->getMockBuilder('\OCA\Files_Sharing\External\Storage')

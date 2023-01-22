@@ -1890,12 +1890,12 @@ EJL3BaQAQaASSsvFrcozYxrQG4VzEg==
 		$file = $this->createMock(ISimpleFile::class);
 		$folder = $this->createMock(ISimpleFolder::class);
 		$folder
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getFile')
 			->with('apps.json')
 			->willThrowException(new NotFoundException());
 		$folder
-			->expects($this->once())
+			->expects($this->at(1))
 			->method('newFile')
 			->with('apps.json')
 			->willReturn($file);
@@ -1946,7 +1946,7 @@ EJL3BaQAQaASSsvFrcozYxrQG4VzEg==
 		}
 
 		$file
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('putContent');
 		$file
 			->method('getContent')
@@ -2017,12 +2017,12 @@ EJL3BaQAQaASSsvFrcozYxrQG4VzEg==
 		$file = $this->createMock(ISimpleFile::class);
 		$folder = $this->createMock(ISimpleFolder::class);
 		$folder
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getFile')
 			->with('future-apps.json')
 			->willThrowException(new NotFoundException());
 		$folder
-			->expects($this->once())
+			->expects($this->at(1))
 			->method('newFile')
 			->with('future-apps.json')
 			->willReturn($file);
@@ -2073,7 +2073,7 @@ EJL3BaQAQaASSsvFrcozYxrQG4VzEg==
 		}
 
 		$file
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('putContent');
 		$file
 			->method('getContent')
@@ -2104,12 +2104,12 @@ EJL3BaQAQaASSsvFrcozYxrQG4VzEg==
 		$file = $this->createMock(ISimpleFile::class);
 		$folder = $this->createMock(ISimpleFolder::class);
 		$folder
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getFile')
 			->with('apps.json')
 			->willThrowException(new NotFoundException());
 		$folder
-			->expects($this->once())
+			->expects($this->at(1))
 			->method('newFile')
 			->with('apps.json')
 			->willReturn($file);

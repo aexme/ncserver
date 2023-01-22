@@ -217,7 +217,7 @@ class RemoveLinkShares implements IRepairStep {
 		$output->finishProgress();
 		$shareResult->closeCursor();
 
-		// Notify all admins
+		// Notifiy all admins
 		$adminGroup = $this->groupManager->get('admin');
 		$adminUsers = $adminGroup->getUsers();
 		foreach ($adminUsers as $user) {

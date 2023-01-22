@@ -103,7 +103,7 @@ class TXT extends ProviderV2 {
 			}
 		}
 
-		$imageObject = new \OCP\Image();
+		$imageObject = new \OC_Image();
 		$imageObject->setResource($image);
 
 		return $imageObject->valid() ? $imageObject : null;

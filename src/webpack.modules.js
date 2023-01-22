@@ -22,6 +22,10 @@
 const path = require('path')
 
 module.exports = {
+	accessibility: {
+		accessibility: path.join(__dirname, 'apps/accessibility/src', 'main.js'),
+		accessibilityoca: path.join(__dirname, 'apps/accessibility/src', 'accessibilityoca.js'),
+	},
 	comments: {
 		comments: path.join(__dirname, 'apps/comments/src', 'comments.js'),
 		'comments-app': path.join(__dirname, 'apps/comments/src', 'comments-app.js'),
@@ -68,10 +72,6 @@ module.exports = {
 	oauth2: {
 		oauth2: path.join(__dirname, 'apps/oauth2/src', 'main.js'),
 	},
-	federatedfilesharing: {
-		'vue-settings-admin': path.join(__dirname, 'apps/federatedfilesharing/src', 'main-admin.js'),
-		'vue-settings-personal': path.join(__dirname, 'apps/federatedfilesharing/src', 'main-personal.js'),
-    },
 	settings: {
 		'vue-settings-admin-basic-settings': path.join(__dirname, 'apps/settings/src', 'main-admin-basic-settings.js'),
 		'vue-settings-admin-delegation': path.join(__dirname, 'apps/settings/src', 'main-admin-delegation.js'),
@@ -81,18 +81,11 @@ module.exports = {
 		'vue-settings-personal-info': path.join(__dirname, 'apps/settings/src', 'main-personal-info.js'),
 		'vue-settings-personal-security': path.join(__dirname, 'apps/settings/src', 'main-personal-security.js'),
 		'vue-settings-personal-webauthn': path.join(__dirname, 'apps/settings/src', 'main-personal-webauth.js'),
-		'vue-settings-personal-password': path.join(__dirname, 'apps/settings/src', 'main-personal-password.js'),
 		'legacy-admin': path.join(__dirname, 'apps/settings/src', 'admin.js'),
 		'apps': path.join(__dirname, 'apps/settings/src', 'apps.js'),
 	},
-	sharebymail: {
-		'vue-settings-admin-sharebymail': path.join(__dirname, 'apps/sharebymail/src', 'main-admin.js'),
-	},
 	systemtags: {
 		systemtags: path.join(__dirname, 'apps/systemtags/src', 'systemtags.js'),
-	},
-	theming: {
-		'theming-settings': path.join(__dirname, 'apps/theming/src', 'settings.js'),
 	},
 	twofactor_backupcodes: {
 		settings: path.join(__dirname, 'apps/twofactor_backupcodes/src', 'settings.js'),

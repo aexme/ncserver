@@ -32,8 +32,10 @@ class WalledGardenController extends Controller {
 	/**
 	 * @PublicPage
 	 * @NoCSRFRequired
+	 *
+	 * @return Response
 	 */
-	public function get(): Response {
+	public function get() {
 		$resp = new Response();
 		$resp->setStatus(Http::STATUS_NO_CONTENT);
 		return $resp;

@@ -8,8 +8,6 @@ use OCA\Files_External\Lib\StorageConfig;
 use OCA\Files_External\Service\GlobalStoragesService;
 use OCP\Encryption\IEncryptionModule;
 use OCP\IConfig;
-use OCP\IGroupManager;
-use OCP\IUserManager;
 use Test\TestCase;
 
 class UtilTest extends TestCase {
@@ -17,21 +15,24 @@ class UtilTest extends TestCase {
 	/**
 	 * block size will always be 8192 for a PHP stream
 	 * @see https://bugs.php.net/bug.php?id=21641
+	 * @var integer
 	 */
-	protected int $headerSize = 8192;
+	protected $headerSize = 8192;
 
 	/** @var \PHPUnit\Framework\MockObject\MockObject */
 	protected $view;
 
-	/** @var \PHPUnit\Framework\MockObject\MockObject|IUserManager */
+	/** @var \PHPUnit\Framework\MockObject\MockObject */
 	protected $userManager;
 
-	/** @var \PHPUnit\Framework\MockObject\MockObject|IGroupManager */
+	/** @var \PHPUnit\Framework\MockObject\MockObject */
 	protected $groupManager;
 
-	/** @var \PHPUnit\Framework\MockObject\MockObject|IConfig */
+	/** @var \PHPUnit\Framework\MockObject\MockObject */
 	private $config;
-	private Util $util;
+
+	/** @var  \OC\Encryption\Util */
+	private $util;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -39,9 +40,17 @@ class UtilTest extends TestCase {
 			->disableOriginalConstructor()
 			->getMock();
 
-		$this->userManager = $this->createMock(IUserManager::class);
-		$this->groupManager = $this->createMock(IGroupManager::class);
-		$this->config = $this->createMock(IConfig::class);
+		$this->userManager = $this->getMockBuilder('OC\User\Manager')
+			->disableOriginalConstructor()
+			->getMock();
+
+		$this->groupManager = $this->getMockBuilder('OC\Group\Manager')
+			->disableOriginalConstructor()
+			->getMock();
+
+		$this->config = $this->getMockBuilder(IConfig::class)
+			->disableOriginalConstructor()
+			->getMock();
 
 		$this->util = new Util(
 			$this->view,

@@ -23,8 +23,7 @@
 import axios from '@nextcloud/axios'
 import { getCurrentUser } from '@nextcloud/auth'
 import { generateOcsUrl } from '@nextcloud/router'
-import { confirmPassword } from '@nextcloud/password-confirmation'
-import '@nextcloud/password-confirmation/dist/style.css'
+import confirmPassword from '@nextcloud/password-confirmation'
 
 /**
  * Save the visibility of the profile parameter

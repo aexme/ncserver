@@ -29,10 +29,8 @@ namespace OCA\UserStatus\Tests\Dashboard;
 use OCA\UserStatus\Dashboard\UserStatusWidget;
 use OCA\UserStatus\Db\UserStatus;
 use OCA\UserStatus\Service\StatusService;
-use OCP\AppFramework\Services\IInitialState;
-use OCP\IDateTimeFormatter;
+use OCP\IInitialStateService;
 use OCP\IL10N;
-use OCP\IURLGenerator;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\IUserSession;
@@ -43,13 +41,7 @@ class UserStatusWidgetTest extends TestCase {
 	/** @var IL10N|\PHPUnit\Framework\MockObject\MockObject */
 	private $l10n;
 
-	/** @var IDateTimeFormatter|\PHPUnit\Framework\MockObject\MockObject */
-	private $dateTimeFormatter;
-
-	/** @var IURLGenerator|\PHPUnit\Framework\MockObject\MockObject */
-	private $urlGenerator;
-
-	/** @var IInitialState|\PHPUnit\Framework\MockObject\MockObject */
+	/** @var IInitialStateService|\PHPUnit\Framework\MockObject\MockObject */
 	private $initialState;
 
 	/** @var IUserManager|\PHPUnit\Framework\MockObject\MockObject */
@@ -68,14 +60,12 @@ class UserStatusWidgetTest extends TestCase {
 		parent::setUp();
 
 		$this->l10n = $this->createMock(IL10N::class);
-		$this->dateTimeFormatter = $this->createMock(IDateTimeFormatter::class);
-		$this->urlGenerator = $this->createMock(IURLGenerator::class);
-		$this->initialState = $this->createMock(IInitialState::class);
+		$this->initialState = $this->createMock(IInitialStateService::class);
 		$this->userManager = $this->createMock(IUserManager::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->service = $this->createMock(StatusService::class);
 
-		$this->widget = new UserStatusWidget($this->l10n, $this->dateTimeFormatter, $this->urlGenerator, $this->initialState, $this->userManager, $this->userSession, $this->service);
+		$this->widget = new UserStatusWidget($this->l10n, $this->initialState, $this->userManager, $this->userSession, $this->service);
 	}
 
 	public function testGetId(): void {
@@ -109,7 +99,7 @@ class UserStatusWidgetTest extends TestCase {
 
 		$this->initialState->expects($this->once())
 			->method('provideInitialState')
-			->with('dashboard_data', []);
+			->with('user_status', 'dashboard_data', []);
 
 		$this->service->expects($this->never())
 			->method('findAllRecentStatusChanges');
@@ -205,7 +195,7 @@ class UserStatusWidgetTest extends TestCase {
 
 		$this->initialState->expects($this->once())
 			->method('provideInitialState')
-			->with('dashboard_data', $this->callback(function ($data): bool {
+			->with('user_status', 'dashboard_data', $this->callback(function ($data): bool {
 				$this->assertEquals([
 					[
 						'userId' => 'user_1',

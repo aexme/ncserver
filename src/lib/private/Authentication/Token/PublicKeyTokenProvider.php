@@ -34,9 +34,9 @@ use OC\Authentication\Exceptions\InvalidTokenException;
 use OC\Authentication\Exceptions\TokenPasswordExpiredException;
 use OC\Authentication\Exceptions\PasswordlessTokenException;
 use OC\Authentication\Exceptions\WipeTokenException;
-use OCP\AppFramework\Db\TTransactional;
-use OCP\Cache\CappedMemoryCache;
+use OC\Cache\CappedMemoryCache;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\AppFramework\Db\TTransactional;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IConfig;
 use OCP\IDBConnection;
@@ -119,14 +119,8 @@ class PublicKeyTokenProvider implements IProvider {
 				$token = $this->mapper->getToken($this->hashToken($tokenId));
 				$this->cache[$token->getToken()] = $token;
 			} catch (DoesNotExistException $ex) {
-				try {
-					$token = $this->mapper->getToken($this->hashTokenWithEmptySecret($tokenId));
-					$this->cache[$token->getToken()] = $token;
-					$this->rotate($token, $tokenId, $tokenId);
-				} catch (DoesNotExistException $ex2) {
-					$this->cache[$tokenHash] = $ex2;
-					throw new InvalidTokenException("Token does not exist: " . $ex->getMessage(), 0, $ex);
-				}
+				$this->cache[$tokenHash] = $ex;
+				throw new InvalidTokenException("Token does not exist: " . $ex->getMessage(), 0, $ex);
 			}
 		}
 
@@ -204,7 +198,6 @@ class PublicKeyTokenProvider implements IProvider {
 		$this->cache->clear();
 
 		$this->mapper->invalidate($this->hashToken($token));
-		$this->mapper->invalidate($this->hashTokenWithEmptySecret($token));
 	}
 
 	public function invalidateTokenById(string $uid, int $id) {
@@ -321,14 +314,9 @@ class PublicKeyTokenProvider implements IProvider {
 		try {
 			return $this->crypto->decrypt($cipherText, $token . $secret);
 		} catch (\Exception $ex) {
-			// Retry with empty secret as a fallback for instances where the secret might not have been set by accident
-			try {
-				return $this->crypto->decrypt($cipherText, $token);
-			} catch (\Exception $ex2) {
-				// Delete the invalid token
-				$this->invalidateToken($token);
-				throw new InvalidTokenException("Could not decrypt token password: " . $ex->getMessage(), 0, $ex2);
-			}
+			// Delete the invalid token
+			$this->invalidateToken($token);
+			throw new InvalidTokenException("Could not decrypt token password: " . $ex->getMessage(), 0, $ex);
 		}
 	}
 
@@ -349,13 +337,6 @@ class PublicKeyTokenProvider implements IProvider {
 	private function hashToken(string $token): string {
 		$secret = $this->config->getSystemValue('secret');
 		return hash('sha512', $token . $secret);
-	}
-
-	/**
-	 * @deprecated Fallback for instances where the secret might not have been set by accident
-	 */
-	private function hashTokenWithEmptySecret(string $token): string {
-		return hash('sha512', $token);
 	}
 
 	/**

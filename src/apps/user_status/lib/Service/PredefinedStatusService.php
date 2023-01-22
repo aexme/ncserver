@@ -26,7 +26,6 @@ declare(strict_types=1);
 namespace OCA\UserStatus\Service;
 
 use OCP\IL10N;
-use OCP\UserStatus\IUserStatus;
 
 /**
  * Class DefaultStatusService
@@ -42,9 +41,6 @@ class PredefinedStatusService {
 	private const SICK_LEAVE = 'sick-leave';
 	private const VACATIONING = 'vacationing';
 	private const REMOTE_WORK = 'remote-work';
-	/**
-	 * @deprecated See \OCP\UserStatus\IUserStatus::MESSAGE_CALL
-	 */
 	public const CALL = 'call';
 
 	/** @var IL10N */
@@ -200,8 +196,7 @@ class PredefinedStatusService {
 			self::SICK_LEAVE,
 			self::VACATIONING,
 			self::REMOTE_WORK,
-			IUserStatus::MESSAGE_CALL,
-			IUserStatus::MESSAGE_AVAILABILITY,
+			self::CALL,
 		], true);
 	}
 }

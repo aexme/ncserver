@@ -21,16 +21,16 @@
   -->
 
 <template>
-	<NcContent app-name="settings" :navigation-class="{ 'icon-loading': loadingAddGroup }">
-		<NcAppNavigation>
-			<NcAppNavigationNew button-id="new-user-button"
+	<Content app-name="settings" :navigation-class="{ 'icon-loading': loadingAddGroup }">
+		<AppNavigation>
+			<AppNavigationNew button-id="new-user-button"
 				:text="t('settings','New user')"
 				button-class="icon-add"
 				@click="showNewUserMenu"
 				@keyup.enter="showNewUserMenu"
 				@keyup.space="showNewUserMenu" />
 			<template #list>
-				<NcAppNavigationItem id="addgroup"
+				<AppNavigationItem id="addgroup"
 					ref="addGroup"
 					:edit-placeholder="t('settings', 'Enter group name')"
 					:editable="true"
@@ -39,39 +39,39 @@
 					icon="icon-add"
 					@click="showAddGroupForm"
 					@update:title="createGroup" />
-				<NcAppNavigationItem id="everyone"
+				<AppNavigationItem id="everyone"
 					:exact="true"
 					:title="t('settings', 'Active users')"
 					:to="{ name: 'users' }"
 					icon="icon-contacts-dark">
-					<NcAppNavigationCounter v-if="userCount > 0" slot="counter">
+					<AppNavigationCounter v-if="userCount > 0" slot="counter">
 						{{ userCount }}
-					</NcAppNavigationCounter>
-				</NcAppNavigationItem>
-				<NcAppNavigationItem v-if="settings.isAdmin"
+					</AppNavigationCounter>
+				</AppNavigationItem>
+				<AppNavigationItem v-if="settings.isAdmin"
 					id="admin"
 					:exact="true"
 					:title="t('settings', 'Admins')"
 					:to="{ name: 'group', params: { selectedGroup: 'admin' } }"
 					icon="icon-user-admin">
-					<NcAppNavigationCounter v-if="adminGroupMenu.count" slot="counter">
+					<AppNavigationCounter v-if="adminGroupMenu.count" slot="counter">
 						{{ adminGroupMenu.count }}
-					</NcAppNavigationCounter>
-				</NcAppNavigationItem>
+					</AppNavigationCounter>
+				</AppNavigationItem>
 
 				<!-- Hide the disabled if none, if we don't have the data (-1) show it -->
-				<NcAppNavigationItem v-if="disabledGroupMenu.usercount > 0 || disabledGroupMenu.usercount === -1"
+				<AppNavigationItem v-if="disabledGroupMenu.usercount > 0 || disabledGroupMenu.usercount === -1"
 					id="disabled"
 					:exact="true"
 					:title="t('settings', 'Disabled users')"
 					:to="{ name: 'group', params: { selectedGroup: 'disabled' } }"
 					icon="icon-disabled-users">
-					<NcAppNavigationCounter v-if="disabledGroupMenu.usercount > 0" slot="counter">
+					<AppNavigationCounter v-if="disabledGroupMenu.usercount > 0" slot="counter">
 						{{ disabledGroupMenu.usercount }}
-					</NcAppNavigationCounter>
-				</NcAppNavigationItem>
+					</AppNavigationCounter>
+				</AppNavigationItem>
 
-				<NcAppNavigationCaption v-if="groupList.length > 0" :title="t('settings', 'Groups')" />
+				<AppNavigationCaption v-if="groupList.length > 0" :title="t('settings', 'Groups')" />
 				<GroupListItem v-for="group in groupList"
 					:id="group.id"
 					:key="group.id"
@@ -79,10 +79,10 @@
 					:count="group.count" />
 			</template>
 			<template #footer>
-				<NcAppNavigationSettings>
+				<AppNavigationSettings>
 					<div>
 						<p>{{ t('settings', 'Default quota:') }}</p>
-						<NcMultiselect :value="defaultQuota"
+						<Multiselect :value="defaultQuota"
 							:options="quotaOptions"
 							tag-placeholder="create"
 							:placeholder="t('settings', 'Select default quota')"
@@ -129,30 +129,30 @@
 							class="checkbox">
 						<label for="sendWelcomeMail">{{ t('settings', 'Send email to new user') }}</label>
 					</div>
-				</NcAppNavigationSettings>
+				</AppNavigationSettings>
 			</template>
-		</NcAppNavigation>
-		<NcAppContent>
+		</AppNavigation>
+		<AppContent>
 			<UserList :users="users"
 				:show-config="showConfig"
 				:selected-group="selectedGroupDecoded"
 				:external-actions="externalActions" />
-		</NcAppContent>
-	</NcContent>
+		</AppContent>
+	</Content>
 </template>
 
 <script>
-import NcAppContent from '@nextcloud/vue/dist/Components/NcAppContent'
-import NcAppNavigation from '@nextcloud/vue/dist/Components/NcAppNavigation'
-import NcAppNavigationCaption from '@nextcloud/vue/dist/Components/NcAppNavigationCaption'
-import NcAppNavigationCounter from '@nextcloud/vue/dist/Components/NcAppNavigationCounter'
-import NcAppNavigationItem from '@nextcloud/vue/dist/Components/NcAppNavigationItem'
-import NcAppNavigationNew from '@nextcloud/vue/dist/Components/NcAppNavigationNew'
-import NcAppNavigationSettings from '@nextcloud/vue/dist/Components/NcAppNavigationSettings'
+import AppContent from '@nextcloud/vue/dist/Components/AppContent'
+import AppNavigation from '@nextcloud/vue/dist/Components/AppNavigation'
+import AppNavigationCaption from '@nextcloud/vue/dist/Components/AppNavigationCaption'
+import AppNavigationCounter from '@nextcloud/vue/dist/Components/AppNavigationCounter'
+import AppNavigationItem from '@nextcloud/vue/dist/Components/AppNavigationItem'
+import AppNavigationNew from '@nextcloud/vue/dist/Components/AppNavigationNew'
+import AppNavigationSettings from '@nextcloud/vue/dist/Components/AppNavigationSettings'
 import axios from '@nextcloud/axios'
-import NcContent from '@nextcloud/vue/dist/Components/NcContent'
+import Content from '@nextcloud/vue/dist/Components/Content'
 import { generateUrl } from '@nextcloud/router'
-import NcMultiselect from '@nextcloud/vue/dist/Components/NcMultiselect'
+import Multiselect from '@nextcloud/vue/dist/Components/Multiselect'
 import Vue from 'vue'
 import VueLocalStorage from 'vue-localstorage'
 
@@ -164,16 +164,16 @@ Vue.use(VueLocalStorage)
 export default {
 	name: 'Users',
 	components: {
-		NcAppContent,
-		NcAppNavigation,
-		NcAppNavigationCaption,
-		NcAppNavigationCounter,
-		NcAppNavigationItem,
-		NcAppNavigationNew,
-		NcAppNavigationSettings,
-		NcContent,
+		AppContent,
+		AppNavigation,
+		AppNavigationCaption,
+		AppNavigationCounter,
+		AppNavigationItem,
+		AppNavigationNew,
+		AppNavigationSettings,
+		Content,
 		GroupListItem,
-		NcMultiselect,
+		Multiselect,
 		UserList,
 	},
 	props: {

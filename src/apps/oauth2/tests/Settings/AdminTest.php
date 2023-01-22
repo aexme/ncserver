@@ -26,8 +26,7 @@ namespace OCA\OAuth2\Tests\Settings;
 use OCA\OAuth2\Db\ClientMapper;
 use OCA\OAuth2\Settings\Admin;
 use OCP\AppFramework\Http\TemplateResponse;
-use OCP\AppFramework\Services\IInitialState;
-use OCP\IURLGenerator;
+use OCP\IInitialStateService;
 use PHPUnit\Framework\MockObject\MockObject;
 use Test\TestCase;
 
@@ -37,7 +36,7 @@ class AdminTest extends TestCase {
 	private $admin;
 
 	/** @var IInitialStateService|MockObject */
-	private $initialState;
+	private $initialStateService;
 
 	/** @var ClientMapper|MockObject */
 	private $clientMapper;
@@ -45,10 +44,10 @@ class AdminTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->initialState = $this->createMock(IInitialState::class);
+		$this->initialStateService = $this->createMock(IInitialStateService::class);
 		$this->clientMapper = $this->createMock(ClientMapper::class);
 
-		$this->admin = new Admin($this->initialState, $this->clientMapper, $this->createMock(IURLGenerator::class));
+		$this->admin = new Admin($this->initialStateService, $this->clientMapper);
 	}
 
 	public function testGetForm() {

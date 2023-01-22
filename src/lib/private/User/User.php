@@ -52,10 +52,6 @@ use OCP\IUserBackend;
 use OCP\User\Events\BeforeUserDeletedEvent;
 use OCP\User\Events\UserDeletedEvent;
 use OCP\User\GetQuotaEvent;
-use OCP\User\Backend\ISetDisplayNameBackend;
-use OCP\User\Backend\ISetPasswordBackend;
-use OCP\User\Backend\IProvideAvatarBackend;
-use OCP\User\Backend\IGetHomeBackend;
 use OCP\UserInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -154,17 +150,12 @@ class User implements IUser {
 	 *
 	 * @param string $displayName
 	 * @return bool
-	 *
-	 * @since 25.0.0 Throw InvalidArgumentException
-	 * @throws \InvalidArgumentException
 	 */
 	public function setDisplayName($displayName) {
 		$displayName = trim($displayName);
 		$oldDisplayName = $this->getDisplayName();
 		if ($this->backend->implementsActions(Backend::SET_DISPLAYNAME) && !empty($displayName) && $displayName !== $oldDisplayName) {
-			/** @var ISetDisplayNameBackend $backend */
-			$backend = $this->backend;
-			$result = $backend->setDisplayName($this->uid, $displayName);
+			$result = $this->backend->setDisplayName($this->uid, $displayName);
 			if ($result) {
 				$this->displayName = $displayName;
 				$this->triggerChange('displayName', $displayName, $oldDisplayName);
@@ -199,7 +190,7 @@ class User implements IUser {
 			$this->setPrimaryEMailAddress('');
 		}
 
-		if ($oldMailAddress !== strtolower($mailAddress)) {
+		if ($oldMailAddress !== $mailAddress) {
 			$this->triggerChange('eMailAddress', $mailAddress, $oldMailAddress);
 		}
 	}
@@ -247,15 +238,10 @@ class User implements IUser {
 	 * updates the timestamp of the most recent login of this user
 	 */
 	public function updateLastLoginTimestamp() {
-		$previousLogin = $this->getLastLogin();
-		$now = time();
-		$firstTimeLogin = $previousLogin === 0;
-
-		if ($now - $previousLogin > 60) {
-			$this->lastLogin = time();
-			$this->config->setUserValue(
-				$this->uid, 'login', 'lastLogin', (string)$this->lastLogin);
-		}
+		$firstTimeLogin = ($this->getLastLogin() === 0);
+		$this->lastLogin = time();
+		$this->config->setUserValue(
+			$this->uid, 'login', 'lastLogin', $this->lastLogin);
 
 		return $firstTimeLogin;
 	}
@@ -294,7 +280,7 @@ class User implements IUser {
 			\OC::$server->getCommentsManager()->deleteReferencesOfActor('users', $this->uid);
 			\OC::$server->getCommentsManager()->deleteReadMarksFromUser($this);
 
-			/** @var AvatarManager $avatarManager */
+			/** @var IAvatarManager $avatarManager */
 			$avatarManager = \OC::$server->query(AvatarManager::class);
 			$avatarManager->deleteUserAvatar($this->uid);
 
@@ -333,20 +319,14 @@ class User implements IUser {
 			$this->emitter->emit('\OC\User', 'preSetPassword', [$this, $password, $recoveryPassword]);
 		}
 		if ($this->backend->implementsActions(Backend::SET_PASSWORD)) {
-			/** @var ISetPasswordBackend $backend */
-			$backend = $this->backend;
-			$result = $backend->setPassword($this->uid, $password);
-
-			if ($result !== false) {
-				$this->legacyDispatcher->dispatch(IUser::class . '::postSetPassword', new GenericEvent($this, [
-					'password' => $password,
-					'recoveryPassword' => $recoveryPassword,
-				]));
-				if ($this->emitter) {
-					$this->emitter->emit('\OC\User', 'postSetPassword', [$this, $password, $recoveryPassword]);
-				}
+			$result = $this->backend->setPassword($this->uid, $password);
+			$this->legacyDispatcher->dispatch(IUser::class . '::postSetPassword', new GenericEvent($this, [
+				'password' => $password,
+				'recoveryPassword' => $recoveryPassword,
+			]));
+			if ($this->emitter) {
+				$this->emitter->emit('\OC\User', 'postSetPassword', [$this, $password, $recoveryPassword]);
 			}
-
 			return !($result === false);
 		} else {
 			return false;
@@ -360,8 +340,7 @@ class User implements IUser {
 	 */
 	public function getHome() {
 		if (!$this->home) {
-			/** @psalm-suppress UndefinedInterfaceMethod Once we get rid of the legacy implementsActions, psalm won't complain anymore */
-			if (($this->backend instanceof IGetHomeBackend || $this->backend->implementsActions(Backend::GET_HOME)) && $home = $this->backend->getHome($this->uid)) {
+			if ($this->backend->implementsActions(Backend::GET_HOME) and $home = $this->backend->getHome($this->uid)) {
 				$this->home = $home;
 			} elseif ($this->config) {
 				$this->home = $this->config->getSystemValue('datadirectory', \OC::$SERVERROOT . '/data') . '/' . $this->uid;
@@ -384,20 +363,18 @@ class User implements IUser {
 		return get_class($this->backend);
 	}
 
-	public function getBackend(): ?UserInterface {
+	public function getBackend() {
 		return $this->backend;
 	}
 
 	/**
-	 * Check if the backend allows the user to change his avatar on Personal page
+	 * check if the backend allows the user to change his avatar on Personal page
 	 *
 	 * @return bool
 	 */
 	public function canChangeAvatar() {
-		if ($this->backend instanceof IProvideAvatarBackend || $this->backend->implementsActions(Backend::PROVIDE_AVATAR)) {
-			/** @var IProvideAvatarBackend $backend */
-			$backend = $this->backend;
-			return $backend->canChangeAvatar($this->uid);
+		if ($this->backend->implementsActions(Backend::PROVIDE_AVATAR)) {
+			return $this->backend->canChangeAvatar($this->uid);
 		}
 		return true;
 	}
@@ -520,7 +497,7 @@ class User implements IUser {
 		$oldQuota = $this->config->getUserValue($this->uid, 'files', 'quota', '');
 		if ($quota !== 'none' and $quota !== 'default') {
 			$quota = OC_Helper::computerFileSize($quota);
-			$quota = OC_Helper::humanFileSize((int)$quota);
+			$quota = OC_Helper::humanFileSize($quota);
 		}
 		if ($quota !== $oldQuota) {
 			$this->config->setUserValue($this->uid, 'files', 'quota', $quota);
@@ -558,17 +535,20 @@ class User implements IUser {
 	 */
 	public function getCloudId() {
 		$uid = $this->getUID();
-		$server = rtrim($this->urlGenerator->getAbsoluteURL('/'), '/');
-		if (substr($server, -10) === '/index.php') {
-			$server = substr($server, 0, -10);
-		}
-		$server = $this->removeProtocolFromUrl($server);
+		$server = $this->urlGenerator->getAbsoluteURL('/');
+		$server = rtrim($this->removeProtocolFromUrl($server), '/');
 		return $uid . '@' . $server;
 	}
 
-	private function removeProtocolFromUrl(string $url): string {
+	/**
+	 * @param string $url
+	 * @return string
+	 */
+	private function removeProtocolFromUrl($url) {
 		if (strpos($url, 'https://') === 0) {
 			return substr($url, strlen('https://'));
+		} elseif (strpos($url, 'http://') === 0) {
+			return substr($url, strlen('http://'));
 		}
 
 		return $url;

@@ -11,7 +11,6 @@
  * @author Roeland Jago Douma <roeland@famdouma.nl>
  * @author S. Cat <33800996+sparrowjack63@users.noreply.github.com>
  * @author Stephen Cuppett <steve@cuppett.com>
- * @author Jasper Weyne <jasperweyne@gmail.com>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -41,7 +40,7 @@ use Aws\S3\S3Client;
 use GuzzleHttp\Promise;
 use GuzzleHttp\Promise\RejectedPromise;
 use OCP\ICertificateManager;
-use Psr\Log\LoggerInterface;
+use OCP\ILogger;
 
 trait S3ConnectionTrait {
 	/** @var array */
@@ -133,7 +132,6 @@ trait S3ConnectionTrait {
 			'csm' => false,
 			'use_arn_region' => false,
 			'http' => ['verify' => $this->getCertificateBundlePath()],
-			'use_aws_shared_config_files' => false,
 		];
 		if ($this->getProxy()) {
 			$options['http']['proxy'] = $this->getProxy();
@@ -144,13 +142,13 @@ trait S3ConnectionTrait {
 		$this->connection = new S3Client($options);
 
 		if (!$this->connection::isBucketDnsCompatible($this->bucket)) {
-			$logger = \OC::$server->get(LoggerInterface::class);
+			$logger = \OC::$server->getLogger();
 			$logger->debug('Bucket "' . $this->bucket . '" This bucket name is not dns compatible, it may contain invalid characters.',
 				['app' => 'objectstore']);
 		}
 
 		if ($this->params['verify_bucket_exists'] && !$this->connection->doesBucketExist($this->bucket)) {
-			$logger = \OC::$server->get(LoggerInterface::class);
+			$logger = \OC::$server->getLogger();
 			try {
 				$logger->info('Bucket "' . $this->bucket . '" does not exist - creating it.', ['app' => 'objectstore']);
 				if (!$this->connection::isBucketDnsCompatible($this->bucket)) {
@@ -159,8 +157,9 @@ trait S3ConnectionTrait {
 				$this->connection->createBucket(['Bucket' => $this->bucket]);
 				$this->testTimeout();
 			} catch (S3Exception $e) {
-				$logger->debug('Invalid remote storage.', [
-					'exception' => $e,
+				$logger->logException($e, [
+					'message' => 'Invalid remote storage.',
+					'level' => ILogger::DEBUG,
 					'app' => 'objectstore',
 				]);
 				throw new \Exception('Creation of bucket "' . $this->bucket . '" failed. ' . $e->getMessage());

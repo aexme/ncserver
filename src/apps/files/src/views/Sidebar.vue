@@ -21,11 +21,10 @@
   -->
 
 <template>
-	<NcAppSidebar v-if="file"
+	<AppSidebar v-if="file"
 		ref="sidebar"
 		v-bind="appSidebar"
 		:force-menu="true"
-		tabindex="0"
 		@close="close"
 		@update:active="setActiveTab"
 		@update:starred="toggleStarred"
@@ -46,18 +45,18 @@
 		<template v-if="fileInfo" #secondary-actions>
 			<!-- TODO: create proper api for apps to register actions
 			And inject themselves here. -->
-			<NcActionButton v-if="isSystemTagsEnabled"
+			<ActionButton v-if="isSystemTagsEnabled"
 				:close-after-click="true"
 				icon="icon-tag"
 				@click="toggleTags">
 				{{ t('files', 'Tags') }}
-			</NcActionButton>
+			</ActionButton>
 		</template>
 
 		<!-- Error display -->
-		<NcEmptyContent v-if="error" icon="icon-error">
+		<EmptyContent v-if="error" icon="icon-error">
 			{{ error }}
-		</NcEmptyContent>
+		</EmptyContent>
 
 		<!-- If fileInfo fetch is complete, render tabs -->
 		<template v-for="tab in tabs" v-else-if="fileInfo">
@@ -74,7 +73,7 @@
 				:on-scroll-bottom-reached="tab.scrollBottomReached"
 				:file-info="fileInfo" />
 		</template>
-	</NcAppSidebar>
+	</AppSidebar>
 </template>
 <script>
 import { encodePath } from '@nextcloud/paths'
@@ -84,9 +83,9 @@ import { emit } from '@nextcloud/event-bus'
 import moment from '@nextcloud/moment'
 import { Type as ShareTypes } from '@nextcloud/sharing'
 
-import NcAppSidebar from '@nextcloud/vue/dist/Components/NcAppSidebar'
-import NcActionButton from '@nextcloud/vue/dist/Components/NcActionButton'
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent'
+import AppSidebar from '@nextcloud/vue/dist/Components/AppSidebar'
+import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
+import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 
 import FileInfo from '../services/FileInfo'
 import SidebarTab from '../components/SidebarTab'
@@ -96,9 +95,9 @@ export default {
 	name: 'Sidebar',
 
 	components: {
-		NcActionButton,
-		NcAppSidebar,
-		NcEmptyContent,
+		ActionButton,
+		AppSidebar,
+		EmptyContent,
 		LegacyView,
 		SidebarTab,
 	},
@@ -456,17 +455,10 @@ export default {
 		/**
 		 * Allow to set the Sidebar as fullscreen from OCA.Files.Sidebar
 		 *
-		 * @param {boolean} isFullScreen - Whether or not to render the Sidebar in fullscreen.
+		 * @param {boolean} isFullScreen - Wether or not to render the Sidebar in fullscreen.
 		 */
 		setFullScreenMode(isFullScreen) {
 			this.isFullScreen = isFullScreen
-			if (isFullScreen) {
-				document.querySelector('#content')?.classList.add('with-sidebar--full')
-					|| document.querySelector('#content-vue')?.classList.add('with-sidebar--full')
-			} else {
-				document.querySelector('#content')?.classList.remove('with-sidebar--full')
-					|| document.querySelector('#content-vue')?.classList.remove('with-sidebar--full')
-			}
 		},
 
 		/**

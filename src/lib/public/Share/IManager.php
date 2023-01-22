@@ -135,11 +135,10 @@ interface IManager {
 	 * @param string $userId
 	 * @param Folder $node
 	 * @param bool $reshares
-	 * @param bool $shallow Whether the method should stop at the first level, or look into sub-folders.
 	 * @return IShare[][] [$fileId => IShare[], ...]
 	 * @since 11.0.0
 	 */
-	public function getSharesInFolder($userId, Folder $node, $reshares = false, $shallow = true);
+	public function getSharesInFolder($userId, Folder $node, $reshares = false);
 
 	/**
 	 * Get shares shared by (initiated) by the provided user.

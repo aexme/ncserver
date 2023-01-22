@@ -26,7 +26,6 @@ declare(strict_types=1);
  */
 namespace OC\Avatar;
 
-use OCP\Files\SimpleFS\ISimpleFile;
 use OCP\Files\SimpleFS\InMemoryFile;
 use Psr\Log\LoggerInterface;
 
@@ -36,13 +35,16 @@ use Psr\Log\LoggerInterface;
 class GuestAvatar extends Avatar {
 	/**
 	 * Holds the guest user display name.
+	 *
+	 * @var string
 	 */
-	private string $userDisplayName;
+	private $userDisplayName;
 
 	/**
 	 * GuestAvatar constructor.
 	 *
 	 * @param string $userDisplayName The guest user display name
+	 * @param LoggerInterface $logger The logger
 	 */
 	public function __construct(string $userDisplayName, LoggerInterface $logger) {
 		parent::__construct($logger);
@@ -51,14 +53,17 @@ class GuestAvatar extends Avatar {
 
 	/**
 	 * Tests if the user has an avatar.
+	 *
+	 * @return true Guests always have an avatar.
 	 */
-	public function exists(): bool {
-		// Guests always have an avatar.
+	public function exists() {
 		return true;
 	}
 
 	/**
 	 * Returns the guest user display name.
+	 *
+	 * @return string
 	 */
 	public function getDisplayName(): string {
 		return $this->userDisplayName;
@@ -70,22 +75,25 @@ class GuestAvatar extends Avatar {
 	 * @param \OCP\IImage|resource|string $data
 	 * @return void
 	 */
-	public function set($data): void {
+	public function set($data) {
 		// unimplemented for guest user avatars
 	}
 
 	/**
 	 * Removing avatars isn't implemented for guests.
 	 */
-	public function remove(bool $silent = false): void {
+	public function remove() {
 		// unimplemented for guest user avatars
 	}
 
 	/**
 	 * Generates an avatar for the guest.
+	 *
+	 * @param int $size The desired image size.
+	 * @return InMemoryFile
 	 */
-	public function getFile(int $size, bool $darkTheme = false): ISimpleFile {
-		$avatar = $this->generateAvatar($this->userDisplayName, $size, $darkTheme);
+	public function getFile($size) {
+		$avatar = $this->generateAvatar($this->userDisplayName, $size);
 		return new InMemoryFile('avatar.png', $avatar);
 	}
 
@@ -95,8 +103,9 @@ class GuestAvatar extends Avatar {
 	 * @param string $feature The changed feature
 	 * @param mixed $oldValue The previous value
 	 * @param mixed $newValue The new value
+	 * @return void
 	 */
-	public function userChanged(string $feature, $oldValue, $newValue): void {
+	public function userChanged($feature, $oldValue, $newValue) {
 		if ($feature === 'displayName') {
 			$this->userDisplayName = $newValue;
 		}
@@ -104,6 +113,8 @@ class GuestAvatar extends Avatar {
 
 	/**
 	 * Guests don't have custom avatars.
+	 *
+	 * @return bool
 	 */
 	public function isCustomAvatar(): bool {
 		return false;

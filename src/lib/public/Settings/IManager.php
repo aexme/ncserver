@@ -116,10 +116,4 @@ interface IManager {
 	 * @since 13.0.0
 	 */
 	public function getPersonalSettings($section): array;
-
-	/**
-	 * Get a specific section by type and id
-	 * @since 25.0.0
-	 */
-	public function getSection(string $type, string $sectionId): ?IIconSection;
 }

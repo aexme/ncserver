@@ -30,25 +30,31 @@ namespace OCA\Federation;
 use OC\Files\Filesystem;
 use OCP\HintException;
 use OCP\IDBConnection;
-use OCP\DB\Exception as DBException;
-use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IL10N;
 
 /**
  * Class DbHandler
  *
- * Handles all database calls for the federation app
- *
- * @todo Port to QBMapper
+ * handles all database calls for the federation app
  *
  * @group DB
  * @package OCA\Federation
  */
 class DbHandler {
-	private IDBConnection $connection;
-	private IL10N $IL10N;
-	private string $dbTable = 'trusted_servers';
 
+	/** @var  IDBConnection */
+	private $connection;
+
+	/** @var  IL10N */
+	private $IL10N;
+
+	/** @var string  */
+	private $dbTable = 'trusted_servers';
+
+	/**
+	 * @param IDBConnection $connection
+	 * @param IL10N $il10n
+	 */
 	public function __construct(
 		IDBConnection $connection,
 		IL10N $il10n
@@ -58,23 +64,27 @@ class DbHandler {
 	}
 
 	/**
-	 * Add server to the list of trusted servers
+	 * add server to the list of trusted servers
 	 *
+	 * @param string $url
+	 * @return int
 	 * @throws HintException
 	 */
-	public function addServer(string $url): int {
+	public function addServer($url) {
 		$hash = $this->hash($url);
 		$url = rtrim($url, '/');
 		$query = $this->connection->getQueryBuilder();
 		$query->insert($this->dbTable)
-			->values([
-				'url' => $query->createParameter('url'),
-				'url_hash' => $query->createParameter('url_hash'),
-			])
+			->values(
+				[
+					'url' => $query->createParameter('url'),
+					'url_hash' => $query->createParameter('url_hash'),
+				]
+			)
 			->setParameter('url', $url)
 			->setParameter('url_hash', $hash);
 
-		$result = $query->executeStatement();
+		$result = $query->execute();
 
 		if ($result) {
 			return $query->getLastInsertId();
@@ -83,33 +93,35 @@ class DbHandler {
 		$message = 'Internal failure, Could not add trusted server: ' . $url;
 		$message_t = $this->IL10N->t('Could not add server');
 		throw new HintException($message, $message_t);
-		return -1;
 	}
 
 	/**
-	 * Remove server from the list of trusted servers
+	 * remove server from the list of trusted servers
+	 *
+	 * @param int $id
 	 */
-	public function removeServer(int $id): void {
+	public function removeServer($id) {
 		$query = $this->connection->getQueryBuilder();
 		$query->delete($this->dbTable)
 			->where($query->expr()->eq('id', $query->createParameter('id')))
 			->setParameter('id', $id);
-		$query->executeStatement();
+		$query->execute();
 	}
 
 	/**
-	 * Get trusted server with given ID
+	 * get trusted server with given ID
 	 *
-	 * @return array{id: int, url: string, url_hash: string, token: ?string, shared_secret: ?string, status: int, sync_token: ?string}
+	 * @param int $id
+	 * @return array
 	 * @throws \Exception
 	 */
-	public function getServerById(int $id): array {
+	public function getServerById($id) {
 		$query = $this->connection->getQueryBuilder();
 		$query->select('*')->from($this->dbTable)
 			->where($query->expr()->eq('id', $query->createParameter('id')))
-			->setParameter('id', $id, IQueryBuilder::PARAM_INT);
+			->setParameter('id', $id);
 
-		$qResult = $query->executeQuery();
+		$qResult = $query->execute();
 		$result = $qResult->fetchAll();
 		$qResult->closeCursor();
 
@@ -121,32 +133,34 @@ class DbHandler {
 	}
 
 	/**
-	 * Get all trusted servers
+	 * get all trusted servers
 	 *
-	 * @return list<array{id: int, url: string, url_hash: string, shared_secret: ?string, status: int, sync_token: ?string}>
-	 * @throws DBException
+	 * @return array
 	 */
-	public function getAllServer(): array {
+	public function getAllServer() {
 		$query = $this->connection->getQueryBuilder();
 		$query->select(['url', 'url_hash', 'id', 'status', 'shared_secret', 'sync_token'])
 			->from($this->dbTable);
-		$statement = $query->executeQuery();
+		$statement = $query->execute();
 		$result = $statement->fetchAll();
 		$statement->closeCursor();
 		return $result;
 	}
 
 	/**
-	 * Check if server already exists in the database table
+	 * check if server already exists in the database table
+	 *
+	 * @param string $url
+	 * @return bool
 	 */
-	public function serverExists(string $url): bool {
+	public function serverExists($url) {
 		$hash = $this->hash($url);
 		$query = $this->connection->getQueryBuilder();
 		$query->select('url')
 			->from($this->dbTable)
 			->where($query->expr()->eq('url_hash', $query->createParameter('url_hash')))
 			->setParameter('url_hash', $hash);
-		$statement = $query->executeQuery();
+		$statement = $query->execute();
 		$result = $statement->fetchAll();
 		$statement->closeCursor();
 
@@ -154,9 +168,12 @@ class DbHandler {
 	}
 
 	/**
-	 * Write token to database. Token is used to exchange the secret
+	 * write token to database. Token is used to exchange the secret
+	 *
+	 * @param string $url
+	 * @param string $token
 	 */
-	public function addToken(string $url, string $token): void {
+	public function addToken($url, $token) {
 		$hash = $this->hash($url);
 		$query = $this->connection->getQueryBuilder();
 		$query->update($this->dbTable)
@@ -164,21 +181,24 @@ class DbHandler {
 			->where($query->expr()->eq('url_hash', $query->createParameter('url_hash')))
 			->setParameter('url_hash', $hash)
 			->setParameter('token', $token);
-		$query->executeStatement();
+		$query->execute();
 	}
 
 	/**
-	 * Get token stored in database
+	 * get token stored in database
+	 *
+	 * @param string $url
+	 * @return string
 	 * @throws \Exception
 	 */
-	public function getToken(string $url): string {
+	public function getToken($url) {
 		$hash = $this->hash($url);
 		$query = $this->connection->getQueryBuilder();
 		$query->select('token')->from($this->dbTable)
 			->where($query->expr()->eq('url_hash', $query->createParameter('url_hash')))
 			->setParameter('url_hash', $hash);
 
-		$statement = $query->executeQuery();
+		$statement = $query->execute();
 		$result = $statement->fetch();
 		$statement->closeCursor();
 
@@ -190,9 +210,12 @@ class DbHandler {
 	}
 
 	/**
-	 * Add shared Secret to database
+	 * add shared Secret to database
+	 *
+	 * @param string $url
+	 * @param string $sharedSecret
 	 */
-	public function addSharedSecret(string $url, string $sharedSecret): void {
+	public function addSharedSecret($url, $sharedSecret) {
 		$hash = $this->hash($url);
 		$query = $this->connection->getQueryBuilder();
 		$query->update($this->dbTable)
@@ -200,29 +223,36 @@ class DbHandler {
 			->where($query->expr()->eq('url_hash', $query->createParameter('url_hash')))
 			->setParameter('url_hash', $hash)
 			->setParameter('sharedSecret', $sharedSecret);
-		$query->executeStatement();
+		$query->execute();
 	}
 
 	/**
-	 * Get shared secret from database
+	 * get shared secret from database
+	 *
+	 * @param string $url
+	 * @return string
 	 */
-	public function getSharedSecret(string $url): string {
+	public function getSharedSecret($url) {
 		$hash = $this->hash($url);
 		$query = $this->connection->getQueryBuilder();
 		$query->select('shared_secret')->from($this->dbTable)
 			->where($query->expr()->eq('url_hash', $query->createParameter('url_hash')))
 			->setParameter('url_hash', $hash);
 
-		$statement = $query->executeQuery();
+		$statement = $query->execute();
 		$result = $statement->fetch();
 		$statement->closeCursor();
-		return (string)$result['shared_secret'];
+		return $result['shared_secret'];
 	}
 
 	/**
-	 * Set server status
+	 * set server status
+	 *
+	 * @param string $url
+	 * @param int $status
+	 * @param string|null $token
 	 */
-	public function setServerStatus(string $url, int $status, ?string $token = null): void {
+	public function setServerStatus($url, $status, $token = null) {
 		$hash = $this->hash($url);
 		$query = $this->connection->getQueryBuilder();
 		$query->update($this->dbTable)
@@ -231,37 +261,46 @@ class DbHandler {
 		if (!is_null($token)) {
 			$query->set('sync_token', $query->createNamedParameter($token));
 		}
-		$query->executeStatement();
+		$query->execute();
 	}
 
 	/**
-	 * Get server status
+	 * get server status
+	 *
+	 * @param string $url
+	 * @return int
 	 */
-	public function getServerStatus(string $url): int {
+	public function getServerStatus($url) {
 		$hash = $this->hash($url);
 		$query = $this->connection->getQueryBuilder();
 		$query->select('status')->from($this->dbTable)
 				->where($query->expr()->eq('url_hash', $query->createParameter('url_hash')))
 				->setParameter('url_hash', $hash);
 
-		$statement = $query->executeQuery();
+		$statement = $query->execute();
 		$result = $statement->fetch();
 		$statement->closeCursor();
 		return (int)$result['status'];
 	}
 
 	/**
-	 * Create hash from URL
+	 * create hash from URL
+	 *
+	 * @param string $url
+	 * @return string
 	 */
-	protected function hash(string $url): string {
+	protected function hash($url) {
 		$normalized = $this->normalizeUrl($url);
 		return sha1($normalized);
 	}
 
 	/**
-	 * Normalize URL, used to create the sha1 hash
+	 * normalize URL, used to create the sha1 hash
+	 *
+	 * @param string $url
+	 * @return string
 	 */
-	protected function normalizeUrl(string $url): string {
+	protected function normalizeUrl($url) {
 		$normalized = $url;
 
 		if (strpos($url, 'https://') === 0) {
@@ -276,7 +315,12 @@ class DbHandler {
 		return $normalized;
 	}
 
-	public function auth(string $username, string $password): bool {
+	/**
+	 * @param $username
+	 * @param $password
+	 * @return bool
+	 */
+	public function auth($username, $password) {
 		if ($username !== 'system') {
 			return false;
 		}
@@ -284,7 +328,7 @@ class DbHandler {
 		$query->select('url')->from($this->dbTable)
 				->where($query->expr()->eq('shared_secret', $query->createNamedParameter($password)));
 
-		$statement = $query->executeQuery();
+		$statement = $query->execute();
 		$result = $statement->fetch();
 		$statement->closeCursor();
 		return !empty($result);

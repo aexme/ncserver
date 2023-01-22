@@ -29,7 +29,6 @@ use OCP\Files\Folder;
 use OCP\Files\Node;
 use OCP\Files\NotFoundException;
 use OCP\Files\SimpleFS\ISimpleFolder;
-use OCP\Files\SimpleFS\ISimpleFile;
 
 class SimpleFolder implements ISimpleFolder {
 
@@ -45,11 +44,11 @@ class SimpleFolder implements ISimpleFolder {
 		$this->folder = $folder;
 	}
 
-	public function getName(): string {
+	public function getName() {
 		return $this->folder->getName();
 	}
 
-	public function getDirectoryListing(): array {
+	public function getDirectoryListing() {
 		$listing = $this->folder->getDirectoryListing();
 
 		$fileListing = array_map(function (Node $file) {
@@ -64,15 +63,15 @@ class SimpleFolder implements ISimpleFolder {
 		return array_values($fileListing);
 	}
 
-	public function delete(): void {
+	public function delete() {
 		$this->folder->delete();
 	}
 
-	public function fileExists(string $name): bool {
+	public function fileExists($name) {
 		return $this->folder->nodeExists($name);
 	}
 
-	public function getFile(string $name): ISimpleFile {
+	public function getFile($name) {
 		$file = $this->folder->get($name);
 
 		if (!($file instanceof File)) {
@@ -82,7 +81,7 @@ class SimpleFolder implements ISimpleFolder {
 		return new SimpleFile($file);
 	}
 
-	public function newFile(string $name, $content = null): ISimpleFile {
+	public function newFile($name, $content = null) {
 		if ($content === null) {
 			// delay creating the file until it's written to
 			return new NewSimpleFile($this->folder, $name);
@@ -90,20 +89,5 @@ class SimpleFolder implements ISimpleFolder {
 			$file = $this->folder->newFile($name, $content);
 			return new SimpleFile($file);
 		}
-	}
-
-	public function getFolder(string $name): ISimpleFolder {
-		$folder = $this->folder->get($name);
-
-		if (!($folder instanceof Folder)) {
-			throw new NotFoundException();
-		}
-
-		return new SimpleFolder($folder);
-	}
-
-	public function newFolder(string $path): ISimpleFolder {
-		$folder = $this->folder->newFolder($path);
-		return new SimpleFolder($folder);
 	}
 }

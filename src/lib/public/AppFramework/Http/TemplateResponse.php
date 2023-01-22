@@ -139,15 +139,6 @@ class TemplateResponse extends Response {
 
 
 	/**
-	 * @return string the app id of the used template
-	 * @since 25.0.0
-	 */
-	public function getApp(): string {
-		return $this->appName;
-	}
-
-
-	/**
 	 * Used for accessing the name of the set template
 	 * @return string the name of the used template
 	 * @since 6.0.0

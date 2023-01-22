@@ -322,7 +322,7 @@ class Share implements IShare {
 	 * @inheritdoc
 	 */
 	public function setPermissions($permissions) {
-		//TODO checks
+		//TODO checkes
 
 		$this->permissions = $permissions;
 		return $this;

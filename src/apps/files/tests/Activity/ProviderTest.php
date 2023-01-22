@@ -177,10 +177,17 @@ class ProviderTest extends TestCase {
 		$provider = $this->getProvider();
 
 		if ($userDisplayName !== null) {
-			$this->userManager->expects($this->once())
+			$user = $this->createMock(IUser::class);
+			$user->expects($this->once())
+				->method('getUID')
+				->willReturn($uid);
+			$user->expects($this->once())
 				->method('getDisplayName')
-				->with($uid)
 				->willReturn($userDisplayName);
+			$this->userManager->expects($this->once())
+				->method('get')
+				->with($uid)
+				->willReturn($user);
 		}
 		if ($cloudIdData !== null) {
 			$this->cloudIdManager->expects($this->once())

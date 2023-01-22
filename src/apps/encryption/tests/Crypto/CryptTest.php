@@ -139,9 +139,9 @@ class CryptTest extends TestCase {
 	 */
 	public function dataTestGenerateHeader() {
 		return [
-			[null, 'HBEGIN:cipher:AES-128-CFB:keyFormat:hash:encoding:binary:HEND'],
-			['password', 'HBEGIN:cipher:AES-128-CFB:keyFormat:password:encoding:binary:HEND'],
-			['hash', 'HBEGIN:cipher:AES-128-CFB:keyFormat:hash:encoding:binary:HEND']
+			[null, 'HBEGIN:cipher:AES-128-CFB:keyFormat:hash:HEND'],
+			['password', 'HBEGIN:cipher:AES-128-CFB:keyFormat:password:HEND'],
+			['hash', 'HBEGIN:cipher:AES-128-CFB:keyFormat:hash:HEND']
 		];
 	}
 
@@ -305,17 +305,15 @@ class CryptTest extends TestCase {
 	 * test parseHeader()
 	 */
 	public function testParseHeader() {
-		$header = 'HBEGIN:foo:bar:cipher:AES-256-CFB:encoding:binary:HEND';
+		$header = 'HBEGIN:foo:bar:cipher:AES-256-CFB:HEND';
 		$result = self::invokePrivate($this->crypt, 'parseHeader', [$header]);
 
 		$this->assertTrue(is_array($result));
-		$this->assertSame(3, count($result));
+		$this->assertSame(2, count($result));
 		$this->assertArrayHasKey('foo', $result);
 		$this->assertArrayHasKey('cipher', $result);
-		$this->assertArrayHasKey('encoding', $result);
 		$this->assertSame('bar', $result['foo']);
 		$this->assertSame('AES-256-CFB', $result['cipher']);
-		$this->assertSame('binary', $result['encoding']);
 	}
 
 	/**
@@ -326,20 +324,18 @@ class CryptTest extends TestCase {
 	public function testEncrypt() {
 		$decrypted = 'content';
 		$password = 'password';
-		$cipher = 'AES-256-CTR';
 		$iv = self::invokePrivate($this->crypt, 'generateIv');
 
 		$this->assertTrue(is_string($iv));
 		$this->assertSame(16, strlen($iv));
 
-		$result = self::invokePrivate($this->crypt, 'encrypt', [$decrypted, $iv, $password, $cipher]);
+		$result = self::invokePrivate($this->crypt, 'encrypt', [$decrypted, $iv, $password]);
 
 		$this->assertTrue(is_string($result));
 
 		return [
 			'password' => $password,
 			'iv' => $iv,
-			'cipher' => $cipher,
 			'encrypted' => $result,
 			'decrypted' => $decrypted];
 	}
@@ -353,7 +349,7 @@ class CryptTest extends TestCase {
 		$result = self::invokePrivate(
 			$this->crypt,
 			'decrypt',
-			[$data['encrypted'], $data['iv'], $data['password'], $data['cipher'], true]);
+			[$data['encrypted'], $data['iv'], $data['password']]);
 
 		$this->assertSame($data['decrypted'], $result);
 	}
@@ -395,9 +391,8 @@ class CryptTest extends TestCase {
 	 */
 	public function testDecryptPrivateKey($header, $privateKey, $expectedCipher, $isValidKey, $expected) {
 		$this->config->method('getSystemValueBool')
-			->withConsecutive(['encryption.legacy_format_support', false],
-					  ['encryption.use_legacy_base64_encoding', false])
-			->willReturnOnConsecutiveCalls(true, false);
+			->with('encryption.legacy_format_support', false)
+			->willReturn(true);
 
 		/** @var \OCA\Encryption\Crypto\Crypt | \PHPUnit\Framework\MockObject\MockObject $crypt */
 		$crypt = $this->getMockBuilder(Crypt::class)

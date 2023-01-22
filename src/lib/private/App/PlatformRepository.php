@@ -31,13 +31,11 @@ namespace OC\App;
  * @package OC\App
  */
 class PlatformRepository {
-	private array $packages;
-
 	public function __construct() {
 		$this->packages = $this->initialize();
 	}
 
-	protected function initialize(): array {
+	protected function initialize() {
 		$loadedExtensions = get_loaded_extensions();
 		$packages = [];
 
@@ -130,11 +128,15 @@ class PlatformRepository {
 		return $packages;
 	}
 
-	private function buildPackageName(string $name): string {
+	private function buildPackageName($name) {
 		return str_replace(' ', '-', $name);
 	}
 
-	public function findLibrary(string $name): ?string {
+	/**
+	 * @param $name
+	 * @return string
+	 */
+	public function findLibrary($name) {
 		$extName = $this->buildPackageName($name);
 		if (isset($this->packages[$extName])) {
 			return $this->packages[$extName];
@@ -142,17 +144,19 @@ class PlatformRepository {
 		return null;
 	}
 
-	private static string $modifierRegex = '[._-]?(?:(stable|beta|b|RC|alpha|a|patch|pl|p)(?:[.-]?(\d+))?)?([.-]?dev)?';
+	private static $modifierRegex = '[._-]?(?:(stable|beta|b|RC|alpha|a|patch|pl|p)(?:[.-]?(\d+))?)?([.-]?dev)?';
 
 	/**
 	 * Normalizes a version string to be able to perform comparisons on it
 	 *
 	 * https://github.com/composer/composer/blob/master/src/Composer/Package/Version/VersionParser.php#L94
 	 *
+	 * @param string $version
 	 * @param string $fullVersion optional complete version string to give more context
 	 * @throws \UnexpectedValueException
+	 * @return string
 	 */
-	public function normalizeVersion(string $version, ?string $fullVersion = null): string {
+	public function normalizeVersion($version, $fullVersion = null) {
 		$version = trim($version);
 		if (null === $fullVersion) {
 			$fullVersion = $version;
@@ -207,7 +211,10 @@ class PlatformRepository {
 		throw new \UnexpectedValueException('Invalid version string "' . $version . '"' . $extraMessage);
 	}
 
-	private function expandStability(string $stability): string {
+	/**
+	 * @param string $stability
+	 */
+	private function expandStability($stability) {
 		$stability = strtolower($stability);
 		switch ($stability) {
 			case 'a':

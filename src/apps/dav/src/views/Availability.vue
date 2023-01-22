@@ -1,15 +1,17 @@
 <template>
-	<NcSettingsSection :title="$t('dav', 'Availability')"
-		:description="$t('dav', 'If you configure your working hours, other users will see when you are out of office when they book a meeting.')">
+	<div class="section">
+		<h2>{{ $t('dav', 'Availability') }}</h2>
+		<p>
+			{{ $t('dav', 'If you configure your working hours, other users will see when you are out of office when they book a meeting.') }}
+		</p>
 		<div class="time-zone">
 			<strong>
 				{{ $t('dav', 'Time zone:') }}
 			</strong>
 			<span class="time-zone-text">
-				<NcTimezonePicker v-model="timezone" />
+				<TimezonePicker v-model="timezone" />
 			</span>
 		</div>
-
 		<CalendarAvailability :slots.sync="slots"
 			:loading="loading"
 			:l10n-to="$t('dav', 'to')"
@@ -23,49 +25,31 @@
 			:l10n-friday="$t('dav', 'Friday')"
 			:l10n-saturday="$t('dav', 'Saturday')"
 			:l10n-sunday="$t('dav', 'Sunday')" />
-
-		<NcCheckboxRadioSwitch :checked.sync="automated">
-			{{ $t('dav', 'Automatically set user status to "Do not disturb" outside of availability to mute all notifications.') }}
-		</NcCheckboxRadioSwitch>
-
-		<NcButton :disabled="loading || saving"
+		<Button :disabled="loading || saving"
 			type="primary"
 			@click="save">
 			{{ $t('dav', 'Save') }}
-		</NcButton>
-	</NcSettingsSection>
+		</Button>
+	</div>
 </template>
 
 <script>
 import { CalendarAvailability } from '@nextcloud/calendar-availability-vue'
-import { loadState } from '@nextcloud/initial-state'
-import {
-	showError,
-	showSuccess,
-} from '@nextcloud/dialogs'
 import {
 	findScheduleInboxAvailability,
 	getEmptySlots,
 	saveScheduleInboxAvailability,
 } from '../service/CalendarService'
-import {
-	enableUserStatusAutomation,
-	disableUserStatusAutomation,
-} from '../service/PreferenceService'
 import jstz from 'jstimezonedetect'
-import NcButton from '@nextcloud/vue/dist/Components/NcButton'
-import NcCheckboxRadioSwitch from '@nextcloud/vue/dist/Components/NcCheckboxRadioSwitch'
-import NcSettingsSection from '@nextcloud/vue/dist/Components/NcSettingsSection'
-import NcTimezonePicker from '@nextcloud/vue/dist/Components/NcTimezonePicker'
+import TimezonePicker from '@nextcloud/vue/dist/Components/TimezonePicker'
+import Button from '@nextcloud/vue/dist/Components/Button'
 
 export default {
 	name: 'Availability',
 	components: {
-		NcButton,
-		NcCheckboxRadioSwitch,
 		CalendarAvailability,
-		NcSettingsSection,
-		NcTimezonePicker,
+		TimezonePicker,
+		Button,
 	},
 	data() {
 		// Try to determine the current timezone, and fall back to UTC otherwise
@@ -77,7 +61,6 @@ export default {
 			saving: false,
 			timezone: defaultTimezoneId,
 			slots: getEmptySlots(),
-			automated: loadState('dav', 'user_status_automation') === 'yes',
 		}
 	},
 	async mounted() {
@@ -97,7 +80,7 @@ export default {
 		} catch (e) {
 			console.error('could not load existing availability', e)
 
-			showError(t('dav', 'Failed to load availability'))
+			// TODO: show a nice toast
 		} finally {
 			this.loading = false
 		}
@@ -108,17 +91,12 @@ export default {
 				this.saving = true
 
 				await saveScheduleInboxAvailability(this.slots, this.timezone)
-				if (this.automated) {
-					await enableUserStatusAutomation()
-				} else {
-					await disableUserStatusAutomation()
-				}
 
-				showSuccess(t('dav', 'Saved availability'))
+				// TODO: show a nice toast
 			} catch (e) {
 				console.error('could not save availability', e)
 
-				showError(t('dav', 'Failed to save availability'))
+				// TODO: show a nice toast
 			} finally {
 				this.saving = false
 			}

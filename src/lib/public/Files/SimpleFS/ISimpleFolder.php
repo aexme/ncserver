@@ -38,7 +38,7 @@ interface ISimpleFolder {
 	 * @return ISimpleFile[]
 	 * @since 11.0.0
 	 */
-	public function getDirectoryListing(): array;
+	public function getDirectoryListing();
 
 	/**
 	 * Check if a file with $name exists
@@ -47,24 +47,28 @@ interface ISimpleFolder {
 	 * @return bool
 	 * @since 11.0.0
 	 */
-	public function fileExists(string $name): bool;
+	public function fileExists($name);
 
 	/**
 	 * Get the file named $name from the folder
 	 *
+	 * @param string $name
+	 * @return ISimpleFile
 	 * @throws NotFoundException
 	 * @since 11.0.0
 	 */
-	public function getFile(string $name): ISimpleFile;
+	public function getFile($name);
 
 	/**
 	 * Creates a new file with $name in the folder
 	 *
+	 * @param string $name
 	 * @param string|resource|null $content @since 19.0.0
+	 * @return ISimpleFile
 	 * @throws NotPermittedException
 	 * @since 11.0.0
 	 */
-	public function newFile(string $name, $content = null): ISimpleFile;
+	public function newFile($name, $content = null);
 
 	/**
 	 * Remove the folder and all the files in it
@@ -72,29 +76,13 @@ interface ISimpleFolder {
 	 * @throws NotPermittedException
 	 * @since 11.0.0
 	 */
-	public function delete(): void;
+	public function delete();
 
 	/**
 	 * Get the folder name
 	 *
+	 * @return string
 	 * @since 11.0.0
 	 */
-	public function getName(): string;
-
-	/**
-	 * Get the folder named $name from the current folder
-	 *
-	 * @throws NotFoundException
-	 * @since 25.0.0
-	 */
-	public function getFolder(string $name): ISimpleFolder;
-
-	/**
-	 * Creates a new folder with $name in the current folder
-	 *
-	 * @param string|resource|null $content @since 19.0.0
-	 * @throws NotPermittedException
-	 * @since 25.0.0
-	 */
-	public function newFolder(string $path): ISimpleFolder;
+	public function getName();
 }

@@ -21,7 +21,7 @@
   -->
 
 <template>
-	<NcModal v-if="opened"
+	<Modal v-if="opened"
 		:clear-view-delay="-1"
 		class="templates-picker"
 		size="normal"
@@ -57,17 +57,17 @@
 			</div>
 		</form>
 
-		<NcEmptyContent v-if="loading" class="templates-picker__loading" icon="icon-loading">
+		<EmptyContent v-if="loading" class="templates-picker__loading" icon="icon-loading">
 			{{ t('files', 'Creating file') }}
-		</NcEmptyContent>
-	</NcModal>
+		</EmptyContent>
+	</Modal>
 </template>
 
 <script>
 import { normalize } from 'path'
 import { showError } from '@nextcloud/dialogs'
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent'
-import NcModal from '@nextcloud/vue/dist/Components/NcModal'
+import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
+import Modal from '@nextcloud/vue/dist/Components/Modal'
 
 import { getCurrentDirectory } from '../utils/davUtils'
 import { createFromTemplate, getTemplates } from '../services/Templates'
@@ -81,8 +81,8 @@ export default {
 	name: 'TemplatePicker',
 
 	components: {
-		NcEmptyContent,
-		NcModal,
+		EmptyContent,
+		Modal,
 		TemplatePreview,
 	},
 
@@ -215,23 +215,20 @@ export default {
 				)
 				this.logger.debug('Created new file', fileInfo)
 
-				// Fetch FileInfo and model
 				const data = await fileList?.addAndFetchFileInfo(this.name).then((status, data) => data)
+
 				const model = new OCA.Files.FileInfoModel(data, {
 					filesClient: fileList?.filesClient,
 				})
-
 				// Run default action
 				const fileAction = OCA.Files.fileActions.getDefaultFileAction(fileInfo.mime, 'file', OC.PERMISSION_ALL)
-				if (fileAction) {
-					fileAction.action(fileInfo.basename, {
-						$file: fileList?.findFileEl(this.name),
-						dir: currentDirectory,
-						fileList,
-						fileActions: fileList?.fileActions,
-						fileInfoModel: model,
-					})
-				}
+				fileAction.action(fileInfo.basename, {
+					$file: fileList?.findFileEl(this.name),
+					dir: currentDirectory,
+					fileList,
+					fileActions: fileList?.fileActions,
+					fileInfoModel: model,
+				})
 
 				this.close()
 			} catch (error) {

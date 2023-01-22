@@ -251,7 +251,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -312,7 +311,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -374,7 +372,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -434,7 +431,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -492,7 +488,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -550,7 +545,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -610,7 +604,6 @@ describe('OC.SetupChecks tests', function() {
 					],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -668,7 +661,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -726,7 +718,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -784,7 +775,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -863,7 +853,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -921,7 +910,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -979,7 +967,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -1037,7 +1024,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: true,
@@ -1099,7 +1085,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -1158,7 +1143,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -1214,7 +1198,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -1273,7 +1256,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: false,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -1332,7 +1314,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: false,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -1347,64 +1328,6 @@ describe('OC.SetupChecks tests', function() {
 				expect(data).toEqual([{
 					msg: 'The PHP modules "gmp" and/or "bcmath" are not enabled. If you use WebAuthn passwordless authentication, these modules are required.',
 					type: OC.SetupChecks.MESSAGE_TYPE_INFO
-				}]);
-				done();
-			});
-		});
-
-		it('should return an error for 32bit instances', function(done) {
-			var async = OC.SetupChecks.checkSetup();
-
-			suite.server.requests[0].respond(
-				200,
-				{
-					'Content-Type': 'application/json',
-				},
-				JSON.stringify({
-					hasFileinfoInstalled: true,
-					isGetenvServerWorking: true,
-					isReadOnlyConfig: false,
-					wasEmailTestSuccessful: true,
-					hasWorkingFileLocking: true,
-					hasValidTransactionIsolationLevel: true,
-					suggestedOverwriteCliURL: '',
-					isRandomnessSecure: true,
-					securityDocs: 'https://docs.nextcloud.com/myDocs.html',
-					isFairUseOfFreePushService: true,
-					serverHasInternetConnectionProblems: false,
-					isMemcacheConfigured: true,
-					forwardedForHeadersWorking: true,
-					isCorrectMemcachedPHPModuleInstalled: true,
-					hasPassedCodeIntegrityCheck: true,
-					OpcacheSetupRecommendations: [],
-					isSettimelimitAvailable: true,
-					hasFreeTypeSupport: true,
-					missingIndexes: [],
-					missingPrimaryKeys: [],
-					missingColumns: [],
-					cronErrors: [],
-					cronInfo: {
-						diffInSeconds: 0
-					},
-					isMemoryLimitSufficient: true,
-					appDirsWithDifferentOwner: [],
-					isImagickEnabled: true,
-					areWebauthnExtensionsEnabled: true,
-					is64bit: false,
-					recommendedPHPModules: [],
-					pendingBigIntConversionColumns: [],
-					isMysqlUsedWithoutUTF8MB4: false,
-					isDefaultPhoneRegionSet: true,
-					isEnoughTempSpaceAvailableIfS3PrimaryStorageIsUsed: true,
-					reverseProxyGeneratedURL: 'https://server',
-					temporaryDirectoryWritable: true,
-				})
-			);
-
-			async.done(function( data, s, x ){
-				expect(data).toEqual([{
-					msg: 'It seems like you are running a 32-bit PHP version. Nextcloud 26 and higher require 64-bit. Please upgrade your OS and PHP to 64-bit! For further details read <a href="https://docs.example.org/admin-system-requirements" class="external" rel="noreferrer noopener">the documentation page about this ↗</a>.',
-					type: OC.SetupChecks.MESSAGE_TYPE_WARNING
 				}]);
 				done();
 			});
@@ -1448,7 +1371,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -1506,7 +1428,6 @@ describe('OC.SetupChecks tests', function() {
 					appDirsWithDifferentOwner: [],
 					isImagickEnabled: true,
 					areWebauthnExtensionsEnabled: true,
-					is64bit: true,
 					recommendedPHPModules: [],
 					pendingBigIntConversionColumns: [],
 					isMysqlUsedWithoutUTF8MB4: false,
@@ -1578,7 +1499,7 @@ describe('OC.SetupChecks tests', function() {
 					msg: 'The "X-Permitted-Cross-Domain-Policies" HTTP header is not set to "none". This is a potential security or privacy risk, as it is recommended to adjust this setting accordingly.',
 					type: OC.SetupChecks.MESSAGE_TYPE_WARNING
 				}, {
-					msg: 'The "X-XSS-Protection" HTTP header does not contain "1; mode=block". This is a potential security or privacy risk, as it is recommended to adjust this setting accordingly.',
+					msg: 'The "X-XSS-Protection" HTTP header doesn\'t contain "1; mode=block". This is a potential security or privacy risk, as it is recommended to adjust this setting accordingly.',
 					type: OC.SetupChecks.MESSAGE_TYPE_WARNING
 				}, {
 					msg: 'The "Referrer-Policy" HTTP header is not set to "no-referrer", "no-referrer-when-downgrade", "strict-origin", "strict-origin-when-cross-origin" or "same-origin". This can leak referer information. See the <a target="_blank" rel="noreferrer noopener" class="external" href="https://www.w3.org/TR/referrer-policy/">W3C Recommendation ↗</a>.',
@@ -1610,7 +1531,7 @@ describe('OC.SetupChecks tests', function() {
 					msg: 'The "X-Content-Type-Options" HTTP header is not set to "nosniff". This is a potential security or privacy risk, as it is recommended to adjust this setting accordingly.',
 					type: OC.SetupChecks.MESSAGE_TYPE_WARNING
 				}, {
-					msg: 'The "X-XSS-Protection" HTTP header does not contain "1; mode=block". This is a potential security or privacy risk, as it is recommended to adjust this setting accordingly.',
+					msg: 'The "X-XSS-Protection" HTTP header doesn\'t contain "1; mode=block". This is a potential security or privacy risk, as it is recommended to adjust this setting accordingly.',
 					type: OC.SetupChecks.MESSAGE_TYPE_WARNING,
 				}
 				]);
@@ -1699,7 +1620,7 @@ describe('OC.SetupChecks tests', function() {
 				result.done(function( data, s, x ){
 					expect(data).toEqual([
 						{
-							msg: 'The "X-XSS-Protection" HTTP header does not contain "1; mode=block". This is a potential security or privacy risk, as it is recommended to adjust this setting accordingly.',
+							msg: 'The "X-XSS-Protection" HTTP header doesn\'t contain "1; mode=block". This is a potential security or privacy risk, as it is recommended to adjust this setting accordingly.',
 							type: OC.SetupChecks.MESSAGE_TYPE_WARNING
 						}
 					]);
@@ -1724,7 +1645,7 @@ describe('OC.SetupChecks tests', function() {
 				result.done(function( data, s, x ){
 					expect(data).toEqual([
 						{
-							msg: 'The "X-XSS-Protection" HTTP header does not contain "1; mode=block". This is a potential security or privacy risk, as it is recommended to adjust this setting accordingly.',
+							msg: 'The "X-XSS-Protection" HTTP header doesn\'t contain "1; mode=block". This is a potential security or privacy risk, as it is recommended to adjust this setting accordingly.',
 							type: OC.SetupChecks.MESSAGE_TYPE_WARNING
 						}
 					]);

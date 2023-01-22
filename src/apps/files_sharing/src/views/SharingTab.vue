@@ -29,11 +29,11 @@
 		</div>
 
 		<!-- shares content -->
-		<div v-else class="sharingTab__content">
+		<template v-else>
 			<!-- shared with me information -->
 			<SharingEntrySimple v-if="isSharedWithMe" v-bind="sharedWithMe" class="sharing-entry__reshare">
 				<template #avatar>
-					<NcAvatar :user="sharedWithMe.user"
+					<Avatar :user="sharedWithMe.user"
 						:display-name="sharedWithMe.displayName"
 						class="sharing-entry__avatar"
 						tooltip-message="" />
@@ -69,13 +69,13 @@
 			<SharingEntryInternal :file-info="fileInfo" />
 
 			<!-- projects -->
-			<CollectionList v-if="projectsEnabled && fileInfo"
+			<CollectionList v-if="fileInfo"
 				:id="`${fileInfo.id}`"
 				type="file"
 				:name="fileInfo.name" />
-		</div>
+		</template>
 
-		<!-- additional entries, use it with cautious -->
+		<!-- additionnal entries, use it with cautious -->
 		<div v-for="(section, index) in sections"
 			:ref="'section-' + index"
 			:key="index"
@@ -88,9 +88,8 @@
 <script>
 import { CollectionList } from 'nextcloud-vue-collections'
 import { generateOcsUrl } from '@nextcloud/router'
-import NcAvatar from '@nextcloud/vue/dist/Components/NcAvatar'
+import Avatar from '@nextcloud/vue/dist/Components/Avatar'
 import axios from '@nextcloud/axios'
-import { loadState } from '@nextcloud/initial-state'
 
 import Config from '../services/ConfigService'
 import { shareWithTitle } from '../utils/SharedWithMe'
@@ -108,7 +107,7 @@ export default {
 	name: 'SharingTab',
 
 	components: {
-		NcAvatar,
+		Avatar,
 		CollectionList,
 		SharingEntryInternal,
 		SharingEntrySimple,
@@ -137,7 +136,6 @@ export default {
 			linkShares: [],
 
 			sections: OCA.Sharing.ShareTabSections.getSections(),
-			projectsEnabled: loadState('core', 'projects_enabled', false),
 		}
 	},
 
@@ -363,14 +361,5 @@ export default {
 <style scoped lang="scss">
 .emptyContentWithSections {
 	margin: 1rem auto;
-}
-
-.sharingTab {
-	&__content {
-		padding: 0 6px;
-	}
-	&__additionalContent {
-		margin: 44px 0;
-	}
 }
 </style>

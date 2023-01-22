@@ -163,7 +163,7 @@ class ConfigAdapter implements IMountProvider {
 					$storageConfig->getId()
 				);
 			} else {
-				return new SystemMountPoint(
+				return new ExternalMountPoint(
 					$storageConfig,
 					$storage,
 					'/' . $user->getUID() . '/files' . $storageConfig->getMountPoint(),

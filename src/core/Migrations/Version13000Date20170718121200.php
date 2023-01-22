@@ -333,7 +333,6 @@ class Version13000Date20170718121200 extends SimpleMigrationStep {
 				'notnull' => false,
 			]);
 			$table->setPrimaryKey(['userid', 'appid', 'configkey']);
-			$table->addIndex(['appid', 'configkey'], 'preferences_app_key');
 		}
 
 		if (!$schema->hasTable('properties')) {

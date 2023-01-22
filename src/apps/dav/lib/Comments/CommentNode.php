@@ -26,9 +26,9 @@ namespace OCA\DAV\Comments;
 use OCP\Comments\IComment;
 use OCP\Comments\ICommentsManager;
 use OCP\Comments\MessageTooLongException;
+use OCP\ILogger;
 use OCP\IUserManager;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Sabre\DAV\Exception\BadRequest;
 use Sabre\DAV\Exception\Forbidden;
 use Sabre\DAV\Exception\MethodNotAllowed;
@@ -52,7 +52,8 @@ class CommentNode implements \Sabre\DAV\INode, \Sabre\DAV\IProperties {
 	/** @var ICommentsManager */
 	protected $commentsManager;
 
-	protected LoggerInterface $logger;
+	/** @var  ILogger */
+	protected $logger;
 
 	/** @var array list of properties with key being their name and value their setter */
 	protected $properties = [];
@@ -65,13 +66,19 @@ class CommentNode implements \Sabre\DAV\INode, \Sabre\DAV\IProperties {
 
 	/**
 	 * CommentNode constructor.
+	 *
+	 * @param ICommentsManager $commentsManager
+	 * @param IComment $comment
+	 * @param IUserManager $userManager
+	 * @param IUserSession $userSession
+	 * @param ILogger $logger
 	 */
 	public function __construct(
 		ICommentsManager $commentsManager,
 		IComment $comment,
 		IUserManager $userManager,
 		IUserSession $userSession,
-		LoggerInterface $logger
+		ILogger $logger
 	) {
 		$this->commentsManager = $commentsManager;
 		$this->comment = $comment;
@@ -187,7 +194,7 @@ class CommentNode implements \Sabre\DAV\INode, \Sabre\DAV\IProperties {
 			$this->commentsManager->save($this->comment);
 			return true;
 		} catch (\Exception $e) {
-			$this->logger->error($e->getMessage(), ['app' => 'dav/comments', 'exception' => $e]);
+			$this->logger->logException($e, ['app' => 'dav/comments']);
 			if ($e instanceof MessageTooLongException) {
 				$msg = 'Message exceeds allowed character limit of ';
 				throw new BadRequest($msg . IComment::MAX_MESSAGE_LENGTH, 0, $e);
@@ -280,7 +287,7 @@ class CommentNode implements \Sabre\DAV\INode, \Sabre\DAV\IProperties {
 			try {
 				$displayName = $this->commentsManager->resolveDisplayName($mention['type'], $mention['id']);
 			} catch (\OutOfBoundsException $e) {
-				$this->logger->error($e->getMessage(), ['exception' => $e]);
+				$this->logger->logException($e);
 				// No displayname, upon client's discretion what to display.
 				$displayName = '';
 			}

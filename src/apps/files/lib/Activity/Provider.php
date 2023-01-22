@@ -527,12 +527,12 @@ class Provider implements IProvider {
 	 */
 	protected function getUser($uid) {
 		// First try local user
-		$displayName = $this->userManager->getDisplayName($uid);
-		if ($displayName !== null) {
+		$user = $this->userManager->get($uid);
+		if ($user instanceof IUser) {
 			return [
 				'type' => 'user',
-				'id' => $uid,
-				'name' => $displayName,
+				'id' => $user->getUID(),
+				'name' => $user->getDisplayName(),
 			];
 		}
 

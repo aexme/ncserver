@@ -32,7 +32,7 @@ use Icewind\Streams\Wrapper;
 class SeekableHttpStream implements File {
 	private const PROTOCOL = 'httpseek';
 
-	private static bool $registered = false;
+	private static $registered = false;
 
 	/**
 	 * Registers the stream wrapper using the `httpseek://` url scheme
@@ -73,26 +73,24 @@ class SeekableHttpStream implements File {
 	/** @var callable */
 	private $openCallback;
 
-	/** @var ?resource|closed-resource */
+	/** @var resource */
 	private $current;
-	private int $offset = 0;
-	private int $length = 0;
-	private bool $needReconnect = false;
+	/** @var int */
+	private $offset = 0;
+	/** @var int */
+	private $length = 0;
 
-	private function reconnect(int $start): bool {
-		$this->needReconnect = false;
+	private function reconnect(int $start) {
 		$range = $start . '-';
-		if ($this->hasOpenStream()) {
+		if ($this->current != null) {
 			fclose($this->current);
 		}
 
-		$stream = ($this->openCallback)($range);
+		$this->current = ($this->openCallback)($range);
 
-		if ($stream === false) {
-			$this->current = null;
+		if ($this->current === false) {
 			return false;
 		}
-		$this->current = $stream;
 
 		$responseHead = stream_get_meta_data($this->current)['wrapper_data'];
 
@@ -111,7 +109,6 @@ class SeekableHttpStream implements File {
 			return preg_match('#^content-range:#i', $v) === 1;
 		}));
 		if (!$rangeHeaders) {
-			$this->current = null;
 			return false;
 		}
 		$contentRange = $rangeHeaders[0];
@@ -122,7 +119,6 @@ class SeekableHttpStream implements File {
 		$length = intval(explode('/', $range)[1]);
 
 		if ($begin !== $start) {
-			$this->current = null;
 			return false;
 		}
 
@@ -130,28 +126,6 @@ class SeekableHttpStream implements File {
 		$this->length = $length;
 
 		return true;
-	}
-
-	/**
-	 * @return ?resource
-	 */
-	private function getCurrent() {
-		if ($this->needReconnect) {
-			$this->reconnect($this->offset);
-		}
-		if (is_resource($this->current)) {
-			return $this->current;
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * @return bool
-	 * @psalm-assert-if-true resource $this->current
-	 */
-	private function hasOpenStream(): bool {
-		return is_resource($this->current);
 	}
 
 	public function stream_open($path, $mode, $options, &$opened_path) {
@@ -162,10 +136,10 @@ class SeekableHttpStream implements File {
 	}
 
 	public function stream_read($count) {
-		if (!$this->getCurrent()) {
+		if (!$this->current) {
 			return false;
 		}
-		$ret = fread($this->getCurrent(), $count);
+		$ret = fread($this->current, $count);
 		$this->offset += strlen($ret);
 		return $ret;
 	}
@@ -175,34 +149,22 @@ class SeekableHttpStream implements File {
 			case SEEK_SET:
 				if ($offset === $this->offset) {
 					return true;
-				} else {
-					$this->offset = $offset;
 				}
-				break;
+				return $this->reconnect($offset);
 			case SEEK_CUR:
 				if ($offset === 0) {
 					return true;
-				} else {
-					$this->offset += $offset;
 				}
-				break;
+				return $this->reconnect($this->offset + $offset);
 			case SEEK_END:
 				if ($this->length === 0) {
 					return false;
 				} elseif ($this->length + $offset === $this->offset) {
 					return true;
-				} else {
-					$this->offset = $this->length + $offset;
 				}
-				break;
+				return $this->reconnect($this->length + $offset);
 		}
-
-		if ($this->hasOpenStream()) {
-			fclose($this->current);
-		}
-		$this->current = null;
-		$this->needReconnect = true;
-		return true;
+		return false;
 	}
 
 	public function stream_tell() {
@@ -210,26 +172,25 @@ class SeekableHttpStream implements File {
 	}
 
 	public function stream_stat() {
-		if ($this->getCurrent()) {
-			return fstat($this->getCurrent());
+		if (is_resource($this->current)) {
+			return fstat($this->current);
 		} else {
 			return false;
 		}
 	}
 
 	public function stream_eof() {
-		if ($this->getCurrent()) {
-			return feof($this->getCurrent());
+		if (is_resource($this->current)) {
+			return feof($this->current);
 		} else {
 			return true;
 		}
 	}
 
 	public function stream_close() {
-		if ($this->hasOpenStream()) {
+		if (is_resource($this->current)) {
 			fclose($this->current);
 		}
-		$this->current = null;
 	}
 
 	public function stream_write($data) {

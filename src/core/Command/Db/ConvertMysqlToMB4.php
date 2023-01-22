@@ -37,9 +37,15 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ConvertMysqlToMB4 extends Command {
-	private IConfig $config;
-	private IDBConnection $connection;
-	private IURLGenerator $urlGenerator;
+	/** @var IConfig */
+	private $config;
+
+	/** @var IDBConnection */
+	private $connection;
+
+	/** @var IURLGenerator */
+	private $urlGenerator;
+
 	private LoggerInterface $logger;
 
 	public function __construct(

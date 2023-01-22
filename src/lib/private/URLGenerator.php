@@ -42,8 +42,6 @@ namespace OC;
 
 use OC\Route\Router;
 use OCA\Theming\ThemingDefaults;
-use OCP\App\AppPathNotFoundException;
-use OCP\App\IAppManager;
 use OCP\ICacheFactory;
 use OCP\IConfig;
 use OCP\IRequest;
@@ -67,27 +65,17 @@ class URLGenerator implements IURLGenerator {
 	private $router;
 	/** @var null|string */
 	private $baseUrl = null;
-	private ?IAppManager $appManager = null;
 
 	public function __construct(IConfig $config,
 								IUserSession $userSession,
 								ICacheFactory $cacheFactory,
 								IRequest $request,
-								Router $router
-	) {
+								Router $router) {
 		$this->config = $config;
 		$this->userSession = $userSession;
 		$this->cacheFactory = $cacheFactory;
 		$this->request = $request;
 		$this->router = $router;
-	}
-
-	private function getAppManager(): IAppManager {
-		if ($this->appManager !== null) {
-			return $this->appManager;
-		}
-		$this->appManager = \OCP\Server::get(IAppManager::class);
-		return $this->appManager;
 	}
 
 	/**
@@ -144,9 +132,9 @@ class URLGenerator implements IURLGenerator {
 		$frontControllerActive = ($this->config->getSystemValue('htaccess.IgnoreFrontController', false) === true || getenv('front_controller_active') === 'true');
 
 		if ($appName !== '') {
-			$app_path = $this->getAppManager()->getAppPath($appName);
+			$app_path = \OC_App::getAppPath($appName);
 			// Check if the app is in the app folder
-			if (file_exists($app_path . '/' . $file)) {
+			if ($app_path && file_exists($app_path . '/' . $file)) {
 				if (substr($file, -3) === 'php') {
 					$urlLinkTo = \OC::$WEBROOT . '/index.php/apps/' . $appName;
 					if ($frontControllerActive) {
@@ -154,7 +142,7 @@ class URLGenerator implements IURLGenerator {
 					}
 					$urlLinkTo .= ($file !== 'index.php') ? '/' . $file : '';
 				} else {
-					$urlLinkTo = $this->getAppManager()->getAppWebPath($appName) . '/' . $file;
+					$urlLinkTo = \OC_App::getAppWebPath($appName) . '/' . $file;
 				}
 			} else {
 				$urlLinkTo = \OC::$WEBROOT . '/' . $appName . '/' . $file;
@@ -201,20 +189,11 @@ class URLGenerator implements IURLGenerator {
 		//if a theme has a png but not an svg always use the png
 		$basename = substr(basename($file), 0, -4);
 
-		try {
-			$appPath = $this->getAppManager()->getAppPath($appName);
-		} catch (AppPathNotFoundException $e) {
-			if ($appName === 'core' || $appName === '') {
-				$appName = 'core';
-				$appPath = false;
-			} else {
-				throw new RuntimeException('image not found: image: ' . $file . ' webroot: ' . \OC::$WEBROOT . ' serverroot: ' . \OC::$SERVERROOT);
-			}
-		}
+		$appPath = \OC_App::getAppPath($appName);
 
 		// Check if the app is in the app folder
 		$path = '';
-		$themingEnabled = $this->config->getSystemValue('installed', false) && $this->getAppManager()->isEnabledForUser('theming');
+		$themingEnabled = $this->config->getSystemValue('installed', false) && \OCP\App::isEnabled('theming') && \OC_App::isAppLoaded('theming');
 		$themingImagePath = false;
 		if ($themingEnabled) {
 			$themingDefaults = \OC::$server->getThemingDefaults();
@@ -241,10 +220,10 @@ class URLGenerator implements IURLGenerator {
 		} elseif ($themingEnabled && $themingImagePath) {
 			$path = $themingImagePath;
 		} elseif ($appPath && file_exists($appPath . "/img/$file")) {
-			$path = $this->getAppManager()->getAppWebPath($appName) . "/img/$file";
+			$path = \OC_App::getAppWebPath($appName) . "/img/$file";
 		} elseif ($appPath && !file_exists($appPath . "/img/$basename.svg")
 			&& file_exists($appPath . "/img/$basename.png")) {
-			$path = $this->getAppManager()->getAppWebPath($appName) . "/img/$basename.png";
+			$path = \OC_App::getAppWebPath($appName) . "/img/$basename.png";
 		} elseif (!empty($appName) and file_exists(\OC::$SERVERROOT . "/$appName/img/$file")) {
 			$path = \OC::$WEBROOT . "/$appName/img/$file";
 		} elseif (!empty($appName) and (!file_exists(\OC::$SERVERROOT . "/$appName/img/$basename.svg")
@@ -341,7 +320,7 @@ class URLGenerator implements IURLGenerator {
 	 * @return string base url of the current request
 	 */
 	public function getBaseUrl(): string {
-		// BaseUrl can be equal to 'http(s)://' during the first steps of the initial setup.
+		// BaseUrl can be equal to 'http(s)://' during the first steps of the intial setup.
 		if ($this->baseUrl === null || $this->baseUrl === "http://" || $this->baseUrl === "https://") {
 			$this->baseUrl = $this->request->getServerProtocol() . '://' . $this->request->getServerHost() . \OC::$WEBROOT;
 		}

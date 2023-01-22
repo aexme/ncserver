@@ -682,7 +682,7 @@ class Wizard extends LDAPUtility {
 				'Wiz: trying port '. $p . ', TLS '. $t,
 				['app' => 'user_ldap']
 			);
-			//connectAndBind may throw Exception, it needs to be caught by the
+			//connectAndBind may throw Exception, it needs to be catched by the
 			//callee of this method
 
 			try {
@@ -1077,7 +1077,7 @@ class Wizard extends LDAPUtility {
 			}
 
 			$this->logger->debug(
-				'Wiz: Attempting to Bind',
+				'Wiz: Attemping to Bind',
 				['app' => 'user_ldap']
 			);
 			//interesting part: do the bind!

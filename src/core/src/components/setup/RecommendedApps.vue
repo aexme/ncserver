@@ -20,7 +20,7 @@
   -->
 
 <template>
-	<div class="guest-box">
+	<div class="body-login-container">
 		<h2>{{ t('core', 'Recommended apps') }}</h2>
 		<p v-if="loadingApps" class="loading text-center">
 			{{ t('core', 'Loading apps …') }}
@@ -33,43 +33,32 @@
 		</p>
 
 		<div v-for="app in recommendedApps" :key="app.id" class="app">
-			<template v-if="!isHidden(app.id)">
-				<img :src="customIcon(app.id)" alt="">
-				<div class="info">
-					<h3>
-						{{ customName(app) }}
-						<span v-if="app.loading" class="icon icon-loading-small-dark" />
-						<span v-else-if="app.active" class="icon icon-checkmark-white" />
-					</h3>
-					<p v-html="customDescription(app.id)" />
-					<p v-if="app.installationError">
-						<strong>{{ t('core', 'App download or installation failed') }}</strong>
-					</p>
-					<p v-else-if="!app.isCompatible">
-						<strong>{{ t('core', 'Cannot install this app because it is not compatible') }}</strong>
-					</p>
-					<p v-else-if="!app.canInstall">
-						<strong>{{ t('core', 'Cannot install this app') }}</strong>
-					</p>
-				</div>
-			</template>
+			<img :src="customIcon(app.id)" alt="">
+			<div class="info">
+				<h3>
+					{{ app.name }}
+					<span v-if="app.loading" class="icon icon-loading-small-dark" />
+					<span v-else-if="app.active" class="icon icon-checkmark-white" />
+				</h3>
+				<p v-html="customDescription(app.id)" />
+				<p v-if="app.installationError">
+					<strong>{{ t('core', 'App download or installation failed') }}</strong>
+				</p>
+				<p v-else-if="!app.isCompatible">
+					<strong>{{ t('core', 'Cannot install this app because it is not compatible') }}</strong>
+				</p>
+				<p v-else-if="!app.canInstall">
+					<strong>{{ t('core', 'Cannot install this app') }}</strong>
+				</p>
+			</div>
 		</div>
 
-		<div class="dialog-row">
-			<NcButton v-if="showInstallButton"
-				type="tertiary"
-				role="link"
-				href="defaultPageUrl"
-				@click="goTo(defaultPageUrl)">
-				{{ t('core', 'Skip') }}
-			</NcButton>
+		<InstallButton v-if="showInstallButton"
+			@click.stop.prevent="installApps" />
 
-			<NcButton v-if="showInstallButton"
-				type="primary"
-				@click.stop.prevent="installApps">
-				{{ t('core', 'Install recommended apps') }}
-			</NcButton>
-		</div>
+		<p class="text-center">
+			<a :href="defaultPageUrl">{{ t('core', 'Cancel') }}</a>
+		</p>
 	</div>
 </template>
 
@@ -80,7 +69,8 @@ import { loadState } from '@nextcloud/initial-state'
 import pLimit from 'p-limit'
 import { translate as t } from '@nextcloud/l10n'
 
-import NcButton from '@nextcloud/vue/dist/Components/NcButton'
+// TODO replace with Button component when @nextcloud/vue is upgraded to v5
+import InstallButton from './InstallButton'
 
 import logger from '../../logger'
 
@@ -102,12 +92,12 @@ const recommended = {
 		icon: imagePath('core', 'apps/spreed.svg'),
 	},
 	richdocuments: {
-		name: 'Nextcloud Office',
-		description: t('core', 'Collaborative documents, spreadsheets and presentations, built on Collabora Online.'),
+		description: t('core', 'Collaboratively edit office documents.'),
 		icon: imagePath('core', 'apps/richdocuments.svg'),
 	},
 	richdocumentscode: {
-		hidden: true,
+		description: t('core', 'Local document editing back-end used by the Collabora Online app.'),
+		icon: imagePath('core', 'apps/richdocumentscode.svg'),
 	},
 }
 const recommendedIds = Object.keys(recommended)
@@ -116,7 +106,7 @@ const defaultPageUrl = loadState('core', 'defaultPageUrl')
 export default {
 	name: 'RecommendedApps',
 	components: {
-		NcButton,
+		InstallButton,
 	},
 	data() {
 		return {
@@ -187,12 +177,6 @@ export default {
 			}
 			return recommended[appId].icon
 		},
-		customName(app) {
-			if (!(app.id in recommended)) {
-				return app.name
-			}
-			return recommended[app.id].name || app.name
-		},
 		customDescription(appId) {
 			if (!(appId in recommended)) {
 				logger.warn(`no app description for recommended app ${appId}`)
@@ -200,24 +184,13 @@ export default {
 			}
 			return recommended[appId].description
 		},
-		isHidden(appId) {
-			if (!(appId in recommended)) {
-				return false
-			}
-			return !!recommended[appId].hidden
-		},
-		goTo(href) {
-			window.location.href = href
-		},
 	},
 }
 </script>
 
 <style lang="scss" scoped>
-.dialog-row {
-	display: flex;
-	justify-content: end;
-	margin-top: 8px;
+.body-login-container {
+
 }
 
 p {
@@ -242,7 +215,7 @@ p {
 	img {
 		height: 50px;
 		width: 50px;
-		filter: var(--background-invert-if-dark);
+		filter: invert(1);
 	}
 
 	img, .info {
@@ -255,6 +228,7 @@ p {
 		}
 
 		h3 {
+			color: #fff;
 			margin-top: 0;
 		}
 

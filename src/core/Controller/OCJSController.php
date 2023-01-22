@@ -45,9 +45,28 @@ use OCP\IUserSession;
 use OCP\L10N\IFactory;
 
 class OCJSController extends Controller {
-	private JSConfigHelper $helper;
 
-	public function __construct(string $appName,
+	/** @var JSConfigHelper */
+	private $helper;
+
+	/**
+	 * OCJSController constructor.
+	 *
+	 * @param string $appName
+	 * @param IRequest $request
+	 * @param IFactory $l10nFactory
+	 * @param Defaults $defaults
+	 * @param IAppManager $appManager
+	 * @param ISession $session
+	 * @param IUserSession $userSession
+	 * @param IConfig $config
+	 * @param IGroupManager $groupManager
+	 * @param IniGetWrapper $iniWrapper
+	 * @param IURLGenerator $urlGenerator
+	 * @param CapabilitiesManager $capabilitiesManager
+	 * @param IInitialStateService $initialStateService
+	 */
+	public function __construct($appName,
 								IRequest $request,
 								IFactory $l10nFactory,
 								Defaults $defaults,
@@ -81,8 +100,10 @@ class OCJSController extends Controller {
 	 * @NoCSRFRequired
 	 * @NoTwoFactorRequired
 	 * @PublicPage
+	 *
+	 * @return DataDisplayResponse
 	 */
-	public function getConfig(): DataDisplayResponse {
+	public function getConfig() {
 		$data = $this->helper->getConfig();
 
 		return new DataDisplayResponse($data, Http::STATUS_OK, ['Content-type' => 'text/javascript']);

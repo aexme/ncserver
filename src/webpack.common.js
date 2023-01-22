@@ -2,6 +2,7 @@
 const { VueLoaderPlugin } = require('vue-loader')
 const path = require('path')
 const BabelLoaderExcludeNodeModulesExcept = require('babel-loader-exclude-node-modules-except')
+const ESLintPlugin = require('eslint-webpack-plugin')
 const webpack = require('webpack')
 const modules = require('./webpack.modules.js')
 
@@ -53,9 +54,7 @@ module.exports = {
 			const rel = path.relative(rootDir, info.absoluteResourcePath)
 			return `webpack:///nextcloud/${rel}`
 		},
-		clean: {
-			keep: /icons\.css/, // Keep static icons css
-		},
+		clean: true,
 	},
 
 	module: {
@@ -139,11 +138,10 @@ module.exports = {
 
 	plugins: [
 		new VueLoaderPlugin(),
+		new ESLintPlugin(),
 		new webpack.ProvidePlugin({
 			// Provide jQuery to jquery plugins as some are loaded before $ is exposed globally.
-			// We need to provide the path to node_moduels as otherwise npm link will fail due
-			// to tribute.js checking for jQuery in @nextcloud/vue
-			jQuery: path.resolve(path.join(__dirname, 'node_modules/jquery')),
+			jQuery: 'jquery',
 			// Shim ICAL to prevent using the global object (window.ICAL).
 			// The library ical.js heavily depends on instanceof checks which will
 			// break if two separate versions of the library are used (e.g. bundled one
@@ -157,7 +155,7 @@ module.exports = {
 			handlebars: 'handlebars/runtime',
 		},
 		extensions: ['*', '.js', '.vue'],
-		symlinks: true,
+		symlinks: false,
 		fallback: {
 			stream: require.resolve('stream-browserify'),
 			buffer: require.resolve('buffer'),

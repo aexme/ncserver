@@ -39,11 +39,21 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ResetRenderedTexts extends Command {
-	protected IDBConnection $connection;
-	protected IUserManager $userManager;
-	protected IAvatarManager $avatarManager;
-	private Root $previewFolder;
-	private IMimeTypeLoader $mimeTypeLoader;
+
+	/** @var IDBConnection */
+	protected $connection;
+
+	/** @var IUserManager */
+	protected $userManager;
+
+	/** @var IAvatarManager */
+	protected $avatarManager;
+
+	/** @var Root */
+	private $previewFolder;
+
+	/** @var IMimeTypeLoader */
+	private $mimeTypeLoader;
 
 	public function __construct(IDBConnection $connection,
 								IUserManager $userManager,

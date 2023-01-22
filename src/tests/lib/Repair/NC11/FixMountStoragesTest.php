@@ -70,16 +70,17 @@ class FixMountStoragesTest extends TestCase {
 
 		/** @var IOutput|\PHPUnit\Framework\MockObject\MockObject $output */
 		$output = $this->createMock(IOutput::class);
-		$output->expects($this->exactly(2))
+		$output->expects($this->at(0))
 			->method('info')
-			->withConsecutive(
-				['1 mounts updated'],
-				['No mounts updated']
-			);
+			->with('1 mounts updated');
 
 		$this->repair->run($output);
 		$this->assertStorage($mount1, 42);
 		$this->assertStorage($mount2, 23);
+
+		$output->expects($this->at(0))
+			->method('info')
+			->with('No mounts updated');
 
 		$this->repair->run($output);
 		$this->assertStorage($mount1, 42);

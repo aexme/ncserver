@@ -37,7 +37,6 @@ use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\DB\IResult;
 use OCP\DB\QueryBuilder\IExpressionBuilder;
 use OCP\DB\QueryBuilder\IQueryBuilder;
-use OCP\DB\QueryBuilder\IQueryFunction;
 use OCP\IDBConnection;
 use OCP\IRequest;
 use Sabre\VObject\ITip\Message;
@@ -381,18 +380,10 @@ EOF;
 	 * @dataProvider attendeeProvider
 	 */
 	public function testProcessMoreOptionsResult(bool $isExternalAttendee): void {
-		$this->request->expects($this->at(0))
+		$this->request->expects($this->once())
 			->method('getParam')
 			->with('partStat')
 			->willReturn('TENTATIVE');
-		$this->request->expects($this->at(1))
-			->method('getParam')
-			->with('guests')
-			->willReturn('7');
-		$this->request->expects($this->at(2))
-			->method('getParam')
-			->with('comment')
-			->willReturn('Foo bar Bli blub');
 
 		$this->buildQueryExpects('TOKEN123', [
 			'id' => 0,
@@ -411,14 +402,12 @@ VERSION:2.0
 PRODID:-//Nextcloud/Nextcloud CalDAV Server//EN
 METHOD:REPLY
 BEGIN:VEVENT
-ATTENDEE;PARTSTAT=TENTATIVE;X-RESPONSE-COMMENT=Foo bar Bli blub;X-NUM-GUEST
- S=7:mailto:attendee@foo.bar
+ATTENDEE;PARTSTAT=TENTATIVE:mailto:attendee@foo.bar
 ORGANIZER:mailto:organizer@foo.bar
 UID:this-is-the-events-uid
 SEQUENCE:0
 REQUEST-STATUS:2.0;Success
 DTSTAMP:19700101T002217Z
-COMMENT:Foo bar Bli blub
 END:VEVENT
 END:VCALENDAR
 
@@ -478,11 +467,10 @@ EOF;
 			->with(\PDO::FETCH_ASSOC)
 			->willReturn($return);
 
-		$function = $this->createMock(IQueryFunction::class);
 		$expr->expects($this->once())
 			->method('eq')
 			->with('token', 'namedParameterToken')
-			->willReturn($function);
+			->willReturn('EQ STATEMENT');
 
 		$this->dbConnection->expects($this->once())
 			->method('getQueryBuilder')
@@ -499,7 +487,7 @@ EOF;
 			->willReturn($queryBuilder);
 		$queryBuilder->expects($this->at(4))
 			->method('where')
-			->with($function)
+			->with('EQ STATEMENT')
 			->willReturn($queryBuilder);
 		$queryBuilder->expects($this->at(5))
 			->method('execute')

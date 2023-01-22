@@ -261,7 +261,7 @@ class StorageConfig implements \JsonSerializable {
 	}
 
 	/**
-	 * Sets the mount priority
+	 * Sets the mount priotity
 	 *
 	 * @param int $priority priority
 	 */

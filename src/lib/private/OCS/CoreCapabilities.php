@@ -24,7 +24,6 @@ namespace OC\OCS;
 
 use OCP\Capabilities\ICapability;
 use OCP\IConfig;
-use OCP\IURLGenerator;
 
 /**
  * Class Capabilities
@@ -53,9 +52,7 @@ class CoreCapabilities implements ICapability {
 			'core' => [
 				'pollinterval' => $this->config->getSystemValue('pollinterval', 60),
 				'webdav-root' => $this->config->getSystemValue('webdav-root', 'remote.php/webdav'),
-				'reference-api' => true,
-				'reference-regex' => IURLGenerator::URL_REGEX_NO_MODIFIERS,
-			],
+			]
 		];
 	}
 }

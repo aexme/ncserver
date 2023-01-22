@@ -215,7 +215,7 @@ class ShareAPIControllerTest extends TestCase {
 
 	public function testDeleteShareShareNotFound() {
 		$this->expectException(\OCP\AppFramework\OCS\OCSNotFoundException::class);
-		$this->expectExceptionMessage('Wrong share ID, share does not exist');
+		$this->expectExceptionMessage('Wrong share ID, share doesn\'t exist');
 
 		$this->shareManager
 			->expects($this->exactly(6))
@@ -452,7 +452,7 @@ class ShareAPIControllerTest extends TestCase {
 	 */
 	public function testDeleteSharedWithGroupIDontBelongTo() {
 		$this->expectException(\OCP\AppFramework\OCS\OCSNotFoundException::class);
-		$this->expectExceptionMessage('Wrong share ID, share does not exist');
+		$this->expectExceptionMessage('Wrong share ID, share doesn\'t exist');
 
 		$node = $this->getMockBuilder(File::class)->getMock();
 
@@ -517,7 +517,7 @@ class ShareAPIControllerTest extends TestCase {
 			->with('ocinternal:42', 'currentUser')
 			->will($this->throwException(new \OC\Share20\Exception\ShareNotFound()));
 
-		$expected = new \OC\OCS\Result(null, 404, 'wrong share ID, share does not exist.');
+		$expected = new \OC\OCS\Result(null, 404, 'wrong share ID, share doesn\'t exist.');
 		$this->assertEquals($expected, $this->ocs->getShare(42));
 	}
 	*/
@@ -838,7 +838,7 @@ class ShareAPIControllerTest extends TestCase {
 
 	public function testGetShareInvalidNode() {
 		$this->expectException(\OCP\AppFramework\OCS\OCSNotFoundException::class);
-		$this->expectExceptionMessage('Wrong share ID, share does not exist');
+		$this->expectExceptionMessage('Wrong share ID, share doesn\'t exist');
 
 		$share = \OC::$server->getShareManager()->newShare();
 		$share->setSharedBy('initiator')
@@ -2589,7 +2589,7 @@ class ShareAPIControllerTest extends TestCase {
 
 	public function testUpdateShareCantAccess() {
 		$this->expectException(\OCP\AppFramework\OCS\OCSNotFoundException::class);
-		$this->expectExceptionMessage('Wrong share ID, share does not exist');
+		$this->expectExceptionMessage('Wrong share ID, share doesn\'t exist');
 
 		[$userFolder, $node] = $this->getNonSharedUserFolder();
 		$share = $this->newShare();

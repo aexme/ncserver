@@ -31,11 +31,21 @@ use Sabre\HTTP\RequestInterface;
 use Sabre\HTTP\ResponseInterface;
 
 class BearerAuth extends AbstractBearer {
-	private IUserSession $userSession;
-	private ISession $session;
-	private IRequest $request;
-	private string $principalPrefix;
+	/** @var IUserSession */
+	private $userSession;
+	/** @var ISession */
+	private $session;
+	/** @var IRequest */
+	private $request;
+	/** @var string */
+	private $principalPrefix;
 
+	/**
+	 * @param IUserSession $userSession
+	 * @param ISession $session
+	 * @param string $principalPrefix
+	 * @param IRequest $request
+	 */
 	public function __construct(IUserSession $userSession,
 								ISession $session,
 								IRequest $request,
@@ -80,7 +90,7 @@ class BearerAuth extends AbstractBearer {
 	 * @param RequestInterface $request
 	 * @param ResponseInterface $response
 	 */
-	public function challenge(RequestInterface $request, ResponseInterface $response): void {
+	public function challenge(RequestInterface $request, ResponseInterface $response) {
 		$response->setStatus(401);
 	}
 }

@@ -46,8 +46,8 @@ export const ACCOUNT_PROPERTY_ENUM = Object.freeze({
 
 /** Enum of account properties to human readable account property names */
 export const ACCOUNT_PROPERTY_READABLE_ENUM = Object.freeze({
-	ADDRESS: t('settings', 'Location'),
-	AVATAR: t('settings', 'Profile picture'),
+	ADDRESS: t('settings', 'Address'),
+	AVATAR: t('settings', 'Avatar'),
 	BIOGRAPHY: t('settings', 'About'),
 	DISPLAYNAME: t('settings', 'Full name'),
 	EMAIL_COLLECTION: t('settings', 'Additional email'),
@@ -59,22 +59,6 @@ export const ACCOUNT_PROPERTY_READABLE_ENUM = Object.freeze({
 	ROLE: t('settings', 'Role'),
 	TWITTER: t('settings', 'Twitter'),
 	WEBSITE: t('settings', 'Website'),
-})
-
-export const NAME_READABLE_ENUM = Object.freeze({
-	[ACCOUNT_PROPERTY_ENUM.ADDRESS]: ACCOUNT_PROPERTY_READABLE_ENUM.ADDRESS,
-	[ACCOUNT_PROPERTY_ENUM.AVATAR]: ACCOUNT_PROPERTY_READABLE_ENUM.AVATAR,
-	[ACCOUNT_PROPERTY_ENUM.BIOGRAPHY]: ACCOUNT_PROPERTY_READABLE_ENUM.BIOGRAPHY,
-	[ACCOUNT_PROPERTY_ENUM.DISPLAYNAME]: ACCOUNT_PROPERTY_READABLE_ENUM.DISPLAYNAME,
-	[ACCOUNT_PROPERTY_ENUM.EMAIL_COLLECTION]: ACCOUNT_PROPERTY_READABLE_ENUM.EMAIL_COLLECTION,
-	[ACCOUNT_PROPERTY_ENUM.EMAIL]: ACCOUNT_PROPERTY_READABLE_ENUM.EMAIL,
-	[ACCOUNT_PROPERTY_ENUM.HEADLINE]: ACCOUNT_PROPERTY_READABLE_ENUM.HEADLINE,
-	[ACCOUNT_PROPERTY_ENUM.ORGANISATION]: ACCOUNT_PROPERTY_READABLE_ENUM.ORGANISATION,
-	[ACCOUNT_PROPERTY_ENUM.PHONE]: ACCOUNT_PROPERTY_READABLE_ENUM.PHONE,
-	[ACCOUNT_PROPERTY_ENUM.PROFILE_ENABLED]: ACCOUNT_PROPERTY_READABLE_ENUM.PROFILE_ENABLED,
-	[ACCOUNT_PROPERTY_ENUM.ROLE]: ACCOUNT_PROPERTY_READABLE_ENUM.ROLE,
-	[ACCOUNT_PROPERTY_ENUM.TWITTER]: ACCOUNT_PROPERTY_READABLE_ENUM.TWITTER,
-	[ACCOUNT_PROPERTY_ENUM.WEBSITE]: ACCOUNT_PROPERTY_READABLE_ENUM.WEBSITE,
 })
 
 /** Enum of profile specific sections to human readable names */
@@ -106,13 +90,11 @@ export const PROPERTY_READABLE_KEYS_ENUM = Object.freeze({
  */
 export const ACCOUNT_SETTING_PROPERTY_ENUM = Object.freeze({
 	LANGUAGE: 'language',
-	LOCALE: 'locale',
 })
 
 /** Enum of account setting properties to human readable setting properties */
 export const ACCOUNT_SETTING_PROPERTY_READABLE_ENUM = Object.freeze({
 	LANGUAGE: t('settings', 'Language'),
-	LOCALE: t('settings', 'Locale'),
 })
 
 /** Enum of scopes */
@@ -175,7 +157,7 @@ export const SCOPE_PROPERTY_ENUM = Object.freeze({
 		name: SCOPE_ENUM.FEDERATED,
 		displayName: t('settings', 'Federated'),
 		tooltip: t('settings', 'Only synchronize to trusted servers'),
-		tooltipDisabled: t('settings', 'Not available as federation has been disabled for your account, contact your system administrator if you have any questions'),
+		tooltipDisabled: t('settings', 'Not available as publishing user specific data to the lookup server is not allowed, contact your system administrator if you have any questions'),
 		iconClass: 'icon-contacts-dark',
 	},
 	[SCOPE_ENUM.PUBLISHED]: {

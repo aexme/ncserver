@@ -54,7 +54,7 @@ class SearchBuilder {
 		ISearchComparison::COMPARE_GREATER_THAN => 'lte',
 		ISearchComparison::COMPARE_GREATER_THAN_EQUAL => 'lt',
 		ISearchComparison::COMPARE_LESS_THAN => 'gte',
-		ISearchComparison::COMPARE_LESS_THAN_EQUAL => 'gt',
+		ISearchComparison::COMPARE_LESS_THAN_EQUAL => 'lt',
 	];
 
 	public const TAG_FAVORITE = '_$!<Favorite>!$_';
@@ -80,7 +80,7 @@ class SearchBuilder {
 				return $shouldJoin || $this->shouldJoinTags($operator);
 			}, false);
 		} elseif ($operator instanceof ISearchComparison) {
-			return $operator->getField() === 'tagname' || $operator->getField() === 'favorite' || $operator->getField() === 'systemtag';
+			return $operator->getField() === 'tagname' || $operator->getField() === 'favorite';
 		}
 		return false;
 	}
@@ -163,12 +163,8 @@ class SearchBuilder {
 		} elseif ($field === 'favorite') {
 			$field = 'tag.category';
 			$value = self::TAG_FAVORITE;
-		} elseif ($field === 'name') {
-			$field = 'file.name';
 		} elseif ($field === 'tagname') {
 			$field = 'tag.category';
-		} elseif ($field === 'systemtag') {
-			$field = 'systemtag.name';
 		} elseif ($field === 'fileid') {
 			$field = 'file.fileid';
 		} elseif ($field === 'path' && $type === ISearchComparison::COMPARE_EQUAL && $operator->getQueryHint(ISearchComparison::HINT_PATH_EQ_HASH, true)) {
@@ -186,7 +182,6 @@ class SearchBuilder {
 			'path' => 'string',
 			'size' => 'integer',
 			'tagname' => 'string',
-			'systemtag' => 'string',
 			'favorite' => 'boolean',
 			'fileid' => 'integer',
 			'storage' => 'integer',
@@ -198,7 +193,6 @@ class SearchBuilder {
 			'path' => ['eq', 'like', 'clike'],
 			'size' => ['eq', 'gt', 'lt', 'gte', 'lte'],
 			'tagname' => ['eq', 'like'],
-			'systemtag' => ['eq', 'like'],
 			'favorite' => ['eq'],
 			'fileid' => ['eq'],
 			'storage' => ['eq'],

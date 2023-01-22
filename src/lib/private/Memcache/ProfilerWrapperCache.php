@@ -69,7 +69,6 @@ class ProfilerWrapperCache extends AbstractDataCollector implements IMemcacheTTL
 			'start' => $start,
 			'end' => microtime(true),
 			'op' => $this->getPrefix() . '::get::' . $key,
-			'hit' => $ret !== null,
 		];
 		return $ret;
 	}

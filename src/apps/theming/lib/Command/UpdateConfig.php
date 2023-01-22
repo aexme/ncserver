@@ -33,7 +33,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdateConfig extends Command {
 	public const SUPPORTED_KEYS = [
-		'name', 'url', 'imprintUrl', 'privacyUrl', 'slogan', 'color', 'disable-user-theming'
+		'name', 'url', 'imprintUrl', 'privacyUrl', 'slogan', 'color'
 	];
 
 	public const SUPPORTED_IMAGE_KEYS = [

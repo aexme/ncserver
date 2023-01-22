@@ -247,7 +247,7 @@ class ApiController extends Controller {
 	}
 
 	/**
-	 * Returns a list of recently modified files.
+	 * Returns a list of recently modifed files.
 	 *
 	 * @NoAdminRequired
 	 *

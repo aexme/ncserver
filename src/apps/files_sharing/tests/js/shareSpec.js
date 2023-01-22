@@ -41,17 +41,17 @@ describe('OCA.Sharing.Util tests', function() {
 	}
 
 	beforeEach(function() {
-		var $content = $('<div id="app-content"></div>');
+		var $content = $('<div id="content"></div>');
 		$('#testArea').append($content);
 		// dummy file list
 		var $div = $(
 			'<div id="listContainer">' +
-			'<table class="files-filestable list-container view-grid">' +
+			'<table id="filestable" class="list-container view-grid">' +
 			'<thead></thead>' +
-			'<tbody class="files-fileList"></tbody>' +
+			'<tbody id="fileList"></tbody>' +
 			'</table>' +
 			'</div>');
-		$('#app-content').append($div);
+		$('#content').append($div);
 
 		var fileActions = new OCA.Files.FileActions();
 		fileList = new OCA.Files.FileList(

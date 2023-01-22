@@ -40,14 +40,16 @@ interface IShareable extends INode {
 	 * Every element in the add array has the following properties:
 	 *   * href - A url. Usually a mailto: address
 	 *   * commonName - Usually a first and last name, or false
+	 *   * summary - A description of the share, can also be false
 	 *   * readOnly - A boolean value
 	 *
 	 * Every element in the remove array is just the address string.
 	 *
-	 * @param list<array{href: string, commonName: string, readOnly: bool}> $add
-	 * @param list<string> $remove
+	 * @param array $add
+	 * @param array $remove
+	 * @return void
 	 */
-	public function updateShares(array $add, array $remove): void;
+	public function updateShares(array $add, array $remove);
 
 	/**
 	 * Returns the list of people whom this resource is shared with.
@@ -57,15 +59,19 @@ interface IShareable extends INode {
 	 *   * commonName - Optional, for example a first + last name
 	 *   * status - See the Sabre\CalDAV\SharingPlugin::STATUS_ constants.
 	 *   * readOnly - boolean
+	 *   * summary - Optional, a description for the share
 	 *
-	 * @return list<array{href: string, commonName: string, status: int, readOnly: bool, '{http://owncloud.org/ns}principal': string, '{http://owncloud.org/ns}group-share': bool}>
+	 * @return array
 	 */
-	public function getShares(): array;
-
-	public function getResourceId(): int;
+	public function getShares();
 
 	/**
-	 * @return ?string
+	 * @return int
+	 */
+	public function getResourceId();
+
+	/**
+	 * @return string
 	 */
 	public function getOwner();
 }

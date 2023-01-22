@@ -1,10 +1,8 @@
 <?php
-// SPDX-FileCopyrightText: 2018 Georg Ehrke <oc.list@georgehrke.com>
-// SPDX-License-Identifier: AGPL-3.0-or-later
-\OCP\Util::addStyle('dav', 'schedule-response');
+style('dav', 'schedule-response');
 ?>
 
-<div class="guest-box">
+<div class="update">
 	<form action="" method="post">
 		<fieldset id="partStat">
 			<h2><?php p($l->t('Are you accepting the invitation?')); ?></h2>
@@ -24,10 +22,6 @@
 					<span><?php p($l->t('Decline')); ?></span>
 				</label>
 			</div>
-		</fieldset>
-		<fieldset id="more_options">
-			<input type="number" min="0" name="guests" placeholder="<?php p($l->t('Number of guests')); ?>" />
-			<input type="text" name="comment" placeholder="<?php p($l->t('Comment')); ?>" />
 		</fieldset>
 		<fieldset>
 			<input type="submit" value="<?php p($l->t('Save'));?>">

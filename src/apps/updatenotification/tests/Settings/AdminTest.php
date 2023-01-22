@@ -36,17 +36,13 @@ use OCP\IConfig;
 use OCP\IDateTimeFormatter;
 use OCP\IGroup;
 use OCP\IGroupManager;
-use OCP\IUserManager;
 use OCP\L10N\IFactory;
 use OCP\L10N\ILanguageIterator;
 use OCP\Support\Subscription\IRegistry;
-use OCP\UserInterface;
-use OCP\User\Backend\ICountUsersBackend;
-use OCP\AppFramework\Services\IInitialState;
 use OCP\Util;
-use OC\User\Backend;
-use Psr\Log\LoggerInterface;
 use Test\TestCase;
+use OCP\IUserManager;
+use Psr\Log\LoggerInterface;
 
 class AdminTest extends TestCase {
 	/** @var IFactory|\PHPUnit\Framework\MockObject\MockObject */
@@ -67,8 +63,6 @@ class AdminTest extends TestCase {
 	private $userManager;
 	/** @var LoggerInterface|\PHPUnit\Framework\MockObject\MockObject */
 	private $logger;
-	/** IInitialState|\PHPUnit\Framework\MockObject\MockObject */
-	private $initialState;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -81,7 +75,6 @@ class AdminTest extends TestCase {
 		$this->subscriptionRegistry = $this->createMock(IRegistry::class);
 		$this->userManager = $this->createMock(IUserManager::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
-		$this->initialState = $this->createMock(IInitialState::class);
 
 		$this->admin = new Admin(
 			$this->config, 
@@ -91,15 +84,14 @@ class AdminTest extends TestCase {
 			$this->l10nFactory, 
 			$this->subscriptionRegistry,
 			$this->userManager,
-			$this->logger,
-			$this->initialState
+			$this->logger
 		);
 	}
 
 	public function testGetFormWithUpdate() {
-		$backend1 = $this->createMock(CountUsersBackend::class);
-		$backend2 = $this->createMock(CountUsersBackend::class);
-		$backend3 = $this->createMock(CountUsersBackend::class);
+		$backend1 = $this->createMock(UserInterface::class);
+		$backend2 = $this->createMock(UserInterface::class);
+		$backend3 = $this->createMock(UserInterface::class);
 		$backend1
 			->expects($this->once())
 			->method('implementsActions')
@@ -192,9 +184,8 @@ class AdminTest extends TestCase {
 			->method('delegateHasValidSubscription')
 			->willReturn(true);
 
-		$this->initialState->expects($this->once())
-			->method('provideInitialState')
-			->with('data', [
+		$params = [
+			'json' => json_encode([
 				'isNewVersionAvailable' => true,
 				'isUpdateChecked' => true,
 				'lastChecked' => 'LastCheckedReturnValue',
@@ -211,19 +202,20 @@ class AdminTest extends TestCase {
 				'isDefaultUpdateServerURL' => true,
 				'updateServerURL' => 'https://updates.nextcloud.com/updater_server/',
 				'notifyGroups' => [
-					['id' => 'admin', 'displayname' => 'Administrators'],
+					['value' => 'admin', 'label' => 'Administrators'],
 				],
 				'hasValidSubscription' => true,
-			]);
+			]),
+		];
 
-		$expected = new TemplateResponse('updatenotification', 'admin', [], '');
+		$expected = new TemplateResponse('updatenotification', 'admin', $params, '');
 		$this->assertEquals($expected, $this->admin->getForm());
 	}
 
 	public function testGetFormWithUpdateAndChangedUpdateServer() {
-		$backend1 = $this->createMock(CountUsersBackend::class);
-		$backend2 = $this->createMock(CountUsersBackend::class);
-		$backend3 = $this->createMock(CountUsersBackend::class);
+		$backend1 = $this->createMock(UserInterface::class);
+		$backend2 = $this->createMock(UserInterface::class);
+		$backend3 = $this->createMock(UserInterface::class);
 		$backend1
 			->expects($this->once())
 			->method('implementsActions')
@@ -316,9 +308,8 @@ class AdminTest extends TestCase {
 			->method('delegateHasValidSubscription')
 			->willReturn(true);
 
-		$this->initialState->expects($this->once())
-			->method('provideInitialState')
-			->with('data', [
+		$params = [
+			'json' => json_encode([
 				'isNewVersionAvailable' => true,
 				'isUpdateChecked' => true,
 				'lastChecked' => 'LastCheckedReturnValue',
@@ -335,19 +326,20 @@ class AdminTest extends TestCase {
 				'isDefaultUpdateServerURL' => false,
 				'updateServerURL' => 'https://updates.nextcloud.com/updater_server_changed/',
 				'notifyGroups' => [
-					['id' => 'admin', 'displayname' => 'Administrators'],
+					['value' => 'admin', 'label' => 'Administrators'],
 				],
 				'hasValidSubscription' => true,
-			]);
+			]),
+		];
 
-		$expected = new TemplateResponse('updatenotification', 'admin', [], '');
+		$expected = new TemplateResponse('updatenotification', 'admin', $params, '');
 		$this->assertEquals($expected, $this->admin->getForm());
 	}
 
 	public function testGetFormWithUpdateAndCustomersUpdateServer() {
-		$backend1 = $this->createMock(CountUsersBackend::class);
-		$backend2 = $this->createMock(CountUsersBackend::class);
-		$backend3 = $this->createMock(CountUsersBackend::class);
+		$backend1 = $this->createMock(UserInterface::class);
+		$backend2 = $this->createMock(UserInterface::class);
+		$backend3 = $this->createMock(UserInterface::class);
 		$backend1
 			->expects($this->once())
 			->method('implementsActions')
@@ -440,9 +432,8 @@ class AdminTest extends TestCase {
 			->method('delegateHasValidSubscription')
 			->willReturn(true);
 
-		$this->initialState->expects($this->once())
-			->method('provideInitialState')
-			->with('data', [
+		$params = [
+			'json' => json_encode([
 				'isNewVersionAvailable' => true,
 				'isUpdateChecked' => true,
 				'lastChecked' => 'LastCheckedReturnValue',
@@ -459,12 +450,13 @@ class AdminTest extends TestCase {
 				'isDefaultUpdateServerURL' => true,
 				'updateServerURL' => 'https://updates.nextcloud.com/customers/ABC-DEF/',
 				'notifyGroups' => [
-					['id' => 'admin', 'displayname' => 'Administrators'],
+					['value' => 'admin', 'label' => 'Administrators'],
 				],
 				'hasValidSubscription' => true,
-			]);
+			]),
+		];
 
-		$expected = new TemplateResponse('updatenotification', 'admin', [], '');
+		$expected = new TemplateResponse('updatenotification', 'admin', $params, '');
 		$this->assertEquals($expected, $this->admin->getForm());
 	}
 
@@ -550,8 +542,4 @@ class AdminTest extends TestCase {
 		$result = $this->invokePrivate($this->admin, 'filterChanges', [$changes]);
 		$this->assertSame($expectation, $result);
 	}
-}
-
-abstract class CountUsersBackend implements UserInterface, ICountUsersBackend {
-
 }

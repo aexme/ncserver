@@ -36,7 +36,6 @@ use OC\Security\Normalizer\IpAddress;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IConfig;
 use OCP\IDBConnection;
-use OCP\Security\Bruteforce\IThrottler;
 use OCP\Security\Bruteforce\MaxDelayReached;
 use Psr\Log\LoggerInterface;
 
@@ -53,8 +52,11 @@ use Psr\Log\LoggerInterface;
  *
  * @package OC\Security\Bruteforce
  */
-class Throttler implements IThrottler {
+class Throttler {
 	public const LOGIN_ACTION = 'login';
+	public const MAX_DELAY = 25;
+	public const MAX_DELAY_MS = 25000; // in milliseconds
+	public const MAX_ATTEMPTS = 10;
 
 	/** @var IDBConnection */
 	private $db;
@@ -309,7 +311,7 @@ class Throttler implements IThrottler {
 	 *
 	 * @param string $ip
 	 */
-	public function resetDelayForIP(string $ip): void {
+	public function resetDelayForIP($ip) {
 		$cutoffTime = $this->getCutoffTimestamp();
 
 		$qb = $this->db->getQueryBuilder();

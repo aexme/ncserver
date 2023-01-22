@@ -366,34 +366,26 @@ class ShareAPIController extends OCSController {
 	 * @NoAdminRequired
 	 *
 	 * @param string $id
-	 * @param bool $includeTags
 	 * @return DataResponse
 	 * @throws OCSNotFoundException
 	 */
-	public function getShare(string $id, bool $includeTags = false): DataResponse {
+	public function getShare(string $id): DataResponse {
 		try {
 			$share = $this->getShareById($id);
 		} catch (ShareNotFound $e) {
-			throw new OCSNotFoundException($this->l->t('Wrong share ID, share does not exist'));
+			throw new OCSNotFoundException($this->l->t('Wrong share ID, share doesn\'t exist'));
 		}
 
 		try {
 			if ($this->canAccessShare($share)) {
 				$share = $this->formatShare($share);
-
-				if ($includeTags) {
-					$share = Helper::populateTags([$share], 'file_source', \OC::$server->getTagManager());
-				} else {
-					$share = [$share];
-				}
-
-				return new DataResponse($share);
+				return new DataResponse([$share]);
 			}
 		} catch (NotFoundException $e) {
-			// Fall through
+			// Fall trough
 		}
 
-		throw new OCSNotFoundException($this->l->t('Wrong share ID, share does not exist'));
+		throw new OCSNotFoundException($this->l->t('Wrong share ID, share doesn\'t exist'));
 	}
 
 	/**
@@ -409,7 +401,7 @@ class ShareAPIController extends OCSController {
 		try {
 			$share = $this->getShareById($id);
 		} catch (ShareNotFound $e) {
-			throw new OCSNotFoundException($this->l->t('Wrong share ID, share does not exist'));
+			throw new OCSNotFoundException($this->l->t('Wrong share ID, share doesn\'t exist'));
 		}
 
 		try {
@@ -419,7 +411,7 @@ class ShareAPIController extends OCSController {
 		}
 
 		if (!$this->canAccessShare($share)) {
-			throw new OCSNotFoundException($this->l->t('Wrong share ID, share does not exist'));
+			throw new OCSNotFoundException($this->l->t('Wrong share ID, share doesn\'t exist'));
 		}
 
 		// if it's a group share or a room share
@@ -1081,13 +1073,13 @@ class ShareAPIController extends OCSController {
 		try {
 			$share = $this->getShareById($id);
 		} catch (ShareNotFound $e) {
-			throw new OCSNotFoundException($this->l->t('Wrong share ID, share does not exist'));
+			throw new OCSNotFoundException($this->l->t('Wrong share ID, share doesn\'t exist'));
 		}
 
 		$this->lock($share->getNode());
 
 		if (!$this->canAccessShare($share, false)) {
-			throw new OCSNotFoundException($this->l->t('Wrong share ID, share does not exist'));
+			throw new OCSNotFoundException($this->l->t('Wrong share ID, share doesn\'t exist'));
 		}
 
 		if (!$this->canEditShare($share)) {
@@ -1215,7 +1207,7 @@ class ShareAPIController extends OCSController {
 
 			if ($label !== null) {
 				if (strlen($label) > 255) {
-					throw new OCSBadRequestException("Maximum label length is 255");
+					throw new OCSBadRequestException("Maxmimum label length is 255");
 				}
 				$share->setLabel($label);
 			}
@@ -1324,11 +1316,11 @@ class ShareAPIController extends OCSController {
 		try {
 			$share = $this->getShareById($id);
 		} catch (ShareNotFound $e) {
-			throw new OCSNotFoundException($this->l->t('Wrong share ID, share does not exist'));
+			throw new OCSNotFoundException($this->l->t('Wrong share ID, share doesn\'t exist'));
 		}
 
 		if (!$this->canAccessShare($share)) {
-			throw new OCSNotFoundException($this->l->t('Wrong share ID, share does not exist'));
+			throw new OCSNotFoundException($this->l->t('Wrong share ID, share doesn\'t exist'));
 		}
 
 		try {
@@ -1537,7 +1529,7 @@ class ShareAPIController extends OCSController {
 	 */
 	private function parseDate(string $expireDate): \DateTime {
 		try {
-			$date = new \DateTime(trim($expireDate, "\""));
+			$date = new \DateTime($expireDate);
 		} catch (\Exception $e) {
 			throw new \Exception('Invalid date. Format must be YYYY-MM-DD');
 		}

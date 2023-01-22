@@ -26,9 +26,9 @@ namespace OCA\DAV\Comments;
 
 use OCP\Comments\CommentsEntityEvent;
 use OCP\Comments\ICommentsManager;
+use OCP\ILogger;
 use OCP\IUserManager;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Sabre\DAV\Exception\Forbidden;
 use Sabre\DAV\Exception\NotAuthenticated;
 use Sabre\DAV\Exception\NotFound;
@@ -46,7 +46,8 @@ class RootCollection implements ICollection {
 	/** @var string */
 	protected $name = 'comments';
 
-	protected LoggerInterface $logger;
+	/** @var ILogger */
+	protected $logger;
 
 	/** @var IUserManager */
 	protected $userManager;
@@ -57,12 +58,19 @@ class RootCollection implements ICollection {
 	/** @var EventDispatcherInterface */
 	protected $dispatcher;
 
+	/**
+	 * @param ICommentsManager $commentsManager
+	 * @param IUserManager $userManager
+	 * @param IUserSession $userSession
+	 * @param EventDispatcherInterface $dispatcher
+	 * @param ILogger $logger
+	 */
 	public function __construct(
 		ICommentsManager $commentsManager,
 		IUserManager $userManager,
 		IUserSession $userSession,
 		EventDispatcherInterface $dispatcher,
-		LoggerInterface $logger) {
+		ILogger $logger) {
 		$this->commentsManager = $commentsManager;
 		$this->logger = $logger;
 		$this->userManager = $userManager;

@@ -31,9 +31,16 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class SetDefaultModule extends Command {
-	protected IManager $encryptionManager;
-	protected IConfig $config;
+	/** @var IManager */
+	protected $encryptionManager;
 
+	/** @var IConfig */
+	protected $config;
+
+	/**
+	 * @param IManager $encryptionManager
+	 * @param IConfig $config
+	 */
 	public function __construct(
 		IManager $encryptionManager,
 		IConfig $config

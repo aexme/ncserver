@@ -111,10 +111,10 @@ OC.L10N.register(
     "Oct." : "أكت.",
     "Nov." : "نوف.",
     "Dec." : "ديس.",
-    "A valid username must be provided" : "يجب ادخال اسم مستخدم صحيح",
-    "Username contains whitespace at the beginning or at the end" : "إنّ إسم المستخدم يحتوي على مسافة بيضاء سواءا في البداية أو النهاية",
     "A valid password must be provided" : "يجب ادخال كلمة مرور صحيحة",
     "Could not create user" : "لا يمكن إنشاء المستخدم",
+    "A valid username must be provided" : "يجب ادخال اسم مستخدم صحيح",
+    "Username contains whitespace at the beginning or at the end" : "إنّ إسم المستخدم يحتوي على مسافة بيضاء سواءا في البداية أو النهاية",
     "User disabled" : "المستخدم معطّل",
     "Login canceled by app" : "تم إلغاء الدخول مِن طرف التطبيق",
     "a safe home for all your data" : "المكان الآمن لجميع بياناتك",
@@ -128,8 +128,6 @@ OC.L10N.register(
     "%s enter the database username." : "%s ادخل اسم المستخدم الخاص بقاعدة البيانات.",
     "%s enter the database name." : "%s ادخل اسم فاعدة البيانات",
     "%s you may not use dots in the database name" : "%s لا يسمح لك باستخدام نقطه (.) في اسم قاعدة البيانات",
-    "Please remove the open_basedir setting within your php.ini or switch to 64-bit PHP." : "فضلاً إحذف إعداد open_basedir من ملف php.ini لديك أو حوّل إلى PHP إصدار 64 بت.",
-    "This can usually be fixed by giving the webserver write access to the config directory. See %s" : "يمكن إصلاح هذا الخطا بإعطاء مخدّم الموقع صلاحيات التعديل على مجلد الإعدادات. أنظر %s",
-    "Please upgrade your database version" : "فضلًا قم بتحديث إصدار قاعدة بياناتك"
+    "Please remove the open_basedir setting within your php.ini or switch to 64-bit PHP." : "فضلاً إحذف إعداد open_basedir من ملف php.ini لديك أو حوّل إلى PHP إصدار 64 بت."
 },
 "nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;");

@@ -26,7 +26,7 @@
 		<label :for="inputId">
 			{{ t('settings', '{displayId}', { displayId }) }}
 		</label>
-		<NcMultiselect :id="inputId"
+		<Multiselect :id="inputId"
 			class="visibility-container__multiselect"
 			:options="visibilityOptions"
 			track-by="name"
@@ -41,11 +41,11 @@ import { showError } from '@nextcloud/dialogs'
 import { loadState } from '@nextcloud/initial-state'
 import { subscribe, unsubscribe } from '@nextcloud/event-bus'
 
-import NcMultiselect from '@nextcloud/vue/dist/Components/NcMultiselect'
+import Multiselect from '@nextcloud/vue/dist/Components/Multiselect'
 
-import { saveProfileParameterVisibility } from '../../../service/ProfileService.js'
-import { VISIBILITY_PROPERTY_ENUM } from '../../../constants/ProfileConstants.js'
-import logger from '../../../logger.js'
+import { saveProfileParameterVisibility } from '../../../service/ProfileService'
+import { validateStringInput } from '../../../utils/validate'
+import { VISIBILITY_PROPERTY_ENUM } from '../../../constants/ProfileConstants'
 
 const { profileEnabled } = loadState('settings', 'personalInfoParameters', false)
 
@@ -53,7 +53,7 @@ export default {
 	name: 'VisibilityDropdown',
 
 	components: {
-		NcMultiselect,
+		Multiselect,
 	},
 
 	props: {
@@ -111,7 +111,7 @@ export default {
 				const { name: visibility } = visibilityObject
 				this.$emit('update:visibility', visibility)
 
-				if (visibility !== '') {
+				if (validateStringInput(visibility)) {
 					await this.updateVisibility(visibility)
 				}
 			}
@@ -138,7 +138,7 @@ export default {
 				this.initialVisibility = visibility
 			} else {
 				showError(errorMessage)
-				logger.error(errorMessage, error)
+				this.logger.error(errorMessage, error)
 			}
 		},
 

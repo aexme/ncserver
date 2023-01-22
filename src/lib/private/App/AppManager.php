@@ -13,7 +13,6 @@
  * @author Julius Haertl <jus@bitgrid.net>
  * @author Julius Härtl <jus@bitgrid.net>
  * @author Lukas Reschke <lukas@statuscode.ch>
- * @author Maxence Lange <maxence@artificial-owl.com>
  * @author Morris Jobke <hey@morrisjobke.de>
  * @author Robin Appelman <robin@icewind.nl>
  * @author Roeland Jago Douma <roeland@famdouma.nl>
@@ -92,8 +91,8 @@ class AppManager implements IAppManager {
 	/** @var string[] */
 	private $shippedApps;
 
-	private array $alwaysEnabled = [];
-	private array $defaultEnabled = [];
+	/** @var string[] */
+	private $alwaysEnabled;
 
 	/** @var array */
 	private $appInfos = [];
@@ -575,7 +574,6 @@ class AppManager implements IAppManager {
 			$content = json_decode(file_get_contents($shippedJson), true);
 			$this->shippedApps = $content['shippedApps'];
 			$this->alwaysEnabled = $content['alwaysEnabled'];
-			$this->defaultEnabled = $content['defaultEnabled'];
 		}
 	}
 
@@ -585,21 +583,5 @@ class AppManager implements IAppManager {
 	public function getAlwaysEnabledApps() {
 		$this->loadShippedJson();
 		return $this->alwaysEnabled;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function isDefaultEnabled(string $appId): bool {
-		return (in_array($appId, $this->getDefaultEnabledApps()));
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getDefaultEnabledApps():array {
-		$this->loadShippedJson();
-
-		return $this->defaultEnabled;
 	}
 }

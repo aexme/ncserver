@@ -22,20 +22,20 @@
 
 <template>
 	<h3 :class="{ 'setting-property': isSettingProperty, 'profile-property': isProfileProperty }">
-		<label :for="inputId">
+		<label :for="labelFor">
 			<!-- Already translated as required by prop validator -->
-			{{ readable }}
+			{{ accountProperty }}
 		</label>
 
 		<template v-if="scope">
 			<FederationControl class="federation-control"
-				:readable="readable"
+				:account-property="accountProperty"
 				:scope.sync="localScope"
 				@update:scope="onScopeChange" />
 		</template>
 
 		<template v-if="isEditable && isMultiValueSupported">
-			<NcButton type="tertiary"
+			<Button type="tertiary"
 				:disabled="!isValidSection"
 				:aria-label="t('settings', 'Add additional email')"
 				@click.stop.prevent="onAddAdditional">
@@ -43,43 +43,31 @@
 					<Plus :size="20" />
 				</template>
 				{{ t('settings', 'Add') }}
-			</NcButton>
+			</Button>
 		</template>
 	</h3>
 </template>
 
 <script>
-import NcButton from '@nextcloud/vue/dist/Components/NcButton'
+import FederationControl from './FederationControl'
+import Button from '@nextcloud/vue/dist/Components/Button'
 import Plus from 'vue-material-design-icons/Plus'
-
-import FederationControl from './FederationControl.vue'
-
-import {
-	ACCOUNT_PROPERTY_READABLE_ENUM,
-	PROFILE_READABLE_ENUM,
-} from '../../../constants/AccountPropertyConstants.js'
+import { ACCOUNT_PROPERTY_READABLE_ENUM, ACCOUNT_SETTING_PROPERTY_READABLE_ENUM, PROFILE_READABLE_ENUM } from '../../../constants/AccountPropertyConstants'
 
 export default {
 	name: 'HeaderBar',
 
 	components: {
 		FederationControl,
-		NcButton,
+		Button,
 		Plus,
 	},
 
 	props: {
-		scope: {
-			type: String,
-			default: null,
-		},
-		readable: {
+		accountProperty: {
 			type: String,
 			required: true,
-		},
-		inputId: {
-			type: String,
-			default: null,
+			validator: (value) => Object.values(ACCOUNT_PROPERTY_READABLE_ENUM).includes(value) || Object.values(ACCOUNT_SETTING_PROPERTY_READABLE_ENUM).includes(value) || value === PROFILE_READABLE_ENUM.PROFILE_VISIBILITY,
 		},
 		isEditable: {
 			type: Boolean,
@@ -91,7 +79,15 @@ export default {
 		},
 		isValidSection: {
 			type: Boolean,
-			default: true,
+			default: false,
+		},
+		labelFor: {
+			type: String,
+			default: '',
+		},
+		scope: {
+			type: String,
+			default: null,
 		},
 	},
 
@@ -103,11 +99,11 @@ export default {
 
 	computed: {
 		isProfileProperty() {
-			return this.readable === ACCOUNT_PROPERTY_READABLE_ENUM.PROFILE_ENABLED
+			return this.accountProperty === ACCOUNT_PROPERTY_READABLE_ENUM.PROFILE_ENABLED
 		},
 
 		isSettingProperty() {
-			return !Object.values(ACCOUNT_PROPERTY_READABLE_ENUM).includes(this.readable) && !Object.values(PROFILE_READABLE_ENUM).includes(this.readable)
+			return Object.values(ACCOUNT_SETTING_PROPERTY_READABLE_ENUM).includes(this.accountProperty)
 		},
 	},
 
@@ -128,8 +124,6 @@ export default {
 		display: inline-flex;
 		width: 100%;
 		margin: 12px 0 0 0;
-		gap: 8px;
-		align-items: center;
 		font-size: 16px;
 		color: var(--color-text-light);
 
@@ -138,7 +132,7 @@ export default {
 		}
 
 		&.setting-property {
-			height: 44px;
+			height: 32px;
 		}
 
 		label {
@@ -147,10 +141,10 @@ export default {
 	}
 
 	.federation-control {
-		margin: 0;
+		margin: -12px 0 0 8px;
 	}
 
 	.button-vue  {
-		margin: 0 0 0 auto !important;
+		margin: -6px 0 0 auto !important;
 	}
 </style>

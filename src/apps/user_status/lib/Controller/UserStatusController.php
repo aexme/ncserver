@@ -135,7 +135,7 @@ class UserStatusController extends OCSController {
 	 * @NoAdminRequired
 	 *
 	 * @param string|null $statusIcon
-	 * @param string|null $message
+	 * @param string $message
 	 * @param int|null $clearAt
 	 * @return DataResponse
 	 * @throws OCSBadRequestException
@@ -144,7 +144,7 @@ class UserStatusController extends OCSController {
 									 ?string $message,
 									 ?int $clearAt): DataResponse {
 		try {
-			if (($message !== null && $message !== '') || ($clearAt !== null && $clearAt !== 0)) {
+			if ($message !== null && $message !== '') {
 				$status = $this->service->setCustomMessage($this->userId, $statusIcon, $message, $clearAt);
 			} else {
 				$this->service->clearMessage($this->userId);

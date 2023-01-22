@@ -145,7 +145,7 @@ class Movie extends ProviderV2 {
 		exec($cmd, $output, $returnCode);
 
 		if ($returnCode === 0) {
-			$image = new \OCP\Image();
+			$image = new \OC_Image();
 			$image->loadFromFile($tmpPath);
 			if ($image->valid()) {
 				unlink($tmpPath);

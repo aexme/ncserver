@@ -26,24 +26,37 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\FileDisplayResponse;
 use OCP\IAvatarManager;
+use OCP\ILogger;
 use OCP\IRequest;
-use Psr\Log\LoggerInterface;
 
 /**
  * This controller handles guest avatar requests.
  */
 class GuestAvatarController extends Controller {
-	private LoggerInterface $logger;
-	private IAvatarManager $avatarManager;
+
+	/**
+	 * @var ILogger
+	 */
+	private $logger;
+
+	/**
+	 * @var IAvatarManager
+	 */
+	private $avatarManager;
 
 	/**
 	 * GuestAvatarController constructor.
+	 *
+	 * @param $appName
+	 * @param IRequest $request
+	 * @param IAvatarManager $avatarManager
+	 * @param ILogger $logger
 	 */
 	public function __construct(
-		string $appName,
+		$appName,
 		IRequest $request,
 		IAvatarManager $avatarManager,
-		LoggerInterface $logger
+		ILogger $logger
 	) {
 		parent::__construct($appName, $request);
 		$this->avatarManager = $avatarManager;
@@ -60,9 +73,8 @@ class GuestAvatarController extends Controller {
 	 * @param string $size The desired avatar size, e.g. 64 for 64x64px
 	 * @return FileDisplayResponse|Http\Response
 	 */
-	public function getAvatar(string $guestName, string $size, ?bool $darkTheme = false) {
+	public function getAvatar($guestName, $size) {
 		$size = (int) $size;
-		$darkTheme = $darkTheme ?? false;
 
 		if ($size <= 64) {
 			if ($size !== 64) {
@@ -78,7 +90,7 @@ class GuestAvatarController extends Controller {
 
 		try {
 			$avatar = $this->avatarManager->getGuestAvatar($guestName);
-			$avatarFile = $avatar->getFile($size, $darkTheme);
+			$avatarFile = $avatar->getFile($size);
 
 			$resp = new FileDisplayResponse(
 				$avatarFile,
@@ -95,15 +107,7 @@ class GuestAvatarController extends Controller {
 		}
 
 		// Cache for 30 minutes
-		$resp->cacheFor(1800, false, true);
+		$resp->cacheFor(1800);
 		return $resp;
-	}
-
-	/**
-	 * @PublicPage
-	 * @NoCSRFRequired
-	 */
-	public function getAvatarDark(string $guestName, string $size) {
-		return $this->getAvatar($guestName, $size, true);
 	}
 }

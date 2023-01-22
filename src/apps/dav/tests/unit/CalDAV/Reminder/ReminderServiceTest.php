@@ -41,38 +41,39 @@ use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\IUserSession;
-use PHPUnit\Framework\MockObject\MockObject;
-use Psr\Log\LoggerInterface;
 use Test\TestCase;
 
 class ReminderServiceTest extends TestCase {
 
-	/** @var Backend|MockObject */
+	/** @var Backend|\PHPUnit\Framework\MockObject\MockObject */
 	private $backend;
 
-	/** @var NotificationProviderManager|MockObject */
+	/** @var NotificationProviderManager|\PHPUnit\Framework\MockObject\MockObject */
 	private $notificationProviderManager;
 
-	/** @var IUserManager|MockObject */
+	/** @var IUserManager|\PHPUnit\Framework\MockObject\MockObject */
 	private $userManager;
 
-	/** @var IGroupManager|MockObject*/
+	/** @var IGroupManager|\PHPUnit\Framework\MockObject\MockObject*/
 	private $groupManager;
 
-	/** @var CalDavBackend|MockObject */
+	/** @var IUserSession|\PHPUnit\Framework\MockObject\MockObject */
+	private $userSession;
+
+	/** @var CalDavBackend|\PHPUnit\Framework\MockObject\MockObject */
 	private $caldavBackend;
 
-	/** @var ITimeFactory|MockObject  */
+	/** @var ITimeFactory|\PHPUnit\Framework\MockObject\MockObject  */
 	private $timeFactory;
 
-	/** @var IConfig|MockObject */
+	/** @var IConfig|\PHPUnit\Framework\MockObject\MockObject */
 	private $config;
 
 	/** @var ReminderService */
 	private $reminderService;
 
-	/** @var MockObject|LoggerInterface */
-	private $logger;
+	/** @var Principal|\PHPUnit\Framework\MockObject\MockObject  */
+	private $principalConnector;
 
 	public const CALENDAR_DATA = <<<EOD
 BEGIN:VCALENDAR
@@ -203,22 +204,18 @@ EOD;
 		$this->caldavBackend = $this->createMock(CalDavBackend::class);
 		$this->timeFactory = $this->createMock(ITimeFactory::class);
 		$this->config = $this->createMock(IConfig::class);
-		$this->logger = $this->createMock(LoggerInterface::class);
 		$this->principalConnector = $this->createMock(Principal::class);
 
 		$this->caldavBackend->method('getShares')->willReturn([]);
 
-		$this->reminderService = new ReminderService(
-			$this->backend,
+		$this->reminderService = new ReminderService($this->backend,
 			$this->notificationProviderManager,
 			$this->userManager,
 			$this->groupManager,
 			$this->caldavBackend,
 			$this->timeFactory,
 			$this->config,
-			$this->logger,
-			$this->principalConnector,
-		);
+			$this->principalConnector);
 	}
 
 	public function testOnCalendarObjectDelete():void {

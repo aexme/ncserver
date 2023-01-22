@@ -21,50 +21,50 @@
   -->
 
 <template>
-	<NcContent app-name="settings"
+	<Content app-name="settings"
 		:class="{ 'with-app-sidebar': app}"
 		:content-class="{ 'icon-loading': loadingList }"
 		:navigation-class="{ 'icon-loading': loading }">
 		<!-- Categories & filters -->
-		<NcAppNavigation>
+		<AppNavigation>
 			<template #list>
-				<NcAppNavigationItem id="app-category-your-apps"
+				<AppNavigationItem id="app-category-your-apps"
 					:to="{ name: 'apps' }"
 					:exact="true"
 					icon="icon-category-installed"
 					:title="t('settings', 'Your apps')" />
-				<NcAppNavigationItem id="app-category-enabled"
+				<AppNavigationItem id="app-category-enabled"
 					:to="{ name: 'apps-category', params: { category: 'enabled' } }"
 					icon="icon-category-enabled"
 					:title="t('settings', 'Active apps')" />
-				<NcAppNavigationItem id="app-category-disabled"
+				<AppNavigationItem id="app-category-disabled"
 					:to="{ name: 'apps-category', params: { category: 'disabled' } }"
 					icon="icon-category-disabled"
 					:title="t('settings', 'Disabled apps')" />
-				<NcAppNavigationItem v-if="updateCount > 0"
+				<AppNavigationItem v-if="updateCount > 0"
 					id="app-category-updates"
 					:to="{ name: 'apps-category', params: { category: 'updates' } }"
 					icon="icon-download"
 					:title="t('settings', 'Updates')">
-					<NcAppNavigationCounter slot="counter">
+					<AppNavigationCounter slot="counter">
 						{{ updateCount }}
-					</NcAppNavigationCounter>
-				</NcAppNavigationItem>
-				<NcAppNavigationItem id="app-category-your-bundles"
+					</AppNavigationCounter>
+				</AppNavigationItem>
+				<AppNavigationItem id="app-category-your-bundles"
 					:to="{ name: 'apps-category', params: { category: 'app-bundles' } }"
 					icon="icon-category-app-bundles"
 					:title="t('settings', 'App bundles')" />
 
-				<NcAppNavigationSpacer />
+				<AppNavigationSpacer />
 
 				<!-- App store categories -->
 				<template v-if="settings.appstoreEnabled">
-					<NcAppNavigationItem id="app-category-featured"
+					<AppNavigationItem id="app-category-featured"
 						:to="{ name: 'apps-category', params: { category: 'featured' } }"
 						icon="icon-favorite"
 						:title="t('settings', 'Featured apps')" />
 
-					<NcAppNavigationItem v-for="cat in categories"
+					<AppNavigationItem v-for="cat in categories"
 						:key="'icon-category-' + cat.ident"
 						:icon="'icon-category-' + cat.ident"
 						:to="{
@@ -74,19 +74,19 @@
 						:title="cat.displayName" />
 				</template>
 
-				<NcAppNavigationItem id="app-developer-docs"
+				<AppNavigationItem id="app-developer-docs"
 					:title="t('settings', 'Developer documentation') + ' ↗'"
 					@click="openDeveloperDocumentation" />
 			</template>
-		</NcAppNavigation>
+		</AppNavigation>
 
 		<!-- Apps list -->
-		<NcAppContent class="app-settings-content" :class="{ 'icon-loading': loadingList }">
+		<AppContent class="app-settings-content" :class="{ 'icon-loading': loadingList }">
 			<AppList :category="category" :app="app" :search="searchQuery" />
-		</NcAppContent>
+		</AppContent>
 
 		<!-- Selected app details -->
-		<NcAppSidebar v-if="id && app"
+		<AppSidebar v-if="id && app"
 			v-bind="appSidebar"
 			:class="{'app-sidebar--without-background': !appSidebar.background}"
 			@close="hideAppDetails">
@@ -114,13 +114,13 @@
 
 			<!-- Tab content -->
 
-			<NcAppSidebarTab id="desc"
+			<AppSidebarTab id="desc"
 				icon="icon-category-office"
 				:name="t('settings', 'Details')"
 				:order="0">
 				<AppDetails :app="app" />
-			</NcAppSidebarTab>
-			<NcAppSidebarTab v-if="app.appstoreData && app.releases[0].translations.en.changelog"
+			</AppSidebarTab>
+			<AppSidebarTab v-if="app.appstoreData && app.releases[0].translations.en.changelog"
 				id="desca"
 				icon="icon-category-organization"
 				:name="t('settings', 'Changelog')"
@@ -129,9 +129,9 @@
 					<h2>{{ release.version }}</h2>
 					<Markdown v-if="changelog(release)" :text="changelog(release)" />
 				</div>
-			</NcAppSidebarTab>
-		</NcAppSidebar>
-	</NcContent>
+			</AppSidebarTab>
+		</AppSidebar>
+	</Content>
 </template>
 
 <script>
@@ -139,14 +139,14 @@ import { subscribe, unsubscribe } from '@nextcloud/event-bus'
 import Vue from 'vue'
 import VueLocalStorage from 'vue-localstorage'
 
-import NcAppContent from '@nextcloud/vue/dist/Components/NcAppContent'
-import NcAppNavigation from '@nextcloud/vue/dist/Components/NcAppNavigation'
-import NcAppNavigationCounter from '@nextcloud/vue/dist/Components/NcAppNavigationCounter'
-import NcAppNavigationItem from '@nextcloud/vue/dist/Components/NcAppNavigationItem'
-import NcAppNavigationSpacer from '@nextcloud/vue/dist/Components/NcAppNavigationSpacer'
-import NcAppSidebar from '@nextcloud/vue/dist/Components/NcAppSidebar'
-import NcAppSidebarTab from '@nextcloud/vue/dist/Components/NcAppSidebarTab'
-import NcContent from '@nextcloud/vue/dist/Components/NcContent'
+import AppContent from '@nextcloud/vue/dist/Components/AppContent'
+import AppNavigation from '@nextcloud/vue/dist/Components/AppNavigation'
+import AppNavigationCounter from '@nextcloud/vue/dist/Components/AppNavigationCounter'
+import AppNavigationItem from '@nextcloud/vue/dist/Components/AppNavigationItem'
+import AppNavigationSpacer from '@nextcloud/vue/dist/Components/AppNavigationSpacer'
+import AppSidebar from '@nextcloud/vue/dist/Components/AppSidebar'
+import AppSidebarTab from '@nextcloud/vue/dist/Components/AppSidebarTab'
+import Content from '@nextcloud/vue/dist/Components/Content'
 
 import AppList from '../components/AppList'
 import AppDetails from '../components/AppDetails'
@@ -160,17 +160,17 @@ export default {
 	name: 'Apps',
 
 	components: {
-		NcAppContent,
+		AppContent,
 		AppDetails,
 		AppList,
-		NcAppNavigation,
-		NcAppNavigationCounter,
-		NcAppNavigationItem,
-		NcAppNavigationSpacer,
+		AppNavigation,
+		AppNavigationCounter,
+		AppNavigationItem,
+		AppNavigationSpacer,
 		AppScore,
-		NcAppSidebar,
-		NcAppSidebarTab,
-		NcContent,
+		AppSidebar,
+		AppSidebarTab,
+		Content,
 		Markdown,
 	},
 

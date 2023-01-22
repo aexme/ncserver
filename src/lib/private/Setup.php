@@ -51,6 +51,7 @@ namespace OC;
 use bantu\IniGetWrapper\IniGetWrapper;
 use Exception;
 use InvalidArgumentException;
+use OC\App\AppStore\Bundles\BundleFetcher;
 use OC\Authentication\Token\PublicKeyTokenProvider;
 use OC\Authentication\Token\TokenCleanupJob;
 use OC\Log\Rotate;
@@ -393,12 +394,7 @@ class Setup {
 			$config = \OC::$server->getConfig();
 			$config->setAppValue('core', 'installedat', microtime(true));
 			$config->setAppValue('core', 'lastupdatedat', microtime(true));
-
-			$vendorData = $this->getVendorData();
-			$config->setAppValue('core', 'vendor', $vendorData['vendor']);
-			if ($vendorData['channel'] !== 'stable') {
-				$config->setSystemValue('updater.release.channel', $vendorData['channel']);
-			}
+			$config->setAppValue('core', 'vendor', $this->getVendor());
 
 			$group = \OC::$server->getGroupManager()->createGroup('admin');
 			if ($group instanceof IGroup) {
@@ -407,6 +403,14 @@ class Setup {
 
 			// Install shipped apps and specified app bundles
 			Installer::installShippedApps();
+			$bundleFetcher = new BundleFetcher(\OC::$server->getL10N('lib'));
+			$defaultInstallationBundles = $bundleFetcher->getDefaultInstallationBundle();
+			foreach ($defaultInstallationBundles as $bundle) {
+				try {
+					$this->installer->installAppBundle($bundle);
+				} catch (Exception $e) {
+				}
+			}
 
 			// create empty file in data dir, so we can later find
 			// out that this is indeed an ownCloud data directory
@@ -587,14 +591,17 @@ class Setup {
 		file_put_contents($baseDir . '/index.html', '');
 	}
 
-	private function getVendorData(): array {
+	/**
+	 * Return vendor from which this version was published
+	 *
+	 * @return string Get the vendor
+	 *
+	 * Copy of \OC\Updater::getVendor()
+	 */
+	private function getVendor() {
 		// this should really be a JSON file
 		require \OC::$SERVERROOT . '/version.php';
-		/** @var mixed $vendor */
-		/** @var mixed $OC_Channel */
-		return [
-			'vendor' => (string)$vendor,
-			'channel' => (string)$OC_Channel,
-		];
+		/** @var string $vendor */
+		return (string)$vendor;
 	}
 }

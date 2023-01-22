@@ -56,7 +56,7 @@ class MP3 extends ProviderV2 {
 		}
 
 		if (!is_null($picture)) {
-			$image = new \OCP\Image();
+			$image = new \OC_Image();
 			$image->loadFromData($picture);
 
 			if ($image->valid()) {

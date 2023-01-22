@@ -623,7 +623,7 @@ class KeyManager {
 	}
 
 	/**
-	 * create a backup of the users private and public key and then delete it
+	 * creat a backup of the users private and public key and then  delete it
 	 *
 	 * @param string $uid
 	 */

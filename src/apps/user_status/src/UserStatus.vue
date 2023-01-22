@@ -20,7 +20,7 @@
   -->
 
 <template>
-	<component :is="elementTag">
+	<li>
 		<div class="user-status-menu-item">
 			<!-- Username display -->
 			<a v-if="!inline"
@@ -51,7 +51,7 @@
 		<!-- Status management modal -->
 		<SetStatusModal v-if="isModalOpen"
 			@close="closeModal" />
-	</component>
+	</li>
 </template>
 
 <script>
@@ -94,9 +94,6 @@ export default {
 		}
 	},
 	computed: {
-		elementTag() {
-			return this.inline ? 'div' : 'li'
-		},
 		/**
 		 * The profile page link
 		 *
@@ -234,11 +231,6 @@ export default {
 		align-items: flex-start !important;
 		color: var(--color-main-text) !important;
 
-		&:focus-visible {
-			padding: 6px 8px 1px 8px !important;
-			margin: 2px !important;
-		}
-
 		&:not([href]) {
 			height: var(--header-menu-item-height) !important;
 			color: var(--color-text-maxcontrast) !important;
@@ -283,7 +275,6 @@ export default {
 			margin-right: 10px;
 			opacity: 1 !important;
 			background-size: 16px;
-			vertical-align: middle !important;
 		}
 
 		// In dashboard
@@ -294,7 +285,7 @@ export default {
 			margin: 0;
 			border: 0;
 			border-radius: var(--border-radius-pill);
-			background-color: var(--color-main-background-blur);
+			background-color: var(--color-background-translucent);
 			font-size: inherit;
 			font-weight: normal;
 
@@ -307,7 +298,7 @@ export default {
 				background-color: var(--color-background-hover);
 			}
 			&:focus {
-				box-shadow: 0 0 0 2px var(--color-main-text) !important;
+				border: 2px solid var(--color-main-text)!important;
 			}
 		}
 	}

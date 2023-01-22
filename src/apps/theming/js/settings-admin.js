@@ -28,9 +28,9 @@ function setThemingValue(setting, value) {
 	startLoading();
 	$.post(
 		OC.generateUrl('/apps/theming/ajax/updateStylesheet'), {'setting' : setting, 'value' : value}
-	).done(function() {
+	).done(function(response) {
 		hideUndoButton(setting, value);
-		preview(setting, value);
+		preview(setting, value, response.data.serverCssUrl);
 	}).fail(function(response) {
 		OC.msg.finishedSaving('#theming_settings_msg', response.responseJSON);
 		$('#theming_settings_loading').hide();
@@ -39,31 +39,41 @@ function setThemingValue(setting, value) {
 
 function preview(setting, value, serverCssUrl) {
 	OC.msg.startAction('#theming_settings_msg', t('theming', 'Loading preview…'));
-
-	// Get all theming themes css links and force reload them
-	[...document.querySelectorAll('link.theme')]
-		.forEach(theme => {
-			// Only edit the clone to not remove applied one
-			var clone = theme.cloneNode()
-			var url = new URL(clone.href)
-			// Set current timestamp as cache buster
-			url.searchParams.set('v', Date.now())
-			clone.href = url.toString()
-			clone.onload = function() {
-				theme.remove()
+	var stylesheetsLoaded = 1;
+	var reloadStylesheets = function(cssFile) {
+		var queryString = '?reload=' + new Date().getTime();
+		var url = cssFile + queryString;
+		var old = $('link[href*="' + cssFile + '"]');
+		var stylesheet = $("<link/>", {
+			rel: "stylesheet",
+			type: "text/css",
+			href: url
+		});
+		stylesheet.load(function () {
+			$(old).remove();
+			stylesheetsLoaded--;
+			if(stylesheetsLoaded === 0) {
+				$('#theming_settings_loading').hide();
+				var response = { status: 'success', data: {message: t('theming', 'Saved')}};
+				OC.msg.finishedSaving('#theming_settings_msg', response);
 			}
-			document.head.append(clone)
-		})
+		});
+		stylesheet.appendTo("head");
+	};
+
+	if (serverCssUrl !== undefined) {
+		stylesheetsLoaded++;
+
+		reloadStylesheets(serverCssUrl);
+	}
+	reloadStylesheets(OC.generateUrl('/apps/theming/styles'));
 
 	if (setting === 'name') {
 		window.document.title = t('core', 'Admin') + " - " + value;
 	}
-	
-	// Finish
-	$('#theming_settings_loading').hide();
-	var response = { status: 'success', data: {message: t('theming', 'Saved')}};
-	OC.msg.finishedSaving('#theming_settings_msg', response);
+
 	hideUndoButton(setting, value);
+
 }
 
 function hideUndoButton(setting, value) {
@@ -98,7 +108,6 @@ window.addEventListener('DOMContentLoaded', function () {
 
 	// manually instantiate jscolor to work around new Function call which violates strict CSP
 	var colorElement = $('#theming-color')[0];
-	colorElement.setAttribute('aria-expanded', 'false');
 	var jscolor = new window.jscolor(colorElement, {hash: true});
 
 	$('#theming .theme-undo').each(function() {
@@ -171,11 +180,6 @@ window.addEventListener('DOMContentLoaded', function () {
 
 	$('#theming-name').change(function(e) {
 		var el = $(this);
-	});
-
-	$('#userThemingDisabled').change(function(e) {
-		var checked = e.target.checked
-		setThemingValue('disable-user-theming', checked ? 'yes' : 'no')
 	});
 
 	function onChange(e) {

@@ -77,9 +77,6 @@ class Crypt {
 	public const HEADER_START = 'HBEGIN';
 	public const HEADER_END = 'HEND';
 
-	// default encoding format, old Nextcloud versions used base64
-	public const BINARY_ENCODING_FORMAT = 'binary';
-
 	/** @var ILogger */
 	private $logger;
 
@@ -99,11 +96,6 @@ class Crypt {
 	private $supportLegacy;
 
 	/**
-	 * Use the legacy base64 encoding instead of the more space-efficient binary encoding.
-	 */
-	private bool $useLegacyBase64Encoding;
-
-	/**
 	 * @param ILogger $logger
 	 * @param IUserSession $userSession
 	 * @param IConfig $config
@@ -115,7 +107,6 @@ class Crypt {
 		$this->config = $config;
 		$this->l = $l;
 		$this->supportLegacy = $this->config->getSystemValueBool('encryption.legacy_format_support', false);
-		$this->useLegacyBase64Encoding = $this->config->getSystemValueBool('encryption.use_legacy_base64_encoding', false);
 	}
 
 	/**
@@ -224,15 +215,12 @@ class Crypt {
 			throw new \InvalidArgumentException('key format "' . $keyFormat . '" is not supported');
 		}
 
+		$cipher = $this->getCipher();
+
 		$header = self::HEADER_START
-			. ':cipher:' . $this->getCipher()
-			. ':keyFormat:' . $keyFormat;
-
-		if ($this->useLegacyBase64Encoding !== true) {
-			$header .= ':encoding:' . self::BINARY_ENCODING_FORMAT;
-		}
-
-		$header .= ':' . self::HEADER_END;
+			. ':cipher:' . $cipher
+			. ':keyFormat:' . $keyFormat
+			. ':' . self::HEADER_END;
 
 		return $header;
 	}
@@ -246,11 +234,10 @@ class Crypt {
 	 * @throws EncryptionFailedException
 	 */
 	private function encrypt($plainContent, $iv, $passPhrase = '', $cipher = self::DEFAULT_CIPHER) {
-		$options = $this->useLegacyBase64Encoding ? 0 : OPENSSL_RAW_DATA;
 		$encryptedContent = openssl_encrypt($plainContent,
 			$cipher,
 			$passPhrase,
-			$options,
+			0,
 			$iv);
 
 		if (!$encryptedContent) {
@@ -437,8 +424,6 @@ class Crypt {
 			$password = $this->generatePasswordHash($password, $cipher, $uid);
 		}
 
-		$binaryEncoding = isset($header['encoding']) && $header['encoding'] === self::BINARY_ENCODING_FORMAT;
-
 		// If we found a header we need to remove it from the key we want to decrypt
 		if (!empty($header)) {
 			$privateKey = substr($privateKey,
@@ -450,9 +435,7 @@ class Crypt {
 			$privateKey,
 			$password,
 			$cipher,
-			0,
-			0,
-			$binaryEncoding
+			0
 		);
 
 		if ($this->isValidPrivateKey($plainKey) === false) {
@@ -487,11 +470,10 @@ class Crypt {
 	 * @param string $cipher
 	 * @param int $version
 	 * @param int|string $position
-	 * @param boolean $binaryEncoding
 	 * @return string
 	 * @throws DecryptionFailedException
 	 */
-	public function symmetricDecryptFileContent($keyFileContents, $passPhrase, $cipher = self::DEFAULT_CIPHER, $version = 0, $position = 0, bool $binaryEncoding = false) {
+	public function symmetricDecryptFileContent($keyFileContents, $passPhrase, $cipher = self::DEFAULT_CIPHER, $version = 0, $position = 0) {
 		if ($keyFileContents == '') {
 			return '';
 		}
@@ -511,8 +493,7 @@ class Crypt {
 		return $this->decrypt($catFile['encrypted'],
 			$catFile['iv'],
 			$passPhrase,
-			$cipher,
-			$binaryEncoding);
+			$cipher);
 	}
 
 	/**
@@ -629,16 +610,14 @@ class Crypt {
 	 * @param string $iv
 	 * @param string $passPhrase
 	 * @param string $cipher
-	 * @param boolean $binaryEncoding
 	 * @return string
 	 * @throws DecryptionFailedException
 	 */
-	private function decrypt(string $encryptedContent, string $iv, string $passPhrase = '', string $cipher = self::DEFAULT_CIPHER, bool $binaryEncoding = false): string {
-		$options = $binaryEncoding === true ? OPENSSL_RAW_DATA : 0;
+	private function decrypt($encryptedContent, $iv, $passPhrase = '', $cipher = self::DEFAULT_CIPHER) {
 		$plainContent = openssl_decrypt($encryptedContent,
 			$cipher,
 			$passPhrase,
-			$options,
+			0,
 			$iv);
 
 		if ($plainContent) {
@@ -748,9 +727,5 @@ class Crypt {
 		} else {
 			throw new MultiKeyEncryptException('multikeyencryption failed ' . openssl_error_string());
 		}
-	}
-
-	public function useLegacyBase64Encoding(): bool {
-		return $this->useLegacyBase64Encoding;
 	}
 }

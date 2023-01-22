@@ -22,8 +22,8 @@
 
 <template>
 	<section>
-		<HeaderBar :input-id="inputId"
-			:readable="primaryEmail.readable"
+		<HeaderBar :account-property="accountProperty"
+			label-for="email"
 			:handle-scope-change="savePrimaryEmailScope"
 			:is-editable="true"
 			:is-multi-value-supported="true"
@@ -65,13 +65,12 @@
 import { loadState } from '@nextcloud/initial-state'
 import { showError } from '@nextcloud/dialogs'
 
-import Email from './Email.vue'
-import HeaderBar from '../shared/HeaderBar.vue'
+import Email from './Email'
+import HeaderBar from '../shared/HeaderBar'
 
-import { ACCOUNT_PROPERTY_READABLE_ENUM, DEFAULT_ADDITIONAL_EMAIL_SCOPE, NAME_READABLE_ENUM } from '../../../constants/AccountPropertyConstants.js'
-import { savePrimaryEmail, savePrimaryEmailScope, removeAdditionalEmail } from '../../../service/PersonalInfo/EmailService.js'
-import { validateEmail } from '../../../utils/validate.js'
-import logger from '../../../logger.js'
+import { ACCOUNT_PROPERTY_READABLE_ENUM, DEFAULT_ADDITIONAL_EMAIL_SCOPE } from '../../../constants/AccountPropertyConstants'
+import { savePrimaryEmail, savePrimaryEmailScope, removeAdditionalEmail } from '../../../service/PersonalInfo/EmailService'
+import { validateEmail } from '../../../utils/validate'
 
 const { emailMap: { additionalEmails, primaryEmail, notificationEmail } } = loadState('settings', 'personalInfoParameters', {})
 const { displayNameChangeSupported } = loadState('settings', 'accountParameters', {})
@@ -89,7 +88,7 @@ export default {
 			accountProperty: ACCOUNT_PROPERTY_READABLE_ENUM.EMAIL,
 			additionalEmails: additionalEmails.map(properties => ({ ...properties, key: this.generateUniqueKey() })),
 			displayNameChangeSupported,
-			primaryEmail: { ...primaryEmail, readable: NAME_READABLE_ENUM[primaryEmail.name] },
+			primaryEmail,
 			savePrimaryEmailScope,
 			notificationEmail,
 		}
@@ -101,10 +100,6 @@ export default {
 				return this.additionalEmails[0].value
 			}
 			return null
-		},
-
-		inputId() {
-			return `account-property-${this.primaryEmail.name}`
 		},
 
 		isValidSection() {
@@ -187,7 +182,7 @@ export default {
 		handleResponse(status, errorMessage, error) {
 			if (status !== 'ok') {
 				showError(errorMessage)
-				logger.error(errorMessage, error)
+				this.logger.error(errorMessage, error)
 			}
 		},
 

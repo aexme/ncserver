@@ -35,14 +35,25 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Middleware;
 use OCP\HintException;
 use OCP\IL10N;
-use Psr\Log\LoggerInterface;
+use OCP\ILogger;
 
 class AddServerMiddleware extends Middleware {
-	protected string $appName;
-	protected IL10N $l;
-	protected LoggerInterface $logger;
 
-	public function __construct(string $appName, IL10N $l, LoggerInterface $logger) {
+	/** @var  string */
+	protected $appName;
+
+	/** @var  IL10N */
+	protected $l;
+
+	/** @var  ILogger */
+	protected $logger;
+
+	/**
+	 * @param string $appName
+	 * @param IL10N $l
+	 * @param ILogger $logger
+	 */
+	public function __construct($appName, IL10N $l, ILogger $logger) {
 		$this->appName = $appName;
 		$this->l = $l;
 		$this->logger = $logger;
@@ -61,9 +72,9 @@ class AddServerMiddleware extends Middleware {
 		if (($controller instanceof SettingsController) === false) {
 			throw $exception;
 		}
-		$this->logger->error($exception->getMessage(), [
+		$this->logger->logException($exception, [
+			'level' => ILogger::ERROR,
 			'app' => $this->appName,
-			'exception' => $exception,
 		]);
 		if ($exception instanceof HintException) {
 			$message = $exception->getHint();

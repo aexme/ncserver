@@ -44,14 +44,30 @@ use OCP\IUserManager;
 use OCP\L10N\IFactory as IL10NFactory;
 
 class ContactsStore implements IContactsStore {
-	private IManager $contactsManager;
-	private IConfig $config;
-	private ProfileManager $profileManager;
-	private IUserManager $userManager;
-	private IURLGenerator $urlGenerator;
-	private IGroupManager $groupManager;
-	private KnownUserService $knownUserService;
-	private IL10NFactory $l10nFactory;
+
+	/** @var IManager */
+	private $contactsManager;
+
+	/** @var IConfig */
+	private $config;
+
+	/** @var ProfileManager */
+	private $profileManager;
+
+	/** @var IUserManager */
+	private $userManager;
+
+	/** @var IURLGenerator */
+	private $urlGenerator;
+
+	/** @var IGroupManager */
+	private $groupManager;
+
+	/** @var KnownUserService */
+	private $knownUserService;
+
+	/** @var IL10NFactory */
+	private $l10nFactory;
 
 	public function __construct(
 		IManager $contactsManager,
@@ -74,9 +90,11 @@ class ContactsStore implements IContactsStore {
 	}
 
 	/**
+	 * @param IUser $user
+	 * @param string|null $filter
 	 * @return IEntry[]
 	 */
-	public function getContacts(IUser $user, ?string $filter, ?int $limit = null, ?int $offset = null): array {
+	public function getContacts(IUser $user, $filter, ?int $limit = null, ?int $offset = null) {
 		$options = [
 			'enumeration' => $this->config->getAppValue('core', 'shareapi_allow_share_dialog_user_enumeration', 'yes') === 'yes',
 			'fullmatch' => $this->config->getAppValue('core', 'shareapi_restrict_user_enumeration_full_match', 'yes') === 'yes',
@@ -123,7 +141,7 @@ class ContactsStore implements IContactsStore {
 	 *  2. if the `shareapi_exclude_groups` config option is enabled and the
 	 * current user is in an excluded group it will filter all local users.
 	 *  3. if the `shareapi_only_share_with_group_members` config option is
-	 * enabled it will filter all users which doesn't have a common group
+	 * enabled it will filter all users which doens't have a common group
 	 * with the current user.
 	 *
 	 * @param IUser $self
@@ -134,8 +152,8 @@ class ContactsStore implements IContactsStore {
 	private function filterContacts(
 		IUser $self,
 		array $entries,
-		?string $filter
-	): array {
+		$filter
+	) {
 		$disallowEnumeration = $this->config->getAppValue('core', 'shareapi_allow_share_dialog_user_enumeration', 'yes') !== 'yes';
 		$restrictEnumerationGroup = $this->config->getAppValue('core', 'shareapi_restrict_user_enumeration_to_group', 'no') === 'yes';
 		$restrictEnumerationPhone = $this->config->getAppValue('core', 'shareapi_restrict_user_enumeration_to_phone', 'no') === 'yes';
@@ -235,7 +253,13 @@ class ContactsStore implements IContactsStore {
 		}));
 	}
 
-	public function findOne(IUser $user, int $shareType, string $shareWith): ?IEntry {
+	/**
+	 * @param IUser $user
+	 * @param integer $shareType
+	 * @param string $shareWith
+	 * @return IEntry|null
+	 */
+	public function findOne(IUser $user, $shareType, $shareWith) {
 		switch ($shareType) {
 			case 0:
 			case 6:
@@ -281,7 +305,11 @@ class ContactsStore implements IContactsStore {
 		return $match;
 	}
 
-	private function contactArrayToEntry(array $contact): Entry {
+	/**
+	 * @param array $contact
+	 * @return Entry
+	 */
+	private function contactArrayToEntry(array $contact) {
 		$entry = new Entry();
 
 		if (isset($contact['UID'])) {

@@ -61,11 +61,6 @@
 			var cropImagePreviews = $('#cropImagePreviews').val() === "1";
 			this.$cropImagePreviews.prop('checked', cropImagePreviews);
 
-			// Toggle for grid view
-			this.$showGridView = $('input#showgridview');
-			this.$showGridView.on('change', _.bind(this._onGridviewChange, this));
-			$('#view-toggle').tooltip({placement: 'bottom', trigger: 'hover'});
-
 			if ($('#fileNotFound').val() === "1") {
 				OC.Notification.show(t('files', 'File could not be found'), {type: 'error'});
 			}
@@ -114,13 +109,13 @@
 						OCA.Files.FileList.MultiSelectMenuActions.ToggleSelectionModeAction,
 						{
 							name: 'delete',
-							displayName:  t('files', 'Delete'),
+							displayName: t('files', 'Delete'),
 							iconClass: 'icon-delete',
 							order: 99,
 						},
 						{
 							name: 'tags',
-							displayName:  t('files', 'Tags'),
+							displayName:  'Tags',
 							iconClass: 'icon-tag',
 							order: 100,
 						},
@@ -195,16 +190,7 @@
 		 * @param {OCA.Files.FileList} newFileList -
 		 */
 		updateCurrentFileList: function(newFileList) {
-			if (this.currentFileList === newFileList) {
-				return
-			}
-
 			this.currentFileList = newFileList;
-			if (this.currentFileList !== null) {
-				// update grid view to the current value
-				const isGridView = this.$showGridView.is(':checked');
-				this.currentFileList.setGridView(isGridView);
-			}
 		},
 
 		/**
@@ -410,34 +396,7 @@
 			} else {
 				OC.Util.History.pushState(this._makeUrlParams(params));
 			}
-		},
-
-		/**
-		 * Toggle showing gridview by default or not
-		 *
-		 * @returns {undefined}
-		 */
-		_onGridviewChange: function() {
-			const isGridView = this.$showGridView.is(':checked');
-			// only save state if user is logged in
-			if (OC.currentUser) {
-				$.post(OC.generateUrl('/apps/files/api/v1/showgridview'), {
-					show: isGridView,
-				});
-			}
-			this.$showGridView.next('#view-toggle')
-				.removeClass('icon-toggle-filelist icon-toggle-pictures')
-				.addClass(isGridView ? 'icon-toggle-filelist' : 'icon-toggle-pictures')
-			this.$showGridView.next('#view-toggle').attr(
-				'data-original-title',
-				isGridView ? t('files', 'Show list view') : t('files', 'Show grid view'),
-			)
-
-			if (this.currentFileList) {
-				this.currentFileList.setGridView(isGridView);
-			}
-		},
-
+		}
 	};
 })();
 

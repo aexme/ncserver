@@ -230,11 +230,11 @@ interface IComment {
 	/**
 	 * sets the date of the most recent child
 	 *
-	 * @param \DateTime|null $dateTime
+	 * @param \DateTime $dateTime
 	 * @return IComment
 	 * @since 9.0.0
 	 */
-	public function setLatestChildDateTime(?\DateTime $dateTime = null);
+	public function setLatestChildDateTime(\DateTime $dateTime);
 
 	/**
 	 * returns the object type the comment is attached to
@@ -299,21 +299,4 @@ interface IComment {
 	 * @since 24.0.0
 	 */
 	public function setReactions(?array $reactions): IComment;
-
-	/**
-	 * Set message expire date
-	 *
-	 * @param \DateTime|null $dateTime
-	 * @return IComment
-	 * @since 25.0.0
-	 */
-	public function setExpireDate(?\DateTime $dateTime): IComment;
-
-	/**
-	 * Get message expire date
-	 *
-	 * @return ?\DateTime
-	 * @since 25.0.0
-	 */
-	public function getExpireDate(): ?\DateTime;
 }

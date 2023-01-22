@@ -36,19 +36,19 @@ $urlGenerator = $_['urlGenerator'];
 		])) ?>
 	</p>
 
-	<div class="notecard warning">
+	<span class="warning">
 		<h3><?php p($l->t('Security warning')) ?></h3>
 		<p>
 			<?php p($l->t('If you are not trying to set up a new device or app, someone is trying to trick you into granting them access to your data. In this case do not proceed and instead contact your system administrator.')) ?>
 		</p>
-	</div>
+	</span>
 
 	<br/>
 
 	<p id="redirect-link">
-		<form id="login-form" action="<?php p($urlGenerator->linkToRouteAbsolute('core.ClientFlowLoginV2.grantPage', ['stateToken' => $_['stateToken'], 'user' => $_['user']])) ?>" method="get">
+		<a href="<?php p($urlGenerator->linkToRouteAbsolute('core.ClientFlowLoginV2.grantPage', ['stateToken' => $_['stateToken'], 'user' => $_['user']])) ?>">
 			<input type="submit" class="login primary icon-confirm-white" value="<?php p($l->t('Log in')) ?>">
-		</form>
+		</a>
 	</p>
 
 	<form action="<?php p($urlGenerator->linkToRouteAbsolute('core.ClientFlowLoginV2.apptokenRedirect')); ?>" method="post" id="app-token-login-field" class="hidden">

@@ -25,9 +25,9 @@ namespace OCA\DAV\Comments;
 
 use OCP\Comments\ICommentsManager;
 use OCP\Comments\NotFoundException;
+use OCP\ILogger;
 use OCP\IUserManager;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Sabre\DAV\Exception\NotFound;
 use Sabre\DAV\IProperties;
 use Sabre\DAV\PropPatch;
@@ -46,7 +46,8 @@ class EntityCollection extends RootCollection implements IProperties {
 	/** @var  string */
 	protected $id;
 
-	protected LoggerInterface $logger;
+	/** @var  ILogger */
+	protected $logger;
 
 	/**
 	 * @param string $id
@@ -54,7 +55,7 @@ class EntityCollection extends RootCollection implements IProperties {
 	 * @param ICommentsManager $commentsManager
 	 * @param IUserManager $userManager
 	 * @param IUserSession $userSession
-	 * @param LoggerInterface $logger
+	 * @param ILogger $logger
 	 */
 	public function __construct(
 		$id,
@@ -62,7 +63,7 @@ class EntityCollection extends RootCollection implements IProperties {
 		ICommentsManager $commentsManager,
 		IUserManager $userManager,
 		IUserSession $userSession,
-		LoggerInterface $logger
+		ILogger $logger
 	) {
 		foreach (['id', 'name'] as $property) {
 			$$property = trim($$property);

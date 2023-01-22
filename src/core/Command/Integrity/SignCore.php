@@ -39,9 +39,15 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @package OC\Core\Command\Integrity
  */
 class SignCore extends Command {
-	private Checker $checker;
-	private FileAccessHelper $fileAccessHelper;
+	/** @var Checker */
+	private $checker;
+	/** @var FileAccessHelper */
+	private $fileAccessHelper;
 
+	/**
+	 * @param Checker $checker
+	 * @param FileAccessHelper $fileAccessHelper
+	 */
 	public function __construct(Checker $checker,
 								FileAccessHelper $fileAccessHelper) {
 		parent::__construct(null);

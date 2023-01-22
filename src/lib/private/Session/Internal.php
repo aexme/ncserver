@@ -68,11 +68,8 @@ class Internal extends Session {
 	 * @param integer $value
 	 */
 	public function set(string $key, $value) {
-		$reopened = $this->reopen();
+		$this->validateSession();
 		$_SESSION[$key] = $value;
-		if ($reopened) {
-			$this->close();
-		}
 	}
 
 	/**
@@ -104,7 +101,6 @@ class Internal extends Session {
 	}
 
 	public function clear() {
-		$this->reopen();
 		$this->invoke('session_unset');
 		$this->regenerateId();
 		$this->startSession(true);
@@ -124,7 +120,6 @@ class Internal extends Session {
 	 * @return void
 	 */
 	public function regenerateId(bool $deleteOldSession = true, bool $updateToken = false) {
-		$this->reopen();
 		$oldId = null;
 
 		if ($updateToken) {
@@ -176,14 +171,8 @@ class Internal extends Session {
 	/**
 	 * @throws \Exception
 	 */
-	public function reopen(): bool {
-		if ($this->sessionClosed) {
-			$this->startSession(false, false);
-			$this->sessionClosed = false;
-			return true;
-		}
-
-		return false;
+	public function reopen() {
+		throw new \Exception('The session cannot be reopened - reopen() is ony to be used in unit testing.');
 	}
 
 	/**
@@ -225,11 +214,7 @@ class Internal extends Session {
 		}
 	}
 
-	private function startSession(bool $silence = false, bool $readAndClose = true) {
-		$sessionParams = ['cookie_samesite' => 'Lax'];
-		if (\OC::hasSessionRelaxedExpiry()) {
-			$sessionParams['read_and_close'] = $readAndClose;
-		}
-		$this->invoke('session_start', [$sessionParams], $silence);
+	private function startSession(bool $silence = false) {
+		$this->invoke('session_start', [['cookie_samesite' => 'Lax']], $silence);
 	}
 }

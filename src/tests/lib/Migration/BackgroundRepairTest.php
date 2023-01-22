@@ -21,16 +21,13 @@
 
 namespace Test\Migration;
 
-use OCP\AppFramework\Utility\ITimeFactory;
-use OCP\EventDispatcher\IEventDispatcher;
-use OCP\Migration\IOutput;
-use OCP\Migration\IRepairStep;
-use OC\BackgroundJob\JobList;
 use OC\Migration\BackgroundRepair;
 use OC\NeedsUpdateException;
-use OC\Repair\Events\RepairStepEvent;
-use PHPUnit\Framework\MockObject\MockObject;
-use Psr\Log\LoggerInterface;
+use OCP\ILogger;
+use OCP\Migration\IOutput;
+use OCP\Migration\IRepairStep;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use Test\TestCase;
 
 class TestRepairStep implements IRepairStep {
@@ -59,43 +56,37 @@ class TestRepairStep implements IRepairStep {
 
 class BackgroundRepairTest extends TestCase {
 
-	/** @var JobList|MockObject */
+	/** @var \OC\BackgroundJob\JobList|\PHPUnit\Framework\MockObject\MockObject */
 	private $jobList;
 
-	/** @var BackgroundRepair|MockObject */
+	/** @var BackgroundRepair|\PHPUnit\Framework\MockObject\MockObject */
 	private $job;
 
-	/** @var LoggerInterface|MockObject */
+	/** @var ILogger|\PHPUnit\Framework\MockObject\MockObject */
 	private $logger;
 
-	/** @var IEventDispatcher|MockObject $dispatcher  */
+	/** @var EventDispatcherInterface|\PHPUnit\Framework\MockObject\MockObject $dispatcher  */
 	private $dispatcher;
-
-	/** @var ITimeFactory|\PHPUnit\Framework\MockObject\MockObject $dispatcher  */
-	private $time;
 
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->jobList = $this->getMockBuilder(JobList::class)
+		$this->jobList = $this->getMockBuilder('OC\BackgroundJob\JobList')
 			->disableOriginalConstructor()
 			->getMock();
-		$this->logger = $this->getMockBuilder(LoggerInterface::class)
+		$this->logger = $this->getMockBuilder(ILogger::class)
 			->disableOriginalConstructor()
 			->getMock();
-		$this->dispatcher = $this->createMock(IEventDispatcher::class);
-		$this->time = $this->createMock(ITimeFactory::class);
-		$this->time->method('getTime')
-			->willReturn(999999);
+		$this->dispatcher = $this->createMock(EventDispatcherInterface::class);
 		$this->job = $this->getMockBuilder(BackgroundRepair::class)
-			->setConstructorArgs([$this->dispatcher, $this->time, $this->logger, $this->jobList])
+			->setConstructorArgs([$this->dispatcher])
 			->setMethods(['loadApp'])
 			->getMock();
 	}
 
 	public function testNoArguments() {
 		$this->jobList->expects($this->once())->method('remove');
-		$this->job->start($this->jobList);
+		$this->job->execute($this->jobList);
 	}
 
 	public function testAppUpgrading() {
@@ -105,25 +96,25 @@ class BackgroundRepairTest extends TestCase {
 			'app' => 'test',
 			'step' => 'j'
 		]);
-		$this->job->start($this->jobList);
+		$this->job->execute($this->jobList);
 	}
 
 	public function testUnknownStep() {
-		$this->dispatcher->expects($this->never())->method('dispatchTyped');
+		$this->dispatcher->expects($this->never())->method('dispatch');
 
 		$this->jobList->expects($this->once())->method('remove');
-		$this->logger->expects($this->once())->method('error');
+		$this->logger->expects($this->once())->method('logException');
 
 		$this->job->setArgument([
 			'app' => 'test',
 			'step' => 'j'
 		]);
-		$this->job->start($this->jobList);
+		$this->job->execute($this->jobList, $this->logger);
 	}
 
 	public function testWorkingStep() {
-		$this->dispatcher->expects($this->once())->method('dispatchTyped')
-			->with($this->equalTo(new RepairStepEvent('A test repair step')));
+		$this->dispatcher->expects($this->once())->method('dispatch')
+			->with('\OC\Repair::step', new GenericEvent('\OC\Repair::step', ['A test repair step']));
 
 		$this->jobList->expects($this->once())->method('remove');
 
@@ -131,6 +122,6 @@ class BackgroundRepairTest extends TestCase {
 			'app' => 'test',
 			'step' => '\Test\Migration\TestRepairStep'
 		]);
-		$this->job->start($this->jobList);
+		$this->job->execute($this->jobList, $this->logger);
 	}
 }

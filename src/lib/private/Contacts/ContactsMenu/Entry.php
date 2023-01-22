@@ -35,34 +35,51 @@ class Entry implements IEntry {
 	/** @var string|int|null */
 	private $id = null;
 
-	private string $fullName = '';
+	/** @var string */
+	private $fullName = '';
 
 	/** @var string[] */
-	private array $emailAddresses = [];
+	private $emailAddresses = [];
 
-	private ?string $avatar = null;
+	/** @var string|null */
+	private $avatar;
 
-	private ?string $profileTitle = null;
+	/** @var string|null */
+	private $profileTitle;
 
-	private ?string $profileUrl = null;
+	/** @var string|null */
+	private $profileUrl;
 
 	/** @var IAction[] */
-	private array $actions = [];
+	private $actions = [];
 
-	private array $properties = [];
+	/** @var array */
+	private $properties = [];
 
+	/**
+	 * @param string $id
+	 */
 	public function setId(string $id): void {
 		$this->id = $id;
 	}
 
+	/**
+	 * @param string $displayName
+	 */
 	public function setFullName(string $displayName): void {
 		$this->fullName = $displayName;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getFullName(): string {
 		return $this->fullName;
 	}
 
+	/**
+	 * @param string $address
+	 */
 	public function addEMailAddress(string $address): void {
 		$this->emailAddresses[] = $address;
 	}
@@ -74,30 +91,51 @@ class Entry implements IEntry {
 		return $this->emailAddresses;
 	}
 
+	/**
+	 * @param string $avatar
+	 */
 	public function setAvatar(string $avatar): void {
 		$this->avatar = $avatar;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getAvatar(): ?string {
 		return $this->avatar;
 	}
 
+	/**
+	 * @param string $profileTitle
+	 */
 	public function setProfileTitle(string $profileTitle): void {
 		$this->profileTitle = $profileTitle;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getProfileTitle(): ?string {
 		return $this->profileTitle;
 	}
 
+	/**
+	 * @param string $profileUrl
+	 */
 	public function setProfileUrl(string $profileUrl): void {
 		$this->profileUrl = $profileUrl;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getProfileUrl(): ?string {
 		return $this->profileUrl;
 	}
 
+	/**
+	 * @param IAction $action
+	 */
 	public function addAction(IAction $action): void {
 		$this->actions[] = $action;
 		$this->sortActions();

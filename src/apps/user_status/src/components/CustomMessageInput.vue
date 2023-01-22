@@ -19,17 +19,9 @@
   -
   -->
 <template>
-	<div class="custom-input__form">
-		<NcEmojiPicker container=".custom-input__form" @select="setIcon">
-			<NcButton class="custom-input__emoji-button" type="tertiary-no-background">
-				{{ visibleIcon }}
-			</NcButton>
-		</NcEmojiPicker>
-		<label class="hidden-visually" for="user_status_message">
-			{{ t('user_status', 'What is your status?') }}
-		</label>
-		<input id="user_status_message"
-			ref="input"
+	<form class="custom-input__form"
+		@submit.prevent>
+		<input ref="input"
 			maxlength="80"
 			:disabled="disabled"
 			:placeholder="$t('user_status', 'What is your status?')"
@@ -39,26 +31,13 @@
 			@keyup="change"
 			@paste="change"
 			@keyup.enter="submit">
-	</div>
+	</form>
 </template>
 
 <script>
-import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
-import NcEmojiPicker from '@nextcloud/vue/dist/Components/NcEmojiPicker.js'
-
 export default {
 	name: 'CustomMessageInput',
-
-	components: {
-		NcButton,
-		NcEmojiPicker,
-	},
-
 	props: {
-		icon: {
-			type: String,
-			default: '😀',
-		},
 		message: {
 			type: String,
 			required: true,
@@ -69,24 +48,6 @@ export default {
 			default: false,
 		},
 	},
-
-	emits: [
-		'change',
-		'submit',
-		'icon-selected',
-	],
-
-	computed: {
-		/**
-		 * Returns the user-set icon or a smiley in case no icon is set
-		 *
-		 * @return {string}
-		 */
-		visibleIcon() {
-			return this.icon || '😀'
-		},
-	},
-
 	methods: {
 		focus() {
 			this.$refs.input.focus()
@@ -104,10 +65,6 @@ export default {
 		submit(event) {
 			this.$emit('submit', event.target.value)
 		},
-
-		setIcon(icon) {
-			this.$emit('select-icon', icon)
-		},
 	},
 }
 </script>
@@ -115,16 +72,10 @@ export default {
 <style lang="scss" scoped>
 .custom-input__form {
 	flex-grow: 1;
-	position: relative;
-
-	.v-popper {
-		position: absolute;
-	}
 
 	input {
 		width: 100%;
 		border-radius: 0 var(--border-radius) var(--border-radius) 0;
-		padding-left: 44px !important;
 	}
 }
 </style>

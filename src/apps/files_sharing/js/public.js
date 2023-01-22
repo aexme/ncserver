@@ -45,8 +45,7 @@ OCA.Sharing.PublicApp = {
 		OCA.Files.fileActions = fileActions;
 
 		this._initialized = true;
-		var urlParams = OC.Util.History.parseUrlQuery();
-		this.initialDir = urlParams.path || '/';
+		this.initialDir = $('#dir').val();
 
 		var token = $('#sharingToken').val();
 		var hideDownload = $('#hideDownload').val();
@@ -61,12 +60,7 @@ OCA.Sharing.PublicApp = {
 		}
 
 		// file list mode ?
-		if ($el.find('.files-filestable').length) {
-			// Toggle for grid view
-			this.$showGridView = $('input#showgridview');
-			this.$showGridView.on('change', _.bind(this._onGridviewChange, this));
-			$('#view-toggle').tooltip({placement: 'bottom', trigger: 'hover'});
-
+		if ($el.find('#filestable').length) {
 			var filesClient = new OC.Files.Client({
 				host: OC.getHost(),
 				port: OC.getPort(),
@@ -134,6 +128,7 @@ OCA.Sharing.PublicApp = {
 			}
 		}
 
+
 		// dynamically load image previews
 		var bottomMargin = 350;
 		var previewWidth = $(window).width();
@@ -157,10 +152,13 @@ OCA.Sharing.PublicApp = {
 			'max-height': previewHeight
 		});
 
-		if (OCA.Viewer && OCA.Viewer.mimetypes.includes(mimetype)
-			&& (mimetype.startsWith('image/') || mimetype.startsWith('video/') || mimetype.startsWith('audio'))) {
-			OCA.Viewer.setRootElement('#imgframe')
-			OCA.Viewer.open({ path: '/' })
+		var fileSize = parseInt($('#filesize').val(), 10);
+		var maxGifSize = parseInt($('#maxSizeAnimateGif').val(), 10);
+
+		if (mimetype === 'image/gif' &&
+			(maxGifSize === -1 || fileSize <= (maxGifSize * 1024 * 1024))) {
+			img.attr('src', $('#downloadURL').val());
+			imgcontainer.appendTo('#imgframe');
 		} else if (mimetype.substr(0, mimetype.indexOf('/')) === 'text' && window.btoa) {
 			if (OC.appswebroots['files_texteditor'] !== undefined ||
 				OC.appswebroots['text'] !== undefined) {
@@ -190,7 +188,8 @@ OCA.Sharing.PublicApp = {
 			// the icon should appear before, so the container should be
 			// prepended to the frame.
 			imgcontainer.prependTo('#imgframe');
-		} else if (previewSupported === 'true') {
+		}
+		else if (previewSupported === 'true') {
 			$('#imgframe > video').attr('poster', OC.generateUrl('/apps/files_sharing/publicpreview/' + token + '?' + OC.buildQueryString(params)));
 		}
 
@@ -278,7 +277,7 @@ OCA.Sharing.PublicApp = {
 			};
 
 			this.fileList.updateEmptyContent = function() {
-				this.$el.find('.emptycontent .uploadmessage').text(
+				this.$el.find('#emptycontent .uploadmessage').text(
 					t('files_sharing', 'You can upload into this folder')
 				);
 				OCA.Files.FileList.prototype.updateEmptyContent.apply(this, arguments);
@@ -307,6 +306,7 @@ OCA.Sharing.PublicApp = {
 			});
 
 			if (hideDownload === 'true') {
+				this.fileList.$el.find('#headerSelection').remove();
 				this.fileList.$el.find('.summary').find('td:first-child').remove();
 			}
 		}
@@ -366,26 +366,6 @@ OCA.Sharing.PublicApp = {
 		}
 		if (divHeight > previewHeight) {
 			textDiv.height(previewHeight);
-		}
-	},
-
-	/**
-	 * Toggle showing gridview by default or not
-	 *
-	 * @returns {undefined}
-	 */
-	_onGridviewChange: function() {
-		const isGridView = this.$showGridView.is(':checked');
-		this.$showGridView.next('#view-toggle')
-			.removeClass('icon-toggle-filelist icon-toggle-pictures')
-			.addClass(isGridView ? 'icon-toggle-filelist' : 'icon-toggle-pictures')
-		this.$showGridView.next('#view-toggle').attr(
-			'data-original-title',
-			isGridView ? t('files', 'Show list view') : t('files', 'Show grid view'),
-		)
-
-		if (this.fileList) {
-			this.fileList.setGridView(isGridView);
 		}
 	},
 

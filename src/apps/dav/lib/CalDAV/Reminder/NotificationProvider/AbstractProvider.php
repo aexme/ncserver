@@ -33,10 +33,10 @@ namespace OCA\DAV\CalDAV\Reminder\NotificationProvider;
 use OCA\DAV\CalDAV\Reminder\INotificationProvider;
 use OCP\IConfig;
 use OCP\IL10N;
+use OCP\ILogger;
 use OCP\IURLGenerator;
 use OCP\IUser;
 use OCP\L10N\IFactory as L10NFactory;
-use Psr\Log\LoggerInterface;
 use Sabre\VObject\Component\VEvent;
 use Sabre\VObject\DateTimeParser;
 use Sabre\VObject\Property;
@@ -51,7 +51,8 @@ abstract class AbstractProvider implements INotificationProvider {
 	/** @var string */
 	public const NOTIFICATION_TYPE = '';
 
-	protected LoggerInterface $logger;
+	/** @var ILogger */
+	protected $logger;
 
 	/** @var L10NFactory */
 	protected $l10nFactory;
@@ -68,7 +69,13 @@ abstract class AbstractProvider implements INotificationProvider {
 	/** @var IConfig */
 	protected $config;
 
-	public function __construct(LoggerInterface $logger,
+	/**
+	 * @param ILogger $logger
+	 * @param L10NFactory $l10nFactory
+	 * @param IConfig $config
+	 * @param IUrlGenerator $urlGenerator
+	 */
+	public function __construct(ILogger $logger,
 								L10NFactory $l10nFactory,
 								IURLGenerator $urlGenerator,
 								IConfig $config) {

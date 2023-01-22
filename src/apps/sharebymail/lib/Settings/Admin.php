@@ -24,29 +24,32 @@
 namespace OCA\ShareByMail\Settings;
 
 use OCP\AppFramework\Http\TemplateResponse;
-use OCP\AppFramework\Services\IInitialState;
 use OCP\IL10N;
 use OCP\Settings\IDelegatedSettings;
 
 class Admin implements IDelegatedSettings {
-	private SettingsManager $settingsManager;
-	private IL10N $l;
-	private IInitialState $initialState;
 
-	public function __construct(SettingsManager $settingsManager, IL10N $l, IInitialState $initialState) {
+	/** @var SettingsManager */
+	private $settingsManager;
+
+	/** @var IL10N */
+	private $l;
+
+	public function __construct(SettingsManager $settingsManager, IL10N $l) {
 		$this->settingsManager = $settingsManager;
 		$this->l = $l;
-		$this->initialState = $initialState;
 	}
 
 	/**
 	 * @return TemplateResponse
 	 */
 	public function getForm() {
-		$this->initialState->provideInitialState('sendPasswordMail', $this->settingsManager->sendPasswordByMail());
-		$this->initialState->provideInitialState('replyToInitiator', $this->settingsManager->replyToInitiator());
+		$parameters = [
+			'sendPasswordMail' => $this->settingsManager->sendPasswordByMail(),
+			'replyToInitiator' => $this->settingsManager->replyToInitiator()
+		];
 
-		return new TemplateResponse('sharebymail', 'settings-admin', [], '');
+		return new TemplateResponse('sharebymail', 'settings-admin', $parameters, '');
 	}
 
 	/**

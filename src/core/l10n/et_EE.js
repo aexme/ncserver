@@ -183,7 +183,6 @@ OC.L10N.register(
     "Need help?" : "Vajad abi?",
     "See the documentation" : "Vaata dokumentatsiooni",
     "This application requires JavaScript for correct operation. Please {linkstart}enable JavaScript{linkend} and reload the page." : "See rakendus vajab toimimiseks JavaScripti. Palun {linkstart}luba JavaScript{linkend} ning laadi see leht uuesti.",
-    "Contacts" : "Kontaktid",
     "Confirm your password" : "Kinnita oma parool",
     "Grant access" : "Anna ligipääs",
     "Account access" : "Konto ligipääs",
@@ -212,6 +211,6 @@ OC.L10N.register(
     "invisible" : "nähtamatu",
     "File not found" : "Faili ei leitud",
     "More" : "Rohkem",
-    "The password is wrong. Try again." : "Parool on vale. Proovi uuesti."
+    "Contacts" : "Kontaktid"
 },
 "nplurals=2; plural=(n != 1);");

@@ -28,7 +28,6 @@ namespace OCA\DAV\Connector\Sabre;
 
 use Sabre\HTTP\RequestInterface;
 use Sabre\HTTP\ResponseInterface;
-use Sabre\DAV\Server;
 
 /**
  * Class DummyGetResponsePlugin is a plugin used to not show a "Not implemented"
@@ -44,7 +43,8 @@ use Sabre\DAV\Server;
  * @package OCA\DAV\Connector\Sabre
  */
 class DummyGetResponsePlugin extends \Sabre\DAV\ServerPlugin {
-	protected ?Server $server = null;
+	/** @var \Sabre\DAV\Server */
+	protected $server;
 
 	/**
 	 * @param \Sabre\DAV\Server $server

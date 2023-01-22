@@ -26,7 +26,7 @@ declare(strict_types=1);
  */
 namespace OC\Files\AppData;
 
-use OCP\Cache\CappedMemoryCache;
+use OC\Cache\CappedMemoryCache;
 use OC\Files\SimpleFS\SimpleFolder;
 use OC\SystemConfig;
 use OCP\Files\Folder;
@@ -38,12 +38,21 @@ use OCP\Files\NotPermittedException;
 use OCP\Files\SimpleFS\ISimpleFolder;
 
 class AppData implements IAppData {
-	private IRootFolder $rootFolder;
-	private SystemConfig $config;
-	private string $appId;
-	private ?Folder $folder = null;
-	/** @var CappedMemoryCache<ISimpleFolder|NotFoundException> */
-	private CappedMemoryCache $folders;
+
+	/** @var IRootFolder */
+	private $rootFolder;
+
+	/** @var SystemConfig */
+	private $config;
+
+	/** @var string */
+	private $appId;
+
+	/** @var Folder */
+	private $folder;
+
+	/** @var (ISimpleFolder|NotFoundException)[]|CappedMemoryCache */
+	private $folders;
 
 	/**
 	 * AppData constructor.

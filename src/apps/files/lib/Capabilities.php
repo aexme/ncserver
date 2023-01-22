@@ -25,15 +25,36 @@
  */
 namespace OCA\Files;
 
+use OCA\Files\Service\DirectEditingService;
 use OCP\Capabilities\ICapability;
 use OCP\IConfig;
+use OCP\IURLGenerator;
 
+/**
+ * Class Capabilities
+ *
+ * @package OCA\Files
+ */
 class Capabilities implements ICapability {
 
-	protected IConfig $config;
+	/** @var IConfig */
+	protected $config;
 
-	public function __construct(IConfig $config) {
+	/** @var DirectEditingService */
+	protected $directEditingService;
+
+	/** @var IURLGenerator */
+	private $urlGenerator;
+
+	/**
+	 * Capabilities constructor.
+	 *
+	 * @param IConfig $config
+	 */
+	public function __construct(IConfig $config, DirectEditingService $directEditingService, IURLGenerator $urlGenerator) {
 		$this->config = $config;
+		$this->directEditingService = $directEditingService;
+		$this->urlGenerator = $urlGenerator;
 	}
 
 	/**
@@ -45,7 +66,11 @@ class Capabilities implements ICapability {
 		return [
 			'files' => [
 				'bigfilechunking' => true,
-				'blacklisted_files' => $this->config->getSystemValue('blacklisted_files', ['.htaccess'])
+				'blacklisted_files' => $this->config->getSystemValue('blacklisted_files', ['.htaccess']),
+				'directEditing' => [
+					'url' => $this->urlGenerator->linkToOCSRouteAbsolute('files.DirectEditing.info'),
+					'etag' => $this->directEditingService->getDirectEditingETag()
+				]
 			],
 		];
 	}

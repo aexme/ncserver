@@ -27,7 +27,7 @@
 			<DashboardWidgetItem :main-text="item.mainText"
 				:sub-text="item.subText">
 				<template #avatar>
-					<NcAvatar class="item-avatar"
+					<Avatar class="item-avatar"
 						:size="44"
 						:user="item.avatarUsername"
 						:display-name="item.mainText"
@@ -37,30 +37,28 @@
 			</DashboardWidgetItem>
 		</template>
 		<template #empty-content>
-			<NcEmptyContent id="user_status-widget-empty-content">
-				<template #icon>
-					<div class="icon-user-status" />
-				</template>
+			<EmptyContent id="user_status-widget-empty-content"
+				icon="icon-user-status">
 				{{ t('user_status', 'No recent status changes') }}
-			</NcEmptyContent>
+			</EmptyContent>
 		</template>
 	</DashboardWidget>
 </template>
 
 <script>
 import { DashboardWidget, DashboardWidgetItem } from '@nextcloud/vue-dashboard'
+import Avatar from '@nextcloud/vue/dist/Components/Avatar'
+import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 import { loadState } from '@nextcloud/initial-state'
-import NcAvatar from '@nextcloud/vue/dist/Components/NcAvatar'
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent'
 import moment from '@nextcloud/moment'
 
 export default {
 	name: 'Dashboard',
 	components: {
-		NcAvatar,
+		Avatar,
 		DashboardWidget,
 		DashboardWidgetItem,
-		NcEmptyContent,
+		EmptyContent,
 	},
 	data() {
 		return {
@@ -120,11 +118,5 @@ export default {
 #user_status-widget-empty-content {
 	text-align: center;
 	margin-top: 5vh;
-	.icon-user-status {
-		width: 64px;
-		height: 64px;
-		background-size: 64px;
-		filter: var(--background-invert-if-dark);
-	}
 }
 </style>

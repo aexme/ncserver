@@ -278,7 +278,7 @@ class Notifier implements INotifier, IDismissableNotifier {
 			throw new \InvalidArgumentException('Unhandled app');
 		}
 
-		// TODO: This should all be moved to a service that also the transferownershipController uses.
+		// TODO: This should all be moved to a service that also the transferownershipContoller uses.
 		try {
 			$transferOwnership = $this->mapper->getById((int)$notification->getObjectId());
 		} catch (DoesNotExistException $e) {

@@ -32,18 +32,19 @@
  */
 namespace OC;
 
-use OCP\Cache\CappedMemoryCache;
-use OCP\DB\QueryBuilder\IQueryBuilder;
-use OCP\IConfig;
+use OC\Cache\CappedMemoryCache;
 use OCP\IDBConnection;
 use OCP\PreConditionNotMetException;
 
 /**
  * Class to combine all the configuration options ownCloud offers
  */
-class AllConfig implements IConfig {
-	private SystemConfig $systemConfig;
-	private ?IDBConnection $connection = null;
+class AllConfig implements \OCP\IConfig {
+	/** @var SystemConfig */
+	private $systemConfig;
+
+	/** @var IDBConnection */
+	private $connection;
 
 	/**
 	 * 3 dimensional array with the following structure:
@@ -65,8 +66,11 @@ class AllConfig implements IConfig {
 	 *
 	 * @var CappedMemoryCache $userCache
 	 */
-	private CappedMemoryCache $userCache;
+	private $userCache;
 
+	/**
+	 * @param SystemConfig $systemConfig
+	 */
 	public function __construct(SystemConfig $systemConfig) {
 		$this->userCache = new CappedMemoryCache();
 		$this->systemConfig = $systemConfig;
@@ -87,7 +91,7 @@ class AllConfig implements IConfig {
 	 */
 	private function fixDIInit() {
 		if ($this->connection === null) {
-			$this->connection = \OC::$server->get(IDBConnection::class);
+			$this->connection = \OC::$server->getDatabaseConnection();
 		}
 	}
 
@@ -191,7 +195,7 @@ class AllConfig implements IConfig {
 	 * @return string[] the keys stored for the app
 	 */
 	public function getAppKeys($appName) {
-		return \OC::$server->get(AppConfig::class)->getKeys($appName);
+		return \OC::$server->query(\OC\AppConfig::class)->getKeys($appName);
 	}
 
 	/**
@@ -202,7 +206,7 @@ class AllConfig implements IConfig {
 	 * @param string|float|int $value the value that should be stored
 	 */
 	public function setAppValue($appName, $key, $value) {
-		\OC::$server->get(AppConfig::class)->setValue($appName, $key, $value);
+		\OC::$server->query(\OC\AppConfig::class)->setValue($appName, $key, $value);
 	}
 
 	/**
@@ -214,7 +218,7 @@ class AllConfig implements IConfig {
 	 * @return string the saved value
 	 */
 	public function getAppValue($appName, $key, $default = '') {
-		return \OC::$server->get(AppConfig::class)->getValue($appName, $key, $default);
+		return \OC::$server->query(\OC\AppConfig::class)->getValue($appName, $key, $default);
 	}
 
 	/**
@@ -224,7 +228,7 @@ class AllConfig implements IConfig {
 	 * @param string $key the key of the value, under which it was saved
 	 */
 	public function deleteAppValue($appName, $key) {
-		\OC::$server->get(AppConfig::class)->deleteKey($appName, $key);
+		\OC::$server->query(\OC\AppConfig::class)->deleteKey($appName, $key);
 	}
 
 	/**
@@ -233,7 +237,7 @@ class AllConfig implements IConfig {
 	 * @param string $appName the appName the configs are stored under
 	 */
 	public function deleteAppValues($appName) {
-		\OC::$server->get(AppConfig::class)->deleteApp($appName);
+		\OC::$server->query(\OC\AppConfig::class)->deleteApp($appName);
 	}
 
 
@@ -274,7 +278,7 @@ class AllConfig implements IConfig {
 					->where($qb->expr()->eq('userid', $qb->createNamedParameter($userId)))
 					->andWhere($qb->expr()->eq('appid', $qb->createNamedParameter($appName)))
 					->andWhere($qb->expr()->eq('configkey', $qb->createNamedParameter($key)));
-				$qb->executeStatement();
+				$qb->execute();
 
 				$this->userCache[$userId][$appName][$key] = (string)$value;
 				return;
@@ -350,12 +354,9 @@ class AllConfig implements IConfig {
 		// TODO - FIXME
 		$this->fixDIInit();
 
-		$qb = $this->connection->getQueryBuilder();
-		$qb->delete('preferences')
-			->where($qb->expr()->eq('userid', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR)))
-			->andWhere($qb->expr()->eq('appid', $qb->createNamedParameter($appName, IQueryBuilder::PARAM_STR)))
-			->andWhere($qb->expr()->eq('configkey', $qb->createNamedParameter($key, IQueryBuilder::PARAM_STR)))
-			->executeStatement();
+		$sql = 'DELETE FROM `*PREFIX*preferences` '.
+				'WHERE `userid` = ? AND `appid` = ? AND `configkey` = ?';
+		$this->connection->executeUpdate($sql, [$userId, $appName, $key]);
 
 		if (isset($this->userCache[$userId][$appName])) {
 			unset($this->userCache[$userId][$appName][$key]);
@@ -370,10 +371,10 @@ class AllConfig implements IConfig {
 	public function deleteAllUserValues($userId) {
 		// TODO - FIXME
 		$this->fixDIInit();
-		$qb = $this->connection->getQueryBuilder();
-		$qb->delete('preferences')
-			->where($qb->expr()->eq('userid', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR)))
-			->executeStatement();
+
+		$sql = 'DELETE FROM `*PREFIX*preferences` '.
+			'WHERE `userid` = ?';
+		$this->connection->executeUpdate($sql, [$userId]);
 
 		unset($this->userCache[$userId]);
 	}
@@ -387,10 +388,9 @@ class AllConfig implements IConfig {
 		// TODO - FIXME
 		$this->fixDIInit();
 
-		$qb = $this->connection->getQueryBuilder();
-		$qb->delete('preferences')
-			->where($qb->expr()->eq('appid', $qb->createNamedParameter($appName, IQueryBuilder::PARAM_STR)))
-			->executeStatement();
+		$sql = 'DELETE FROM `*PREFIX*preferences` '.
+				'WHERE `appid` = ?';
+		$this->connection->executeUpdate($sql, [$appName]);
 
 		foreach ($this->userCache as &$userCache) {
 			unset($userCache[$appName]);
@@ -420,12 +420,8 @@ class AllConfig implements IConfig {
 		$this->fixDIInit();
 
 		$data = [];
-
-		$qb = $this->connection->getQueryBuilder();
-		$result = $qb->select('appid', 'configkey', 'configvalue')
-			->from('preferences')
-			->where($qb->expr()->eq('userid', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR)))
-			->executeQuery();
+		$query = 'SELECT `appid`, `configkey`, `configvalue` FROM `*PREFIX*preferences` WHERE `userid` = ?';
+		$result = $this->connection->executeQuery($query, [$userId]);
 		while ($row = $result->fetch()) {
 			$appId = $row['appid'];
 			if (!isset($data[$appId])) {
@@ -454,20 +450,22 @@ class AllConfig implements IConfig {
 		}
 
 		$chunkedUsers = array_chunk($userIds, 50, true);
-
-		$qb = $this->connection->getQueryBuilder();
-		$qb->select('userid', 'configvalue')
-			->from('preferences')
-			->where($qb->expr()->eq('appid', $qb->createParameter('appName')))
-			->andWhere($qb->expr()->eq('configkey', $qb->createParameter('configKey')))
-			->andWhere($qb->expr()->in('userid', $qb->createParameter('userIds')));
+		$placeholders50 = implode(',', array_fill(0, 50, '?'));
 
 		$userValues = [];
 		foreach ($chunkedUsers as $chunk) {
-			$qb->setParameter('appName', $appName, IQueryBuilder::PARAM_STR);
-			$qb->setParameter('configKey', $key, IQueryBuilder::PARAM_STR);
-			$qb->setParameter('userIds', $chunk, IQueryBuilder::PARAM_STR_ARRAY);
-			$result = $qb->executeQuery();
+			$queryParams = $chunk;
+			// create [$app, $key, $chunkedUsers]
+			array_unshift($queryParams, $key);
+			array_unshift($queryParams, $appName);
+
+			$placeholders = (count($chunk) === 50) ? $placeholders50 :  implode(',', array_fill(0, count($chunk), '?'));
+
+			$query = 'SELECT `userid`, `configvalue` ' .
+						'FROM `*PREFIX*preferences` ' .
+						'WHERE `appid` = ? AND `configkey` = ? ' .
+						'AND `userid` IN (' . $placeholders . ')';
+			$result = $this->connection->executeQuery($query, $queryParams);
 
 			while ($row = $result->fetch()) {
 				$userValues[$row['userid']] = $row['configvalue'];
@@ -489,16 +487,17 @@ class AllConfig implements IConfig {
 		// TODO - FIXME
 		$this->fixDIInit();
 
-		$qb = $this->connection->getQueryBuilder();
-		$result = $qb->select('userid')
-			->from('preferences')
-			->where($qb->expr()->eq('appid', $qb->createNamedParameter($appName, IQueryBuilder::PARAM_STR)))
-			->andWhere($qb->expr()->eq('configkey', $qb->createNamedParameter($key, IQueryBuilder::PARAM_STR)))
-			->andWhere($qb->expr()->eq(
-				$qb->expr()->castColumn('configvalue', IQueryBuilder::PARAM_STR),
-				$qb->createNamedParameter($value, IQueryBuilder::PARAM_STR))
-			)->orderBy('userid')
-			->executeQuery();
+		$sql = 'SELECT `userid` FROM `*PREFIX*preferences` ' .
+				'WHERE `appid` = ? AND `configkey` = ? ';
+
+		if ($this->getSystemValue('dbtype', 'sqlite') === 'oci') {
+			//oracle hack: need to explicitly cast CLOB to CHAR for comparison
+			$sql .= 'AND to_char(`configvalue`) = ?';
+		} else {
+			$sql .= 'AND `configvalue` = ?';
+		}
+
+		$result = $this->connection->executeQuery($sql, [$appName, $key, $value]);
 
 		$userIDs = [];
 		while ($row = $result->fetch()) {
@@ -524,16 +523,18 @@ class AllConfig implements IConfig {
 			// Email address is always stored lowercase in the database
 			return $this->getUsersForUserValue($appName, $key, strtolower($value));
 		}
-		$qb = $this->connection->getQueryBuilder();
-		$result = $qb->select('userid')
-			->from('preferences')
-			->where($qb->expr()->eq('appid', $qb->createNamedParameter($appName, IQueryBuilder::PARAM_STR)))
-			->andWhere($qb->expr()->eq('configkey', $qb->createNamedParameter($key, IQueryBuilder::PARAM_STR)))
-			->andWhere($qb->expr()->eq(
-				$qb->func()->lower($qb->expr()->castColumn('configvalue', IQueryBuilder::PARAM_STR)),
-				$qb->createNamedParameter(strtolower($value), IQueryBuilder::PARAM_STR))
-			)->orderBy('userid')
-			->executeQuery();
+
+		$sql = 'SELECT `userid` FROM `*PREFIX*preferences` ' .
+			'WHERE `appid` = ? AND `configkey` = ? ';
+
+		if ($this->getSystemValue('dbtype', 'sqlite') === 'oci') {
+			//oracle hack: need to explicitly cast CLOB to CHAR for comparison
+			$sql .= 'AND LOWER(to_char(`configvalue`)) = ?';
+		} else {
+			$sql .= 'AND LOWER(`configvalue`) = ?';
+		}
+
+		$result = $this->connection->executeQuery($sql, [$appName, $key, strtolower($value)]);
 
 		$userIDs = [];
 		while ($row = $result->fetch()) {

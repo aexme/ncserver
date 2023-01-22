@@ -44,8 +44,12 @@ use OCP\Files\SimpleFS\ISimpleFolder;
 use OCP\IRequest;
 
 class JsController extends Controller {
-	protected IAppData $appData;
-	protected ITimeFactory $timeFactory;
+
+	/** @var IAppData */
+	protected $appData;
+
+	/** @var ITimeFactory */
+	protected $timeFactory;
 
 	public function __construct($appName, IRequest $request, Factory $appDataFactory, ITimeFactory $timeFactory) {
 		parent::__construct($appName, $request);

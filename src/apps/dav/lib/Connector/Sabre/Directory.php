@@ -54,27 +54,40 @@ use Sabre\DAV\Exception\NotFound;
 use Sabre\DAV\Exception\ServiceUnavailable;
 use Sabre\DAV\IFile;
 use Sabre\DAV\INode;
-use OCP\Share\IManager as IShareManager;
 
 class Directory extends \OCA\DAV\Connector\Sabre\Node implements \Sabre\DAV\ICollection, \Sabre\DAV\IQuota, \Sabre\DAV\IMoveTarget, \Sabre\DAV\ICopyTarget {
 
 	/**
 	 * Cached directory content
+	 *
 	 * @var \OCP\Files\FileInfo[]
 	 */
-	private ?array $dirContent = null;
+	private $dirContent;
 
-	/** Cached quota info */
-	private ?array $quotaInfo = null;
-	private ?CachingTree $tree = null;
+	/**
+	 * Cached quota info
+	 *
+	 * @var array
+	 */
+	private $quotaInfo;
+
+	/**
+	 * @var ObjectTree|null
+	 */
+	private $tree;
 
 	/** @var array<string, array<int, FileMetadata>> */
 	private array $metadata = [];
 
 	/**
 	 * Sets up the node, expects a full path name
+	 *
+	 * @param \OC\Files\View $view
+	 * @param \OCP\Files\FileInfo $info
+	 * @param ObjectTree|null $tree
+	 * @param \OCP\Share\IManager $shareManager
 	 */
-	public function __construct(View $view, FileInfo $info, ?CachingTree $tree = null, IShareManager $shareManager = null) {
+	public function __construct(View $view, FileInfo $info, $tree = null, $shareManager = null) {
 		parent::__construct($view, $info, $shareManager);
 		$this->tree = $tree;
 	}

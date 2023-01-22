@@ -178,11 +178,7 @@ class OC_User {
 				}
 				$userSession->setLoginName($uid);
 				$request = OC::$server->getRequest();
-				$password = null;
-				if ($backend instanceof \OCP\Authentication\IProvideUserSecretBackend) {
-					$password = $backend->getCurrentUserSecret();
-				}
-				$userSession->createSessionToken($request, $uid, $uid, $password);
+				$userSession->createSessionToken($request, $uid, $uid);
 				$userSession->createRememberMeToken($userSession->getUser());
 				// setup the filesystem
 				OC_Util::setupFS($uid);
@@ -195,7 +191,7 @@ class OC_User {
 					'post_login',
 					[
 						'uid' => $uid,
-						'password' => $password,
+						'password' => null,
 						'isTokenLogin' => false,
 					]
 				);

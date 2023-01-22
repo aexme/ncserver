@@ -26,7 +26,7 @@ import Vue from 'vue'
 import { getRequestToken } from '@nextcloud/auth'
 import UserStatus from './UserStatus'
 import store from './store'
-import NcAvatar from '@nextcloud/vue/dist/Components/NcAvatar'
+import Avatar from '@nextcloud/vue/dist/Components/Avatar'
 import { loadState } from '@nextcloud/initial-state'
 
 // eslint-disable-next-line camelcase
@@ -41,16 +41,17 @@ const propsData = {
 	preloadedUserStatus: {
 		message: userStatusData.message,
 		icon: userStatusData.icon,
-		status: userStatusData.status,
+		status: userStatusData.status
 	},
 	user: avatarDiv.dataset.user,
 	displayName: avatarDiv.dataset.displayname,
+	url: avatarDiv.dataset.avatar,
 	disableMenu: true,
 	disableTooltip: true,
 }
 
-const NcAvatarInMenu = Vue.extend(NcAvatar)
-new NcAvatarInMenu({ propsData }).$mount('#avatardiv-menu')
+const AvatarInMenu = Vue.extend(Avatar)
+new AvatarInMenu({ propsData }).$mount('#avatardiv-menu')
 
 // Register settings menu entry
 export default new Vue({

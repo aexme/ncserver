@@ -62,22 +62,16 @@ class Node implements \OCP\Files\Node {
 	protected $fileInfo;
 
 	/**
-	 * @var Node|null
-	 */
-	protected $parent;
-
-	/**
 	 * @param \OC\Files\View $view
 	 * @param \OCP\Files\IRootFolder $root
 	 * @param string $path
 	 * @param FileInfo $fileInfo
 	 */
-	public function __construct($root, $view, $path, $fileInfo = null, ?Node $parent = null) {
+	public function __construct($root, $view, $path, $fileInfo = null) {
 		$this->view = $view;
 		$this->root = $root;
 		$this->path = $path;
 		$this->fileInfo = $fileInfo;
-		$this->parent = $parent;
 	}
 
 	/**
@@ -284,16 +278,11 @@ class Node implements \OCP\Files\Node {
 	 * @return Node
 	 */
 	public function getParent() {
-		if ($this->parent === null) {
-			$newPath = dirname($this->path);
-			if ($newPath === '' || $newPath === '.' || $newPath === '/') {
-				return $this->root;
-			}
-
-			$this->parent = $this->root->get($newPath);
+		$newPath = dirname($this->path);
+		if ($newPath === '' || $newPath === '.' || $newPath === '/') {
+			return $this->root;
 		}
-
-		return $this->parent;
+		return $this->root->get($newPath);
 	}
 
 	/**

@@ -268,8 +268,6 @@ OC.L10N.register(
     "Skip to main content" : "ข้ามไปที่เนื้อหาหลัก",
     "Skip to navigation of app" : "ข้ามไปที่การนำทางของแอป",
     "Get your own free account" : "รับบัญชีฟรีของคุณ",
-    "Contacts" : "รายชื่อผู้ติดต่อ",
-    "Contacts menu" : "เมนูรายชื่อผู้ติดต่อ",
     "Confirm your password" : "ยืนยันรหัสผ่านของคุณ",
     "Connect to your account" : "เชื่อมต่อบัญชีของคุณ",
     "Please log in before granting %1$s access to your %2$s account." : "กรุณาเข้าสู่ระบบก่อนอนุญาตให้ %1$s เข้าถึงบัญชี %2$s ของคุณ",
@@ -315,7 +313,6 @@ OC.L10N.register(
     "This %s instance is currently in maintenance mode, which may take a while." : "เซิร์ฟเวอร์ %s นี้อยู่ในโหมดการบำรุงรักษา ซึ่งอาจใช้เวลาสักครู่",
     "This page will refresh itself when the instance is available again." : "หน้านี้จะรีเฟรชตัวเองเมื่อเซิร์ฟเวอร์สามารถใช้ได้อีกครั้ง",
     "Contact your system administrator if this message persists or appeared unexpectedly." : "ติดต่อผู้ดูแลระบบของคุณหากข้อความนี้ยังคงอยู่หรือปรากฏโดยไม่คาดคิด",
-    "Enter your subscription key to increase the user limit. For more information about Nextcloud Enterprise see our website." : "ใส่รหัสการเป็นสมาชิกเพื่อเพิ่มขีดจำกัดจำนวนผู้ใช้ สำหรับข้อมูลเพิ่มเติมเกี่ยวกับ Nextcloud Enterprise โปรดดูเว็บไซต์ของเรา",
     "[%d / %d]: Checking table %s" : "[%d / %d]: กำลังตรวจสอบตาราง %s",
     "The \"{header}\" HTTP header doesn't contain \"{expected}\". This is a potential security or privacy risk, as it is recommended to adjust this setting accordingly." : "ส่วนหัว HTTP \"{header}\" ไม่มีค่า \"{expected}\" ดังนั้นจึงมีความเสี่ยงด้านความปลอดภัยหรือความเป็นส่วนตัวที่เป็นไปได้ เราแนะนำให้ปรับการตั้งค่านี้",
     "Collaboratively edit office documents." : "แก้ไขเอกสารสำนักงานร่วมกัน",
@@ -325,8 +322,9 @@ OC.L10N.register(
     "The document could not be found on the server. Maybe the share was deleted or has expired?" : "ไม่พบเอกสารบนเซิร์ฟเวอร์ การแชร์อาจถูกลบหรือหมดอายุไปแล้ว",
     "More" : "เพิ่มเติม",
     "More apps menu" : "เมนูแอปเพิ่มเติม",
+    "Contacts" : "รายชื่อผู้ติดต่อ",
+    "Contacts menu" : "เมนูรายชื่อผู้ติดต่อ",
     "Settings menu" : "เมนูการตั้งค่า",
-    "The password is wrong. Try again." : "รหัสผ่านไม่ถูกต้อง กรุณาลองอีกครั้ง",
     "Setup two-factor authentication" : "ตั้งค่าการยืนยันสองปัจจัย"
 },
 "nplurals=1; plural=0;");

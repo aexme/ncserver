@@ -6,7 +6,6 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2020, Georg Ehrke
  *
  * @author Georg Ehrke <oc.list@georgehrke.com>
- * @author Thomas Citharel <nextcloud@tcit.fr>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -35,8 +34,12 @@ use OCP\EventDispatcher\Event;
  * @since 20.0.0
  */
 class CalendarUnpublishedEvent extends Event {
-	private int $calendarId;
-	private array $calendarData;
+
+	/** @var int */
+	private $calendarId;
+
+	/** @var array */
+	private $calendarData;
 
 	/**
 	 * CalendarUnpublishedEvent constructor.

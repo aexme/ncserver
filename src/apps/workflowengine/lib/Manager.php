@@ -30,7 +30,7 @@
 namespace OCA\WorkflowEngine;
 
 use Doctrine\DBAL\Exception;
-use OCP\Cache\CappedMemoryCache;
+use OC\Cache\CappedMemoryCache;
 use OCA\WorkflowEngine\AppInfo\Application;
 use OCA\WorkflowEngine\Check\FileMimeType;
 use OCA\WorkflowEngine\Check\FileName;
@@ -109,8 +109,8 @@ class Manager implements IManager {
 	/** @var ILogger */
 	protected $logger;
 
-	/** @var CappedMemoryCache<int[]> */
-	protected CappedMemoryCache $operationsByScope;
+	/** @var CappedMemoryCache */
+	protected $operationsByScope = [];
 
 	/** @var IUserSession */
 	protected $session;
@@ -350,11 +350,10 @@ class Manager implements IManager {
 		$qb->setParameters(['scope' => $scopeContext->getScope(), 'scopeId' => $scopeContext->getScopeId()]);
 		$result = $qb->execute();
 
-		$operations = [];
+		$this->operationsByScope[$scopeContext->getHash()] = [];
 		while (($opId = $result->fetchOne()) !== false) {
-			$operations[] = (int)$opId;
+			$this->operationsByScope[$scopeContext->getHash()][] = (int)$opId;
 		}
-		$this->operationsByScope[$scopeContext->getHash()] = $operations;
 		$result->closeCursor();
 
 		return in_array($id, $this->operationsByScope[$scopeContext->getHash()], true);

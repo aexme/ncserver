@@ -53,8 +53,12 @@ use Symfony\Component\EventDispatcher\GenericEvent;
  * @package OC\Core\Command\Db
  */
 class AddMissingIndices extends Command {
-	private Connection $connection;
-	private EventDispatcherInterface $dispatcher;
+
+	/** @var Connection */
+	private $connection;
+
+	/** @var EventDispatcherInterface */
+	private $dispatcher;
 
 	public function __construct(Connection $connection, EventDispatcherInterface $dispatcher) {
 		parent::__construct();
@@ -431,19 +435,6 @@ class AddMissingIndices extends Command {
 			}
 		}
 
-		$output->writeln('<info>Check indices of the oc_preferences table.</info>');
-		if ($schema->hasTable('preferences')) {
-			$table = $schema->getTable('preferences');
-			if (!$table->hasIndex('preferences_app_key')) {
-				$output->writeln('<info>Adding preferences_app_key index to the oc_preferences table, this can take some time...</info>');
-
-				$table->addIndex(['appid', 'configkey'], 'preferences_app_key');
-				$this->connection->migrateToSchema($schema->getWrappedSchema());
-				$updated = true;
-				$output->writeln('<info>oc_properties table updated successfully.</info>');
-			}
-		}
-
 		$output->writeln('<info>Check indices of the oc_mounts table.</info>');
 		if ($schema->hasTable('mounts')) {
 			$table = $schema->getTable('mounts');
@@ -451,7 +442,10 @@ class AddMissingIndices extends Command {
 				$output->writeln('<info>Adding mounts_class_index index to the oc_mounts table, this can take some time...</info>');
 
 				$table->addIndex(['mount_provider_class'], 'mounts_class_index');
-				$this->connection->migrateToSchema($schema->getWrappedSchema());
+				$sqlQueries = $this->connection->migrateToSchema($schema->getWrappedSchema(), $dryRun);
+				if ($dryRun && $sqlQueries !== null) {
+					$output->writeln($sqlQueries);
+				}
 				$updated = true;
 				$output->writeln('<info>oc_mounts table updated successfully.</info>');
 			}

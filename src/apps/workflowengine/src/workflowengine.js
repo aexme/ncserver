@@ -42,7 +42,7 @@ import ShippedChecks from './components/Checks'
  */
 
 /**
- * A plugin for extending the admin page representation of an operator
+ * A plugin for extending the admin page repesentation of a operator
  *
  * @typedef {object} OperatorPlugin
  * @property {string} id - The PHP class name of the check

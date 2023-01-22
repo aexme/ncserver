@@ -58,9 +58,6 @@ interface IUser {
 	 * @param string $displayName
 	 * @return bool
 	 * @since 8.0.0
-	 *
-	 * @since 25.0.0 Throw InvalidArgumentException
-	 * @throws \InvalidArgumentException
 	 */
 	public function setDisplayName($displayName);
 
@@ -115,7 +112,8 @@ interface IUser {
 
 	/**
 	 * Get the backend for the current user object
-	 * @return ?UserInterface
+	 *
+	 * @return UserInterface
 	 * @since 15.0.0
 	 */
 	public function getBackend();

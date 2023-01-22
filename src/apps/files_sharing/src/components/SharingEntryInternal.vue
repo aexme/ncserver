@@ -1,35 +1,32 @@
 
 <template>
-	<ul>
-		<SharingEntrySimple ref="shareEntrySimple"
-			class="sharing-entry__internal"
-			:title="t('files_sharing', 'Internal link')"
-			:subtitle="internalLinkSubtitle">
-			<template #avatar>
-				<div class="avatar-external icon-external-white" />
-			</template>
+	<SharingEntrySimple class="sharing-entry__internal"
+		:title="t('files_sharing', 'Internal link')"
+		:subtitle="internalLinkSubtitle">
+		<template #avatar>
+			<div class="avatar-external icon-external-white" />
+		</template>
 
-			<NcActionLink :href="internalLink"
-				:aria-label="t('files_sharing', 'Copy internal link to clipboard')"
-				target="_blank"
-				:icon="copied && copySuccess ? 'icon-checkmark-color' : 'icon-clippy'"
-				@click.prevent="copyLink">
-				{{ clipboardTooltip }}
-			</NcActionLink>
-		</SharingEntrySimple>
-	</ul>
+		<ActionLink ref="copyButton"
+			:href="internalLink"
+			target="_blank"
+			:icon="copied && copySuccess ? 'icon-checkmark-color' : 'icon-clippy'"
+			@click.prevent="copyLink">
+			{{ clipboardTooltip }}
+		</ActionLink>
+	</SharingEntrySimple>
 </template>
 
 <script>
 import { generateUrl } from '@nextcloud/router'
-import NcActionLink from '@nextcloud/vue/dist/Components/NcActionLink'
+import ActionLink from '@nextcloud/vue/dist/Components/ActionLink'
 import SharingEntrySimple from './SharingEntrySimple'
 
 export default {
 	name: 'SharingEntryInternal',
 
 	components: {
-		NcActionLink,
+		ActionLink,
 		SharingEntrySimple,
 	},
 
@@ -84,8 +81,8 @@ export default {
 		async copyLink() {
 			try {
 				await this.$copyText(this.internalLink)
-				// focus and show the tooltip (note: cannot set ref on NcActionLink)
-				this.$refs.shareEntrySimple.$refs.actionsComponent.$el.focus()
+				// focus and show the tooltip
+				this.$refs.copyButton.$el.focus()
 				this.copySuccess = true
 				this.copied = true
 			} catch (error) {

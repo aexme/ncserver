@@ -370,7 +370,6 @@
 			var menu;
 			var $trigger = context.$file.closest('tr').find('.fileactions .action-menu');
 			$trigger.addClass('open');
-			$trigger.attr('aria-expanded', 'true');
 
 			menu = new OCA.Files.FileActionsMenu();
 
@@ -379,7 +378,6 @@
 			menu.$el.on('afterHide', function() {
 				context.$file.removeClass('mouseOver');
 				$trigger.removeClass('open');
-				$trigger.attr('aria-expanded', 'false');
 				menu.remove();
 			});
 
@@ -406,7 +404,6 @@
 			}, false, context);
 
 			$el.addClass('permanent');
-			$el.attr('aria-expanded', 'false');
 
 		},
 
@@ -709,32 +706,6 @@
 						}, false, "httpd/unix-directory", true, actions, dialogDir);
 				}
 			});
-
-			if (!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-				this.registerAction({
-					name: 'EditLocally',
-					displayName: function(context) {
-						var locked = context.$file.data('locked');
-						if (!locked) {
-							return t('files', 'Edit locally');
-						}
-					},
-					mime: 'all',
-					order: -23,
-					icon: function(filename, context) {
-						var locked = context.$file.data('locked');
-						if (!locked) {
-							return OC.imagePath('files', 'computer.svg')
-						}
-					},
-					permissions: OC.PERMISSION_UPDATE,
-					actionHandler: function (filename, context) {
-						var dir = context.dir || context.fileList.getCurrentDirectory();
-						var path = dir === '/' ? dir + filename : dir + '/' + filename;
-						context.fileList.openLocalClient(path);
-					},
-				});
-			}
 
 			this.registerAction({
 				name: 'Open',

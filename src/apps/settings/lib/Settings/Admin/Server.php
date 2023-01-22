@@ -33,25 +33,28 @@ use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IL10N;
-use OCP\IURLGenerator;
 use OCP\Settings\IDelegatedSettings;
 
 class Server implements IDelegatedSettings {
 	use TProfileHelper;
 
-	private IDBConnection $connection;
-	private IInitialState $initialStateService;
-	private ProfileManager $profileManager;
-	private ITimeFactory $timeFactory;
-	private IConfig $config;
-	private IL10N $l;
-	private IURLGenerator $urlGenerator;
+	/** @var IDBConnection */
+	private $connection;
+	/** @var IInitialState */
+	private $initialStateService;
+	/** @var ProfileManager */
+	private $profileManager;
+	/** @var ITimeFactory */
+	private $timeFactory;
+	/** @var IConfig */
+	private $config;
+	/** @var IL10N $l */
+	private $l;
 
 	public function __construct(IDBConnection $connection,
 								IInitialState $initialStateService,
 								ProfileManager $profileManager,
 								ITimeFactory $timeFactory,
-								IURLGenerator $urlGenerator,
 								IConfig $config,
 								IL10N $l) {
 		$this->connection = $connection;
@@ -60,29 +63,27 @@ class Server implements IDelegatedSettings {
 		$this->timeFactory = $timeFactory;
 		$this->config = $config;
 		$this->l = $l;
-		$this->urlGenerator = $urlGenerator;
 	}
 
 	/**
 	 * @return TemplateResponse
 	 */
 	public function getForm() {
-		// Background jobs
-		$this->initialStateService->provideInitialState('backgroundJobsMode', $this->config->getAppValue('core', 'backgroundjobs_mode', 'ajax'));
-		$this->initialStateService->provideInitialState('lastCron', (int)$this->config->getAppValue('core', 'lastcron', '0'));
-		$this->initialStateService->provideInitialState('cronMaxAge', $this->cronMaxAge());
-		$this->initialStateService->provideInitialState('cronErrors', $this->config->getAppValue('core', 'cronErrors'));
-		$this->initialStateService->provideInitialState('cliBasedCronPossible', function_exists('posix_getpwuid'));
-		$this->initialStateService->provideInitialState('cliBasedCronUser', function_exists('posix_getpwuid') ? posix_getpwuid(fileowner(\OC::$configDir . 'config.php'))['name'] : '');
-		$this->initialStateService->provideInitialState('backgroundJobsDocUrl', $this->urlGenerator->linkToDocs('admin-background-jobs'));
+		$parameters = [
+			// Background jobs
+			'backgroundjobs_mode' => $this->config->getAppValue('core', 'backgroundjobs_mode', 'ajax'),
+			'lastcron' => $this->config->getAppValue('core', 'lastcron', false),
+			'cronMaxAge' => $this->cronMaxAge(),
+			'cronErrors' => $this->config->getAppValue('core', 'cronErrors'),
+			'cli_based_cron_possible' => function_exists('posix_getpwuid'),
+			'cli_based_cron_user' => function_exists('posix_getpwuid') ? posix_getpwuid(fileowner(\OC::$configDir . 'config.php'))['name'] : '',
+			'profileEnabledGlobally' => $this->profileManager->isProfileEnabled(),
+		];
 
-		// Profile page
 		$this->initialStateService->provideInitialState('profileEnabledGlobally', $this->profileManager->isProfileEnabled());
 		$this->initialStateService->provideInitialState('profileEnabledByDefault', $this->isProfileEnabledByDefault($this->config));
 
-		return new TemplateResponse('settings', 'settings/admin/server', [
-			'profileEnabledGlobally' => $this->profileManager->isProfileEnabled(),
-		], '');
+		return new TemplateResponse('settings', 'settings/admin/server', $parameters, '');
 	}
 
 	protected function cronMaxAge(): int {

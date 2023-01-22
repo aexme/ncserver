@@ -56,8 +56,6 @@ class ImageManagerTest extends TestCase {
 	private $logger;
 	/** @var ITempManager|MockObject */
 	private $tempManager;
-	/** @var ISimpleFolder|MockObject */
-	private $rootFolder;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -67,7 +65,6 @@ class ImageManagerTest extends TestCase {
 		$this->cacheFactory = $this->createMock(ICacheFactory::class);
 		$this->logger = $this->createMock(ILogger::class);
 		$this->tempManager = $this->createMock(ITempManager::class);
-		$this->rootFolder = $this->createMock(ISimpleFolder::class);
 		$this->imageManager = new ImageManager(
 			$this->config,
 			$this->appData,
@@ -76,11 +73,6 @@ class ImageManagerTest extends TestCase {
 			$this->logger,
 			$this->tempManager
 		);
-		$this->appData
-			->expects($this->any())
-			->method('getFolder')
-			->with('global')
-			->willReturn($this->rootFolder);
 	}
 
 	private function checkImagick() {
@@ -108,27 +100,26 @@ class ImageManagerTest extends TestCase {
 			$file->expects($this->once())
 				->method('getContent')
 				->willReturn(file_get_contents(__DIR__ . '/../../../tests/data/testimage.png'));
-			$folder->expects($this->exactly(2))
+			$folder->expects($this->at(0))
 				->method('fileExists')
-				->withConsecutive(
-					['logo'],
-					['logo.png'],
-				)->willReturnOnConsecutiveCalls(
-					true,
-					false,
-				);
-			$folder->expects($this->once())
+				->with('logo')
+				->willReturn(true);
+			$folder->expects($this->at(1))
+				->method('fileExists')
+				->with('logo.png')
+				->willReturn(false);
+			$folder->expects($this->at(2))
 				->method('getFile')
 				->with('logo')
 				->willReturn($file);
 			$newFile = $this->createMock(ISimpleFile::class);
-			$folder->expects($this->once())
+			$folder->expects($this->at(3))
 				->method('newFile')
 				->with('logo.png')
 				->willReturn($newFile);
 			$newFile->expects($this->once())
 				->method('putContent');
-			$this->rootFolder->expects($this->once())
+			$this->appData->expects($this->once())
 				->method('getFolder')
 				->with('images')
 				->willReturn($folder);
@@ -208,7 +199,7 @@ class ImageManagerTest extends TestCase {
 			->method('getAppValue')
 			->with('theming', 'cachebuster', '0')
 			->willReturn('0');
-		$this->rootFolder->expects($this->once())
+		$this->appData->expects($this->once())
 			->method('getFolder')
 			->with('0')
 			->willReturn($folder);
@@ -220,18 +211,18 @@ class ImageManagerTest extends TestCase {
 			->method('getAppValue')
 			->with('theming', 'cachebuster', '0')
 			->willReturn('0');
-		$this->rootFolder->expects($this->exactly(2))
+		$this->appData->expects($this->at(0))
 			->method('getFolder')
-			->with('0')
-			->willReturnOnConsecutiveCalls(
-				$this->throwException(new NotFoundException()),
-				$folder,
-			);
-		$this->rootFolder->expects($this->once())
+			->willThrowException(new NotFoundException());
+		$this->appData->expects($this->at(1))
 			->method('newFolder')
 			->with('0')
 			->willReturn($folder);
-		$this->rootFolder->expects($this->once())
+		$this->appData->expects($this->at(2))
+			->method('getFolder')
+			->with('0')
+			->willReturn($folder);
+		$this->appData->expects($this->once())
 			->method('getDirectoryListing')
 			->willReturn([]);
 		$this->assertEquals($folder, $this->imageManager->getCacheFolder());
@@ -299,7 +290,7 @@ class ImageManagerTest extends TestCase {
 			->method('getAppValue')
 			->with('theming', 'cachebuster', '0')
 			->willReturn('0');
-		$this->rootFolder->expects($this->once())
+		$this->appData->expects($this->at(0))
 			->method('getFolder')
 			->with('0')
 			->willReturn($folder);
@@ -315,7 +306,7 @@ class ImageManagerTest extends TestCase {
 		foreach ($folders as $index => $folder) {
 			$folder->expects($this->any())
 				->method('getName')
-				->willReturn("$index");
+				->willReturn($index);
 		}
 		$folders[0]->expects($this->once())->method('delete');
 		$folders[1]->expects($this->once())->method('delete');
@@ -324,10 +315,10 @@ class ImageManagerTest extends TestCase {
 			->method('getAppValue')
 			->with('theming','cachebuster','0')
 			->willReturn('2');
-		$this->rootFolder->expects($this->once())
+		$this->appData->expects($this->once())
 			->method('getDirectoryListing')
 			->willReturn($folders);
-		$this->rootFolder->expects($this->once())
+		$this->appData->expects($this->once())
 			->method('getFolder')
 			->with('2')
 			->willReturn($folders[2]);
@@ -354,26 +345,24 @@ class ImageManagerTest extends TestCase {
 		$folder->expects($this->any())
 			->method('getFile')
 			->willReturn($oldFile);
-
 		if ($folderExists) {
-			$this->rootFolder
+			$this->appData
 				->expects($this->any())
 				->method('getFolder')
 				->with('images')
 				->willReturn($folder);
 		} else {
-			$this->rootFolder
+			$this->appData
 				->expects($this->any())
 				->method('getFolder')
 				->with('images')
 				->willThrowException(new NotFoundException());
-			$this->rootFolder
+			$this->appData
 				->expects($this->any())
 				->method('newFolder')
 				->with('images')
 				->willReturn($folder);
 		}
-
 		$folder->expects($this->once())
 			->method('newFile')
 			->with($key)

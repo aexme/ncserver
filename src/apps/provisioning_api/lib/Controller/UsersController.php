@@ -429,14 +429,7 @@ class UsersController extends AUserData {
 			}
 
 			if ($displayName !== '') {
-				try {
-					$this->editUser($userid, self::USER_FIELD_DISPLAYNAME, $displayName);
-				} catch (OCSException $e) {
-					if ($newUser instanceof IUser) {
-						$newUser->delete();
-					}
-					throw $e;
-				}
+				$this->editUser($userid, self::USER_FIELD_DISPLAYNAME, $displayName);
 			}
 
 			if ($quota !== '') {
@@ -480,7 +473,7 @@ class UsersController extends AUserData {
 			throw new OCSException($e->getHint(), 107);
 		} catch (OCSException $e) {
 			$this->logger->warning(
-				'Failed addUser attempt with ocs exception.',
+				'Failed addUser attempt with ocs exeption.',
 				[
 					'app' => 'ocs_api',
 					'exception' => $e,
@@ -489,7 +482,7 @@ class UsersController extends AUserData {
 			throw $e;
 		} catch (InvalidArgumentException $e) {
 			$this->logger->error(
-				'Failed addUser attempt with invalid argument exception.',
+				'Failed addUser attempt with invalid argument exeption.',
 				[
 					'app' => 'ocs_api',
 					'exception' => $e,
@@ -847,10 +840,8 @@ class UsersController extends AUserData {
 		switch ($key) {
 			case self::USER_FIELD_DISPLAYNAME:
 			case IAccountManager::PROPERTY_DISPLAYNAME:
-				try {
-					$targetUser->setDisplayName($value);
-				} catch (InvalidArgumentException $e) {
-					throw new OCSException($e->getMessage(), 101);
+				if (!$targetUser->setDisplayName($value)) {
+					throw new OCSException('Invalid displayname', 102);
 				}
 				break;
 			case self::USER_FIELD_QUOTA:

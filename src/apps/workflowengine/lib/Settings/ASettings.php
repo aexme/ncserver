@@ -37,7 +37,6 @@ use OCP\AppFramework\Services\IInitialState;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IConfig;
 use OCP\IL10N;
-use OCP\IURLGenerator;
 use OCP\Settings\ISettings;
 use OCP\WorkflowEngine\Events\LoadSettingsScriptsEvent;
 use OCP\WorkflowEngine\ICheck;
@@ -48,13 +47,23 @@ use OCP\WorkflowEngine\IOperation;
 use OCP\WorkflowEngine\ISpecificOperation;
 
 abstract class ASettings implements ISettings {
-	private IL10N $l10n;
-	private string $appName;
-	private IEventDispatcher $eventDispatcher;
-	protected Manager $manager;
-	private IInitialState $initialStateService;
-	private IConfig $config;
-	private IURLGenerator $urlGenerator;
+	/** @var IL10N */
+	private $l10n;
+
+	/** @var string */
+	private $appName;
+
+	/** @var IEventDispatcher */
+	private $eventDispatcher;
+
+	/** @var Manager */
+	protected $manager;
+
+	/** @var IInitialState */
+	private $initialStateService;
+
+	/** @var IConfig */
+	private $config;
 
 	public function __construct(
 		string $appName,
@@ -62,8 +71,7 @@ abstract class ASettings implements ISettings {
 		IEventDispatcher $eventDispatcher,
 		Manager $manager,
 		IInitialState $initialStateService,
-		IConfig $config,
-		IURLGenerator $urlGenerator
+		IConfig $config
 	) {
 		$this->appName = $appName;
 		$this->l10n = $l;
@@ -71,7 +79,6 @@ abstract class ASettings implements ISettings {
 		$this->manager = $manager;
 		$this->initialStateService = $initialStateService;
 		$this->config = $config;
-		$this->urlGenerator = $urlGenerator;
 	}
 
 	abstract public function getScope(): int;
@@ -113,11 +120,6 @@ abstract class ASettings implements ISettings {
 		$this->initialStateService->provideInitialState(
 			'appstoreenabled',
 			$this->config->getSystemValueBool('appstoreenabled', true)
-		);
-
-		$this->initialStateService->provideInitialState(
-			'doc-url',
-			$this->urlGenerator->linkToDocs('admin-workflowengine')
 		);
 
 		return new TemplateResponse(Application::APP_ID, 'settings', [], 'blank');

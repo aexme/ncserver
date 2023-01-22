@@ -37,7 +37,6 @@ use OCP\Files\SimpleFS\ISimpleFolder;
 use OCP\IConfig;
 use OCP\IL10N;
 use OCP\IUser;
-use OC\User\User;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 
@@ -102,7 +101,7 @@ class AvatarManagerTest extends \Test\TestCase {
 	}
 
 	public function testGetAvatarForSelf() {
-		$user = $this->createMock(User::class);
+		$user = $this->createMock(IUser::class);
 		$user
 			->expects($this->any())
 			->method('getUID')
@@ -152,7 +151,7 @@ class AvatarManagerTest extends \Test\TestCase {
 	}
 
 	public function testGetAvatarValidUserDifferentCasing() {
-		$user = $this->createMock(User::class);
+		$user = $this->createMock(IUser::class);
 		$this->userManager->expects($this->once())
 			->method('get')
 			->with('vaLid-USER')
@@ -226,7 +225,7 @@ class AvatarManagerTest extends \Test\TestCase {
 			->method('getUser')
 			->willReturn($requestingUser);
 
-		$user = $this->createMock(User::class);
+		$user = $this->createMock(IUser::class);
 		$user
 			->expects($this->once())
 			->method('getUID')

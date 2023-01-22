@@ -19,16 +19,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
-@use 'variables';
-@import 'functions';
 
 // This is the icons used in the sharing ui (multiselect)
 .icon-room {
-	background-image: var(--icon-talk-dark);
+	@include icon-color('app', 'spreed', $color-black);
 }
 .icon-circle {
-	background-image: var(--icon-circles-dark);
+	@include icon-color('circles', 'circles', $color-black, 3, false);
 }
 .icon-guests {
-	background-image: var(--icon-user-dark);
+	@include icon-color('app', 'guests', $color-black);
 }

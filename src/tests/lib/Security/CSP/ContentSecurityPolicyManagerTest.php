@@ -87,7 +87,6 @@ class ContentSecurityPolicyManagerTest extends TestCase {
 			$policy->addAllowedFontDomain('mydomain.com');
 			$policy->addAllowedImageDomain('anotherdomain.de');
 			$policy->useStrictDynamic(true);
-			$policy->allowEvalScript(true);
 
 			$e->addPolicy($policy);
 		});
@@ -97,7 +96,7 @@ class ContentSecurityPolicyManagerTest extends TestCase {
 			$policy->addAllowedFontDomain('example.com');
 			$policy->addAllowedImageDomain('example.org');
 			$policy->allowInlineScript(true);
-			$policy->allowEvalScript(false);
+			$policy->allowEvalScript(true);
 			$e->addPolicy($policy);
 		});
 

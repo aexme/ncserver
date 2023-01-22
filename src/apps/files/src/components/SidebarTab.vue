@@ -21,30 +21,30 @@
   -
   -->
 <template>
-	<NcAppSidebarTab :id="id"
+	<AppSidebarTab :id="id"
 		ref="tab"
 		:name="name"
 		:icon="icon"
 		@bottomReached="onScrollBottomReached">
 		<!-- Fallback loading -->
-		<NcEmptyContent v-if="loading" icon="icon-loading" />
+		<EmptyContent v-if="loading" icon="icon-loading" />
 
 		<!-- Using a dummy div as Vue mount replace the element directly
 			It does NOT append to the content -->
 		<div ref="mount" />
-	</NcAppSidebarTab>
+	</AppSidebarTab>
 </template>
 
 <script>
-import NcAppSidebarTab from '@nextcloud/vue/dist/Components/NcAppSidebarTab'
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent'
+import AppSidebarTab from '@nextcloud/vue/dist/Components/AppSidebarTab'
+import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 
 export default {
 	name: 'SidebarTab',
 
 	components: {
-		NcAppSidebarTab,
-		NcEmptyContent,
+		AppSidebarTab,
+		EmptyContent,
 	},
 
 	props: {

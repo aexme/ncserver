@@ -20,37 +20,25 @@
   -->
 
 <template>
-	<NcButton type="primary"
-		native-type="submit"
-		:wide="true"
-		@click="$emit('click')">
-		{{ !loading ? value : valueLoading }}
-		<template #icon>
-			<div v-if="loading" class="submit-wrapper__icon icon-loading-small-dark" />
-			<ArrowRight v-else class="submit-wrapper__icon" />
-		</template>
-	</NcButton>
+	<div id="submit-wrapper" @click="$emit('click')">
+		<input id="submit-form"
+			type="submit"
+			class="login primary"
+			title=""
+			:value="!loading ? t('core', 'Log in') : t('core', 'Logging in …')">
+		<div class="submit-icon"
+			:class="{
+				'icon-confirm-white': !loading,
+				'icon-loading-small': loading && invertedColors,
+				'icon-loading-small-dark': loading && !invertedColors,
+			}" />
+	</div>
 </template>
 
 <script>
-import NcButton from '@nextcloud/vue/dist/Components/NcButton'
-import ArrowRight from 'vue-material-design-icons/ArrowRight.vue'
-
 export default {
 	name: 'LoginButton',
-	components: {
-		ArrowRight,
-		NcButton,
-	},
 	props: {
-		value: {
-			type: String,
-			default: t('core', 'Log in'),
-		},
-		valueLoading: {
-			type: String,
-			default: t('core', 'Logging in …'),
-		},
 		loading: {
 			type: Boolean,
 			required: true,
@@ -63,8 +51,6 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-.button-vue {
-	margin-top: .5rem;
-}
+<style scoped>
+
 </style>

@@ -115,12 +115,12 @@ class MigrationsTest extends \Test\TestCase {
 			->willReturn($wrappedSchema);
 
 		$step = $this->createMock(IMigrationStep::class);
-		$step->expects($this->once())
+		$step->expects($this->at(0))
 			->method('preSchemaChange');
-		$step->expects($this->once())
+		$step->expects($this->at(1))
 			->method('changeSchema')
 			->willReturn($schemaResult);
-		$step->expects($this->once())
+		$step->expects($this->at(2))
 			->method('postSchemaChange');
 
 		$this->migrationService = $this->getMockBuilder(MigrationService::class)
@@ -145,12 +145,12 @@ class MigrationsTest extends \Test\TestCase {
 			->method('migrateToSchema');
 
 		$step = $this->createMock(IMigrationStep::class);
-		$step->expects($this->once())
+		$step->expects($this->at(0))
 			->method('preSchemaChange');
-		$step->expects($this->once())
+		$step->expects($this->at(1))
 			->method('changeSchema')
 			->willReturn(null);
-		$step->expects($this->once())
+		$step->expects($this->at(2))
 			->method('postSchemaChange');
 
 		$this->migrationService = $this->getMockBuilder(MigrationService::class)

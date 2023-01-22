@@ -199,7 +199,6 @@ class CheckSetupControllerTest extends TestCase {
 				'getAppDirsWithDifferentOwner',
 				'isImagickEnabled',
 				'areWebauthnExtensionsEnabled',
-				'is64bit',
 				'hasRecommendedPHPModules',
 				'hasBigIntConversionPendingColumns',
 				'isMysqlUsedWithoutUTF8MB4',
@@ -235,12 +234,15 @@ class CheckSetupControllerTest extends TestCase {
 	}
 
 	public function testIsInternetConnectionWorkingCorrectly() {
-		$this->config->expects($this->exactly(2))
+		$this->config->expects($this->at(0))
 			->method('getSystemValue')
-			->withConsecutive(
-				['has_internet_connection', true],
-				['connectivity_check_domains', ['www.nextcloud.com', 'www.startpage.com', 'www.eff.org', 'www.edri.org']],
-			)->willReturnArgument(1);
+			->with('has_internet_connection', true)
+			->willReturn(true);
+
+		$this->config->expects($this->at(1))
+			->method('getSystemValue')
+			->with('connectivity_check_domains', ['www.nextcloud.com', 'www.startpage.com', 'www.eff.org', 'www.edri.org'])
+			->willReturn(['www.nextcloud.com', 'www.startpage.com', 'www.eff.org', 'www.edri.org']);
 
 		$client = $this->getMockBuilder('\OCP\Http\Client\IClient')
 			->disableOriginalConstructor()->getMock();
@@ -261,12 +263,15 @@ class CheckSetupControllerTest extends TestCase {
 	}
 
 	public function testIsInternetConnectionFail() {
-		$this->config->expects($this->exactly(2))
+		$this->config->expects($this->at(0))
 			->method('getSystemValue')
-			->withConsecutive(
-				['has_internet_connection', true],
-				['connectivity_check_domains', ['www.nextcloud.com', 'www.startpage.com', 'www.eff.org', 'www.edri.org']],
-			)->willReturnArgument(1);
+			->with('has_internet_connection', true)
+			->willReturn(true);
+
+		$this->config->expects($this->at(1))
+			->method('getSystemValue')
+			->with('connectivity_check_domains', ['www.nextcloud.com', 'www.startpage.com', 'www.eff.org', 'www.edri.org'])
+			->willReturn(['www.nextcloud.com', 'www.startpage.com', 'www.eff.org', 'www.edri.org']);
 
 		$client = $this->getMockBuilder('\OCP\Http\Client\IClient')
 			->disableOriginalConstructor()->getMock();
@@ -427,20 +432,30 @@ class CheckSetupControllerTest extends TestCase {
 	}
 
 	public function testCheck() {
-		$this->config->expects($this->any())
+		$this->config->expects($this->at(0))
 			->method('getAppValue')
-			->willReturnMap([
-				['files_external', 'user_certificate_scan', '', '["a", "b"]'],
-				['core', 'cronErrors', ''],
-			]);
-		$this->config->expects($this->any())
+			->with('files_external', 'user_certificate_scan', false)
+			->willReturn('["a", "b"]');
+		$this->config->expects($this->at(1))
+			->method('getAppValue')
+			->with('core', 'cronErrors')
+			->willReturn('');
+		$this->config->expects($this->at(3))
 			->method('getSystemValue')
-			->willReturnMap([
-				['connectivity_check_domains', ['www.nextcloud.com', 'www.startpage.com', 'www.eff.org', 'www.edri.org'], ['www.nextcloud.com', 'www.startpage.com', 'www.eff.org', 'www.edri.org']],
-				['memcache.local', null, 'SomeProvider'],
-				['has_internet_connection', true, true],
-				['appstoreenabled', true, false],
-			]);
+			->with('connectivity_check_domains', ['www.nextcloud.com', 'www.startpage.com', 'www.eff.org', 'www.edri.org'])
+			->willReturn(['www.nextcloud.com', 'www.startpage.com', 'www.eff.org', 'www.edri.org']);
+		$this->config->expects($this->at(4))
+			->method('getSystemValue')
+			->with('memcache.local', null)
+			->willReturn('SomeProvider');
+		$this->config->expects($this->at(5))
+			->method('getSystemValue')
+			->with('has_internet_connection', true)
+			->willReturn(true);
+		$this->config->expects($this->at(6))
+			->method('getSystemValue')
+			->with('appstoreenabled', true)
+			->willReturn(false);
 
 		$this->request->expects($this->atLeastOnce())
 			->method('getHeader')
@@ -451,14 +466,22 @@ class CheckSetupControllerTest extends TestCase {
 
 		$client = $this->getMockBuilder('\OCP\Http\Client\IClient')
 			->disableOriginalConstructor()->getMock();
-		$client->expects($this->exactly(4))
+		$client->expects($this->at(0))
 			->method('get')
-			->withConsecutive(
-				['http://www.nextcloud.com/', []],
-				['http://www.startpage.com/', []],
-				['http://www.eff.org/', []],
-				['http://www.edri.org/', []]
-			)->will($this->throwException(new \Exception()));
+			->with('http://www.nextcloud.com/', [])
+			->will($this->throwException(new \Exception()));
+		$client->expects($this->at(1))
+			->method('get')
+			->with('http://www.startpage.com/', [])
+			->will($this->throwException(new \Exception()));
+		$client->expects($this->at(2))
+			->method('get')
+			->with('http://www.eff.org/', [])
+			->will($this->throwException(new \Exception()));
+		$client->expects($this->at(3))
+			->method('get')
+			->with('http://www.edri.org/', [])
+			->will($this->throwException(new \Exception()));
 		$this->clientService->expects($this->exactly(4))
 			->method('newClient')
 			->willReturn($client);
@@ -535,11 +558,6 @@ class CheckSetupControllerTest extends TestCase {
 		$this->checkSetupController
 			->expects($this->once())
 			->method('areWebauthnExtensionsEnabled')
-			->willReturn(false);
-
-		$this->checkSetupController
-			->expects($this->once())
-			->method('is64bit')
 			->willReturn(false);
 
 		$this->checkSetupController
@@ -638,7 +656,6 @@ class CheckSetupControllerTest extends TestCase {
 				'appDirsWithDifferentOwner' => [],
 				'isImagickEnabled' => false,
 				'areWebauthnExtensionsEnabled' => false,
-				'is64bit' => false,
 				'recommendedPHPModules' => [],
 				'pendingBigIntConversionColumns' => [],
 				'isMysqlUsedWithoutUTF8MB4' => false,
@@ -723,12 +740,10 @@ class CheckSetupControllerTest extends TestCase {
 
 	public function testIsUsedTlsLibOutdatedWithOlderOpenSslAndWithoutAppstore() {
 		$this->config
-			->expects($this->any())
+			->expects($this->at(0))
 			->method('getSystemValue')
-			->willReturnMap([
-				['has_internet_connection', true, true],
-				['appstoreenabled', true, false],
-			]);
+			->with('has_internet_connection', true)
+			->willReturn(true);
 		$this->checkSetupController
 			->expects($this->once())
 			->method('getCurlVersion')
@@ -840,7 +855,7 @@ class CheckSetupControllerTest extends TestCase {
 			->method('getResponse')
 			->willReturn($response);
 
-		$client->expects($this->once())
+		$client->expects($this->at(0))
 			->method('get')
 			->with('https://nextcloud.com/', [])
 			->will($this->throwException($exception));
@@ -874,7 +889,7 @@ class CheckSetupControllerTest extends TestCase {
 			->method('getResponse')
 			->willReturn($response);
 
-		$client->expects($this->once())
+		$client->expects($this->at(0))
 			->method('get')
 			->with('https://nextcloud.com/', [])
 			->will($this->throwException($exception));
@@ -888,7 +903,7 @@ class CheckSetupControllerTest extends TestCase {
 
 	public function testIsUsedTlsLibOutdatedWithInternetDisabled() {
 		$this->config
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getSystemValue')
 			->with('has_internet_connection', true)
 			->willReturn(false);
@@ -897,19 +912,25 @@ class CheckSetupControllerTest extends TestCase {
 
 	public function testIsUsedTlsLibOutdatedWithAppstoreDisabledAndServerToServerSharingEnabled() {
 		$this->config
-			->expects($this->exactly(2))
+			->expects($this->at(0))
 			->method('getSystemValue')
-			->willReturnMap([
-				['has_internet_connection', true, true],
-				['appstoreenabled', true, false],
-			]);
+			->with('has_internet_connection', true)
+			->willReturn(true);
 		$this->config
-			->expects($this->exactly(2))
+			->expects($this->at(1))
+			->method('getSystemValue')
+			->with('appstoreenabled', true)
+			->willReturn(false);
+		$this->config
+			->expects($this->at(2))
 			->method('getAppValue')
-			->willReturnMap([
-				['files_sharing', 'outgoing_server2server_share_enabled', 'yes', 'no'],
-				['files_sharing', 'incoming_server2server_share_enabled', 'yes', 'yes'],
-			]);
+			->with('files_sharing', 'outgoing_server2server_share_enabled', 'yes')
+			->willReturn('no');
+		$this->config
+			->expects($this->at(3))
+			->method('getAppValue')
+			->with('files_sharing', 'incoming_server2server_share_enabled', 'yes')
+			->willReturn('yes');
 
 		$this->checkSetupController
 			->expects($this->once())
@@ -920,19 +941,25 @@ class CheckSetupControllerTest extends TestCase {
 
 	public function testIsUsedTlsLibOutdatedWithAppstoreDisabledAndServerToServerSharingDisabled() {
 		$this->config
-			->expects($this->exactly(2))
+			->expects($this->at(0))
 			->method('getSystemValue')
-			->willReturnMap([
-				['has_internet_connection', true, true],
-				['appstoreenabled', true, false],
-			]);
+			->with('has_internet_connection', true)
+			->willReturn(true);
 		$this->config
-			->expects($this->exactly(2))
+			->expects($this->at(1))
+			->method('getSystemValue')
+			->with('appstoreenabled', true)
+			->willReturn(false);
+		$this->config
+			->expects($this->at(2))
 			->method('getAppValue')
-			->willReturnMap([
-				['files_sharing', 'outgoing_server2server_share_enabled', 'yes', 'no'],
-				['files_sharing', 'incoming_server2server_share_enabled', 'yes', 'no'],
-			]);
+			->with('files_sharing', 'outgoing_server2server_share_enabled', 'yes')
+			->willReturn('no');
+		$this->config
+			->expects($this->at(3))
+			->method('getAppValue')
+			->with('files_sharing', 'incoming_server2server_share_enabled', 'yes')
+			->willReturn('no');
 
 		$this->checkSetupController
 			->expects($this->never())

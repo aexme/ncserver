@@ -141,8 +141,4 @@ class FakeManager implements ICommentsManager {
 	public function getLastCommentDateByActor(string $objectType, string $objectId, string $verb, string $actorType, array $actors): array {
 		return [];
 	}
-
-	public function deleteCommentsExpiredAtObject(string $objectType, string $objectId = ''): bool {
-		return true;
-	}
 }

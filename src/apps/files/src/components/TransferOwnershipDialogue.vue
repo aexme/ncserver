@@ -25,19 +25,19 @@
 		<form @submit.prevent="submit">
 			<p class="transfer-select-row">
 				<span>{{ readableDirectory }}</span>
-				<NcButton v-if="directory === undefined" @click.prevent="start">
+				<Button v-if="directory === undefined" @click.prevent="start">
 					{{ t('files', 'Choose file or folder to transfer') }}
-				</NcButton>
-				<NcButton v-else @click.prevent="start">
+				</Button>
+				<Button v-else @click.prevent="start">
 					{{ t('files', 'Change') }}
-				</NcButton>
+				</Button>
 				<span class="error">{{ directoryPickerError }}</span>
 			</p>
 			<p class="new-owner-row">
 				<label for="targetUser">
 					<span>{{ t('files', 'New owner') }}</span>
 				</label>
-				<NcMultiselect id="targetUser"
+				<Multiselect id="targetUser"
 					v-model="selectedUser"
 					:options="formatedUserSuggestions"
 					:multiple="false"
@@ -70,9 +70,9 @@ import axios from '@nextcloud/axios'
 import debounce from 'debounce'
 import { generateOcsUrl } from '@nextcloud/router'
 import { getFilePickerBuilder, showSuccess } from '@nextcloud/dialogs'
-import NcMultiselect from '@nextcloud/vue/dist/Components/NcMultiselect'
+import Multiselect from '@nextcloud/vue/dist/Components/Multiselect'
 import Vue from 'vue'
-import NcButton from '@nextcloud/vue/dist/Components/NcButton'
+import Button from '@nextcloud/vue/dist/Components/Button'
 
 import logger from '../logger'
 
@@ -86,8 +86,8 @@ const picker = getFilePickerBuilder(t('files', 'Choose a file or folder to trans
 export default {
 	name: 'TransferOwnershipDialogue',
 	components: {
-		NcMultiselect,
-		NcButton,
+		Multiselect,
+		Button,
 	},
 	data() {
 		return {
@@ -213,7 +213,7 @@ export default {
 					logger.error('Could not send ownership transfer request', { error })
 
 					if (error?.response?.status === 403) {
-						this.submitError = t('files', 'Cannot transfer ownership of a file or folder you do not own')
+						this.submitError = t('files', 'Cannot transfer ownership of a file or folder you don\'t own')
 					} else {
 						this.submitError = error.message || t('files', 'Unknown error')
 					}

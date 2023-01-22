@@ -248,9 +248,9 @@ export default class Share {
 	}
 
 	/**
-	 * Get the expiration date
+	 * Get the expiration date as a string format
 	 *
-	 * @return {string} date with YYYY-MM-DD format
+	 * @return {string}
 	 * @readonly
 	 * @memberof Share
 	 */
@@ -259,9 +259,10 @@ export default class Share {
 	}
 
 	/**
-	 * Set the expiration date
+	 * Set the expiration date as a string format
+	 * e.g. YYYY-MM-DD
 	 *
-	 * @param {string} date the share expiration date with YYYY-MM-DD format
+	 * @param {string} date the share expiration date
 	 * @memberof Share
 	 */
 	set expireDate(date) {
@@ -391,7 +392,7 @@ export default class Share {
 	/**
 	 * Password expiration time
 	 *
-	 * @param {string} password expiration time
+	 * @param {string} password exipration time
 	 * @memberof Share
 	 */
 	set passwordExpirationTime(passwordExpirationTime) {

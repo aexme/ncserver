@@ -224,12 +224,12 @@ class DecryptAllTest extends TestCase {
 			$this->userInterface->expects($this->any())
 				->method('getUsers')
 				->willReturn(['user1', 'user2']);
-			$instance->expects($this->exactly(2))
+			$instance->expects($this->at(0))
 				->method('decryptUsersFiles')
-				->withConsecutive(
-					['user1'],
-					['user2'],
-				);
+				->with('user1');
+			$instance->expects($this->at(1))
+				->method('decryptUsersFiles')
+				->with('user2');
 		} else {
 			$instance->expects($this->once())
 				->method('decryptUsersFiles')
@@ -269,18 +269,17 @@ class DecryptAllTest extends TestCase {
 		$sharedStorage->expects($this->once())->method('instanceOfStorage')
 			->with('OCA\Files_Sharing\SharedStorage')->willReturn(true);
 
-		$this->view->expects($this->exactly(2))
-			->method('getDirectoryContent')
-			->withConsecutive(
-				['/user1/files'],
-				['/user1/files/foo']
-			)
-			->willReturnOnConsecutiveCalls(
+		$this->view->expects($this->at(0))->method('getDirectoryContent')
+			->with('/user1/files')->willReturn(
 				[
 					new FileInfo('path', $storage, 'intPath', ['name' => 'foo', 'type' => 'dir'], null),
 					new FileInfo('path', $storage, 'intPath', ['name' => 'bar', 'type' => 'file', 'encrypted' => true], null),
 					new FileInfo('path', $sharedStorage, 'intPath', ['name' => 'shared', 'type' => 'file', 'encrypted' => true], null),
-				],
+				]
+			);
+
+		$this->view->expects($this->at(3))->method('getDirectoryContent')
+			->with('/user1/files/foo')->willReturn(
 				[
 					new FileInfo('path', $storage, 'intPath', ['name' => 'subfile', 'type' => 'file', 'encrypted' => true], null)
 				]
@@ -296,12 +295,12 @@ class DecryptAllTest extends TestCase {
 				}
 			);
 
-		$instance->expects($this->exactly(2))
+		$instance->expects($this->at(0))
 			->method('decryptFile')
-			->withConsecutive(
-				['/user1/files/bar'],
-				['/user1/files/foo/subfile'],
-			);
+			->with('/user1/files/bar');
+		$instance->expects($this->at(1))
+			->method('decryptFile')
+			->with('/user1/files/foo/subfile');
 
 
 		/* We need format method to return a string */

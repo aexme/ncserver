@@ -34,7 +34,6 @@ use OC\MemoryInfo;
 use OC\NeedsUpdateException;
 use OC_App;
 use OCP\AppFramework\QueryException;
-use OCP\App\IAppManager;
 use OCP\Console\ConsoleEvent;
 use OCP\IConfig;
 use OCP\IRequest;
@@ -118,14 +117,13 @@ class Application {
 					$this->writeMaintenanceModeInfo($input, $output);
 				} else {
 					OC_App::loadApps();
-					$appManager = \OCP\Server::get(IAppManager::class);
-					foreach ($appManager->getInstalledApps() as $app) {
+					foreach (\OC::$server->getAppManager()->getInstalledApps() as $app) {
 						$appPath = \OC_App::getAppPath($app);
 						if ($appPath === false) {
 							continue;
 						}
 						// load commands using info.xml
-						$info = $appManager->getAppInfo($app);
+						$info = \OC_App::getAppInfo($app);
 						if (isset($info['commands'])) {
 							$this->loadCommandsFromInfoXml($info['commands']);
 						}

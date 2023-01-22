@@ -35,7 +35,7 @@ use OC\Files\Storage\Storage;
 use OC\Files\Storage\StorageFactory;
 use OCP\Files\Mount\IMountPoint;
 use OCP\Files\Storage\IStorageFactory;
-use Psr\Log\LoggerInterface;
+use OCP\ILogger;
 
 class MountPoint implements IMountPoint {
 	/**
@@ -173,12 +173,12 @@ class MountPoint implements IMountPoint {
 					// the root storage could not be initialized, show the user!
 					throw new \Exception('The root storage could not be initialized. Please contact your local administrator.', $exception->getCode(), $exception);
 				} else {
-					\OC::$server->get(LoggerInterface::class)->error($exception->getMessage(), ['exception' => $exception]);
+					\OC::$server->getLogger()->logException($exception, ['level' => ILogger::ERROR]);
 				}
 				return;
 			}
 		} else {
-			\OC::$server->get(LoggerInterface::class)->error('Storage backend ' . $this->class . ' not found', ['app' => 'core']);
+			\OCP\Util::writeLog('core', 'storage backend ' . $this->class . ' not found', ILogger::ERROR);
 			$this->invalidStorage = true;
 			return;
 		}

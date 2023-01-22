@@ -106,10 +106,6 @@ class ManagerTest extends TestCase {
 	 */
 	private $userFolder;
 	/**
-	 * @var MockObject|IL10N
-	 */
-	private $l10n;
-	/**
 	 * @var MockObject|IManager
 	 */
 	private $encryptionManager;

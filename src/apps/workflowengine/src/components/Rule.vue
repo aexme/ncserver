@@ -31,19 +31,17 @@
 					@input="updateOperation" />
 			</Operation>
 			<div class="buttons">
-				<NcButton v-if="rule.id < -1 || dirty" @click="cancelRule">
-					{{ t('workflowengine', 'Cancel') }}
-				</NcButton>
-				<NcButton v-else-if="!dirty" @click="deleteRule">
-					{{ t('workflowengine', 'Delete') }}
-				</NcButton>
-				<NcButton :type="ruleStatus.type"
+				<button class="status-button icon"
+					:class="ruleStatus.class"
 					@click="saveRule">
-					<template #icon>
-						<component :is="ruleStatus.icon" :size="20" />
-					</template>
 					{{ ruleStatus.title }}
-				</NcButton>
+				</button>
+				<button v-if="rule.id < -1 || dirty" @click="cancelRule">
+					{{ t('workflowengine', 'Cancel') }}
+				</button>
+				<button v-else-if="!dirty" @click="deleteRule">
+					{{ t('workflowengine', 'Delete') }}
+				</button>
 			</div>
 			<p v-if="error" class="error-message">
 				{{ error }}
@@ -54,13 +52,8 @@
 
 <script>
 import Tooltip from '@nextcloud/vue/dist/Directives/Tooltip'
-import NcActions from '@nextcloud/vue/dist/Components/NcActions'
-import NcActionButton from '@nextcloud/vue/dist/Components/NcActionButton'
-import NcButton from '@nextcloud/vue/dist/Components/NcButton'
-import ArrowRight from 'vue-material-design-icons/ArrowRight.vue'
-import CheckMark from 'vue-material-design-icons/Check.vue'
-import Close from 'vue-material-design-icons/Close.vue'
-
+import Actions from '@nextcloud/vue/dist/Components/Actions'
+import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
 import Event from './Event'
 import Check from './Check'
 import Operation from './Operation'
@@ -68,15 +61,7 @@ import Operation from './Operation'
 export default {
 	name: 'Rule',
 	components: {
-		ArrowRight,
-		Check,
-		CheckMark,
-		Close,
-		Event,
-		NcActionButton,
-		NcActions,
-		NcButton,
-		Operation,
+		Operation, Check, Event, Actions, ActionButton,
 	},
 	directives: {
 		Tooltip,
@@ -104,15 +89,14 @@ export default {
 			if (this.error || !this.rule.valid || this.rule.checks.length === 0 || this.rule.checks.some((check) => check.invalid === true)) {
 				return {
 					title: t('workflowengine', 'The configuration is invalid'),
-					icon: 'Close',
-					type: 'warning',
+					class: 'icon-close-white invalid',
 					tooltip: { placement: 'bottom', show: true, content: this.error },
 				}
 			}
 			if (!this.dirty) {
-				return { title: t('workflowengine', 'Active'), icon: 'CheckMark', type: 'success' }
+				return { title: t('workflowengine', 'Active'), class: 'icon icon-checkmark' }
 			}
-			return { title: t('workflowengine', 'Save'), icon: 'ArrowRight', type: 'primary' }
+			return { title: t('workflowengine', 'Save'), class: 'icon-confirm-white primary' }
 
 		},
 		lastCheckComplete() {
@@ -186,22 +170,45 @@ export default {
 </script>
 
 <style scoped lang="scss">
+	button.icon {
+		padding-left: 32px;
+		background-position: 10px center;
+	}
 
 	.buttons {
-		display: flex;
-		justify-content: end;
+		display: block;
+		overflow: hidden;
 
 		button {
-			margin-left: 5px;
-		}
-		button:last-child{
-			margin-right: 10px;
+			float: right;
+			height: 34px;
 		}
 	}
 
 	.error-message {
 		float: right;
 		margin-right: 10px;
+	}
+
+	.status-button {
+		transition: 0.5s ease all;
+		display: block;
+		margin: 3px 10px 3px auto;
+	}
+	.status-button.primary {
+		padding-left: 32px;
+		background-position: 10px center;
+	}
+	.status-button:not(.primary) {
+		background-color: var(--color-main-background);
+	}
+	.status-button.invalid {
+		background-color: var(--color-warning);
+		color: #fff;
+		border: none;
+	}
+	.status-button.icon-checkmark {
+		border: 1px solid var(--color-success);
 	}
 
 	.flow-icon {

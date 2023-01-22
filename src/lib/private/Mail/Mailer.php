@@ -39,7 +39,6 @@ use Egulias\EmailValidator\EmailValidator;
 use Egulias\EmailValidator\Validation\RFCValidation;
 use OCP\Defaults;
 use OCP\EventDispatcher\IEventDispatcher;
-use OCP\IBinaryFinder;
 use OCP\IConfig;
 use OCP\IL10N;
 use OCP\IURLGenerator;
@@ -72,14 +71,19 @@ use Psr\Log\LoggerInterface;
 class Mailer implements IMailer {
 	/** @var \Swift_Mailer Cached mailer */
 	private $instance = null;
-	private IConfig $config;
+	/** @var IConfig */
+	private $config;
 	private LoggerInterface $logger;
 	/** @var Defaults */
 	private $defaults;
-	private IURLGenerator $urlGenerator;
-	private IL10N $l10n;
-	private IEventDispatcher $dispatcher;
-	private IFactory $l10nFactory;
+	/** @var IURLGenerator */
+	private $urlGenerator;
+	/** @var IL10N */
+	private $l10n;
+	/** @var IEventDispatcher */
+	private $dispatcher;
+	/** @var IFactory */
+	private $l10nFactory;
 
 	public function __construct(IConfig $config,
 						 LoggerInterface $logger,
@@ -192,9 +196,6 @@ class Mailer implements IMailer {
 
 		// Debugging logging
 		$logMessage = sprintf('Sent mail to "%s" with subject "%s"', print_r($message->getTo(), true), $message->getSubject());
-		if (!empty($failedRecipients)) {
-			$logMessage .= sprintf(' (failed for "%s")', print_r($failedRecipients, true));
-		}
 		$this->logger->debug($logMessage, ['app' => 'core']);
 		if ($debugMode && isset($mailLogger)) {
 			$this->logger->debug($mailLogger->dump(), ['app' => 'core']);
@@ -305,7 +306,7 @@ class Mailer implements IMailer {
 				$binaryPath = '/var/qmail/bin/sendmail';
 				break;
 			default:
-				$sendmail = \OCP\Server::get(IBinaryFinder::class)->findBinaryPath('sendmail');
+				$sendmail = \OC_Helper::findBinaryPath('sendmail');
 				if ($sendmail === null) {
 					$sendmail = '/usr/sbin/sendmail';
 				}

@@ -11,7 +11,6 @@ namespace Test\Files\Config;
 use OC\DB\QueryBuilder\Literal;
 use OC\Files\Mount\MountPoint;
 use OC\Files\Storage\Storage;
-use OCP\Cache\CappedMemoryCache;
 use OC\User\Manager;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\Files\Config\ICachedMountInfo;
@@ -115,7 +114,7 @@ class UserMountCacheTest extends TestCase {
 	}
 
 	private function clearCache() {
-		$this->invokePrivate($this->cache, 'mountsForUsers', [new CappedMemoryCache()]);
+		$this->invokePrivate($this->cache, 'mountsForUsers', [[]]);
 	}
 
 	public function testNewMounts() {

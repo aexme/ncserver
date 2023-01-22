@@ -85,7 +85,7 @@ class CalendarMigratorTest extends TestCase {
 			fn (VObjectProperty $property) => $property->serialize(),
 			array_values(array_filter(
 				$vCalendar->children(),
-				fn ($child) => $child instanceof VObjectProperty,
+				fn (mixed $child) => $child instanceof VObjectProperty,
 			)),
 		);
 	}

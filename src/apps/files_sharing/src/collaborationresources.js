@@ -23,7 +23,7 @@
 
 import Vue from 'vue'
 import Vuex from 'vuex'
-import NcPopoverMenu from '@nextcloud/vue/dist/Components/NcPopoverMenu'
+import PopoverMenu from '@nextcloud/vue/dist/Components/PopoverMenu'
 import Tooltip from '@nextcloud/vue/dist/Directives/Tooltip'
 import ClickOutside from 'vue-click-outside'
 
@@ -33,7 +33,7 @@ Vue.prototype.t = t
 Tooltip.options.defaultHtml = false
 
 // eslint-disable-next-line vue/match-component-file-name
-Vue.component('NcPopoverMenu', NcPopoverMenu)
+Vue.component('PopoverMenu', PopoverMenu)
 Vue.directive('ClickOutside', ClickOutside)
 Vue.directive('Tooltip', Tooltip)
 Vue.use(Vuex)

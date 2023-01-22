@@ -41,7 +41,6 @@ use OC\User\Session;
 use OCA\DAV\Connector\Sabre\Exception\PasswordLoginForbidden;
 use OCP\IRequest;
 use OCP\ISession;
-use Psr\Log\LoggerInterface;
 use Sabre\DAV\Auth\Backend\AbstractBasic;
 use Sabre\DAV\Exception\NotAuthenticated;
 use Sabre\DAV\Exception\ServiceUnavailable;
@@ -51,19 +50,33 @@ use Sabre\HTTP\ResponseInterface;
 class Auth extends AbstractBasic {
 	public const DAV_AUTHENTICATED = 'AUTHENTICATED_TO_DAV_BACKEND';
 
-	private ISession $session;
-	private Session $userSession;
-	private IRequest $request;
-	private ?string $currentUser = null;
-	private Manager $twoFactorManager;
-	private Throttler $throttler;
+	/** @var ISession */
+	private $session;
+	/** @var Session */
+	private $userSession;
+	/** @var IRequest */
+	private $request;
+	/** @var string */
+	private $currentUser;
+	/** @var Manager */
+	private $twoFactorManager;
+	/** @var Throttler */
+	private $throttler;
 
+	/**
+	 * @param ISession $session
+	 * @param Session $userSession
+	 * @param IRequest $request
+	 * @param Manager $twoFactorManager
+	 * @param Throttler $throttler
+	 * @param string $principalPrefix
+	 */
 	public function __construct(ISession $session,
 								Session $userSession,
 								IRequest $request,
 								Manager $twoFactorManager,
 								Throttler $throttler,
-								string $principalPrefix = 'principals/users/') {
+								$principalPrefix = 'principals/users/') {
 		$this->session = $session;
 		$this->userSession = $userSession;
 		$this->twoFactorManager = $twoFactorManager;
@@ -83,8 +96,11 @@ class Auth extends AbstractBasic {
 	 * account was changed.
 	 *
 	 * @see https://github.com/owncloud/core/issues/13245
+	 *
+	 * @param string $username
+	 * @return bool
 	 */
-	public function isDavAuthenticated(string $username): bool {
+	public function isDavAuthenticated($username) {
 		return !is_null($this->session->get(self::DAV_AUTHENTICATED)) &&
 		$this->session->get(self::DAV_AUTHENTICATED) === $username;
 	}
@@ -127,7 +143,9 @@ class Auth extends AbstractBasic {
 	}
 
 	/**
-	 * @return array{bool, string}
+	 * @param RequestInterface $request
+	 * @param ResponseInterface $response
+	 * @return array
 	 * @throws NotAuthenticated
 	 * @throws ServiceUnavailable
 	 */
@@ -139,15 +157,17 @@ class Auth extends AbstractBasic {
 		} catch (Exception $e) {
 			$class = get_class($e);
 			$msg = $e->getMessage();
-			\OC::$server->get(LoggerInterface::class)->error($e->getMessage(), ['exception' => $e]);
+			\OC::$server->getLogger()->logException($e);
 			throw new ServiceUnavailable("$class: $msg");
 		}
 	}
 
 	/**
 	 * Checks whether a CSRF check is required on the request
+	 *
+	 * @return bool
 	 */
-	private function requiresCSRFCheck(): bool {
+	private function requiresCSRFCheck() {
 		// GET requires no check at all
 		if ($this->request->getMethod() === 'GET') {
 			return false;
@@ -182,10 +202,12 @@ class Auth extends AbstractBasic {
 	}
 
 	/**
-	 * @return array{bool, string}
+	 * @param RequestInterface $request
+	 * @param ResponseInterface $response
+	 * @return array
 	 * @throws NotAuthenticated
 	 */
-	private function auth(RequestInterface $request, ResponseInterface $response): array {
+	private function auth(RequestInterface $request, ResponseInterface $response) {
 		$forcedLogout = false;
 
 		if (!$this->request->passesCSRFCheck() &&

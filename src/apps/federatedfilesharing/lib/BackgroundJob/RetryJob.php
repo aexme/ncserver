@@ -41,14 +41,19 @@ use OCP\ILogger;
  * @package OCA\FederatedFileSharing\BackgroundJob
  */
 class RetryJob extends Job {
-	private bool $retainJob = true;
-	private Notifications $notifications;
+
+	/** @var  bool */
+	private $retainJob = true;
+
+	/** @var Notifications */
+	private $notifications;
 
 	/** @var int max number of attempts to send the request */
-	private int $maxTry = 20;
+	private $maxTry = 20;
 
 	/** @var int how much time should be between two tries (10 minutes) */
-	private int $interval = 600;
+	private $interval = 600;
+
 
 	public function __construct(Notifications $notifications,
 								ITimeFactory $time) {
@@ -57,11 +62,14 @@ class RetryJob extends Job {
 	}
 
 	/**
-	 * Run the job, then remove it from the jobList
+	 * run the job, then remove it from the jobList
+	 *
+	 * @param IJobList $jobList
+	 * @param ILogger|null $logger
 	 */
-	public function start(IJobList $jobList): void {
+	public function execute(IJobList $jobList, ILogger $logger = null) {
 		if ($this->shouldRun($this->argument)) {
-			parent::start($jobList);
+			parent::execute($jobList, $logger);
 			$jobList->remove($this, $this->argument);
 			if ($this->retainJob) {
 				$this->reAddJob($jobList, $this->argument);
@@ -85,9 +93,12 @@ class RetryJob extends Job {
 	}
 
 	/**
-	 * Re-add background job with new arguments
+	 * re-add background job with new arguments
+	 *
+	 * @param IJobList $jobList
+	 * @param array $argument
 	 */
-	protected function reAddJob(IJobList $jobList, array $argument): void {
+	protected function reAddJob(IJobList $jobList, array $argument) {
 		$jobList->add(RetryJob::class,
 			[
 				'remote' => $argument['remote'],
@@ -102,9 +113,12 @@ class RetryJob extends Job {
 	}
 
 	/**
-	 * Test if it is time for the next run
+	 * test if it is time for the next run
+	 *
+	 * @param array $argument
+	 * @return bool
 	 */
-	protected function shouldRun(array $argument): bool {
+	protected function shouldRun(array $argument) {
 		$lastRun = (int)$argument['lastRun'];
 		return (($this->time->getTime() - $lastRun) > $this->interval);
 	}

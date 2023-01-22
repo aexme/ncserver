@@ -427,9 +427,10 @@
  */
 
 /**
- * @copyright Copyright (c) 2022 Joas Schilling <coding@schilljs.com>
+ * @copyright Copyright (c) 2018 Julius Härtl <jus@bitgrid.net>
  *
- * @author Joas Schilling <coding@schilljs.com>
+ * @author John Molakvoæ <skjnldsv@protonmail.com>
+ * @author Julius Härtl <jus@bitgrid.net>
  *
  * @license AGPL-3.0-or-later
  *

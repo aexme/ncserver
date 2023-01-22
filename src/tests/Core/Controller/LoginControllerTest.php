@@ -34,6 +34,7 @@ use OCP\Defaults;
 use OCP\IConfig;
 use OCP\IInitialStateService;
 use OCP\IL10N;
+use OCP\ILogger;
 use OCP\IRequest;
 use OCP\ISession;
 use OCP\IURLGenerator;
@@ -65,6 +66,9 @@ class LoginControllerTest extends TestCase {
 
 	/** @var IURLGenerator|MockObject */
 	private $urlGenerator;
+
+	/** @var ILogger|MockObject */
+	private $logger;
 
 	/** @var Manager|MockObject */
 	private $twoFactorManager;
@@ -98,6 +102,7 @@ class LoginControllerTest extends TestCase {
 		$this->session = $this->createMock(ISession::class);
 		$this->userSession = $this->createMock(Session::class);
 		$this->urlGenerator = $this->createMock(IURLGenerator::class);
+		$this->logger = $this->createMock(ILogger::class);
 		$this->twoFactorManager = $this->createMock(Manager::class);
 		$this->defaults = $this->createMock(Defaults::class);
 		$this->throttler = $this->createMock(Throttler::class);
@@ -129,6 +134,7 @@ class LoginControllerTest extends TestCase {
 			$this->session,
 			$this->userSession,
 			$this->urlGenerator,
+			$this->logger,
 			$this->defaults,
 			$this->throttler,
 			$this->chain,
@@ -228,7 +234,7 @@ class LoginControllerTest extends TestCase {
 			->willReturn('/default/foo');
 
 		$expectedResponse = new RedirectResponse('/default/foo');
-		$this->assertEquals($expectedResponse, $this->loginController->showLoginForm('', ''));
+		$this->assertEquals($expectedResponse, $this->loginController->showLoginForm('', '', ''));
 	}
 
 	public function testShowLoginFormWithErrorsInSession() {
@@ -260,7 +266,7 @@ class LoginControllerTest extends TestCase {
 				[
 					'MessageArray1',
 					'MessageArray2',
-					'This community release of Nextcloud is unsupported and push notifications are limited.',
+					'This community release of Nextcloud is unsupported and instant notifications are unavailable.',
 				]
 			);
 		$this->initialStateService->expects($this->at(1))
@@ -279,11 +285,10 @@ class LoginControllerTest extends TestCase {
 			'login',
 			[
 				'alt_login' => [],
-				'pageTitle' => 'Login'
 			],
 			'guest'
 		);
-		$this->assertEquals($expectedResponse, $this->loginController->showLoginForm('', ''));
+		$this->assertEquals($expectedResponse, $this->loginController->showLoginForm('', '', ''));
 	}
 
 	public function testShowLoginFormForFlowAuth() {
@@ -304,17 +309,16 @@ class LoginControllerTest extends TestCase {
 			'login',
 			[
 				'alt_login' => [],
-				'pageTitle' => 'Login'
 			],
 			'guest'
 		);
-		$this->assertEquals($expectedResponse, $this->loginController->showLoginForm('', 'login/flow'));
+		$this->assertEquals($expectedResponse, $this->loginController->showLoginForm('', 'login/flow', ''));
 	}
 
 	/**
 	 * @return array
 	 */
-	public function passwordResetDataProvider(): array {
+	public function passwordResetDataProvider() {
 		return [
 			[
 				true,
@@ -373,11 +377,10 @@ class LoginControllerTest extends TestCase {
 			'login',
 			[
 				'alt_login' => [],
-				'pageTitle' => 'Login'
 			],
 			'guest'
 		);
-		$this->assertEquals($expectedResponse, $this->loginController->showLoginForm('LdapUser', ''));
+		$this->assertEquals($expectedResponse, $this->loginController->showLoginForm('LdapUser', '', ''));
 	}
 
 	public function testShowLoginFormForUserNamed0() {
@@ -428,11 +431,10 @@ class LoginControllerTest extends TestCase {
 			'login',
 			[
 				'alt_login' => [],
-				'pageTitle' => 'Login'
 			],
 			'guest'
 		);
-		$this->assertEquals($expectedResponse, $this->loginController->showLoginForm('0', ''));
+		$this->assertEquals($expectedResponse, $this->loginController->showLoginForm('0', '', ''));
 	}
 
 	public function testLoginWithInvalidCredentials() {

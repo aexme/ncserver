@@ -27,7 +27,6 @@
  */
 namespace OCA\Theming\Tests\Settings;
 
-use OCA\Theming\AppInfo\Application;
 use OCA\Theming\ImageManager;
 use OCA\Theming\Settings\Admin;
 use OCA\Theming\ThemingDefaults;
@@ -60,7 +59,6 @@ class AdminTest extends TestCase {
 		$this->imageManager = $this->createMock(ImageManager::class);
 
 		$this->admin = new Admin(
-			Application::APP_ID,
 			$this->config,
 			$this->l10n,
 			$this->themingDefaults,
@@ -97,7 +95,7 @@ class AdminTest extends TestCase {
 			->willReturn('MySlogan');
 		$this->themingDefaults
 			->expects($this->once())
-			->method('getDefaultColorPrimary')
+			->method('getColorPrimary')
 			->willReturn('#fff');
 		$this->urlGenerator
 			->expects($this->once())
@@ -117,7 +115,6 @@ class AdminTest extends TestCase {
 			'images' => [],
 			'imprintUrl' => '',
 			'privacyUrl' => '',
-			'userThemingDisabled' => false,
 		];
 
 		$expected = new TemplateResponse('theming', 'settings-admin', $params, '');
@@ -157,7 +154,7 @@ class AdminTest extends TestCase {
 			->willReturn('MySlogan');
 		$this->themingDefaults
 			->expects($this->once())
-			->method('getDefaultColorPrimary')
+			->method('getColorPrimary')
 			->willReturn('#fff');
 		$this->urlGenerator
 			->expects($this->once())
@@ -177,7 +174,6 @@ class AdminTest extends TestCase {
 			'images' => [],
 			'imprintUrl' => '',
 			'privacyUrl' => '',
-			'userThemingDisabled' => false
 		];
 
 		$expected = new TemplateResponse('theming', 'settings-admin', $params, '');

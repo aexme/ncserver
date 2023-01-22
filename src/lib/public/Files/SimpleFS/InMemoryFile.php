@@ -36,13 +36,17 @@ use OCP\Files\NotPermittedException;
 class InMemoryFile implements ISimpleFile {
 	/**
 	 * Holds the file name.
+	 *
+	 * @var string
 	 */
-	private string $name;
+	private $name;
 
 	/**
 	 * Holds the file contents.
+	 *
+	 * @var string
 	 */
-	private string $contents;
+	private $contents;
 
 	/**
 	 * InMemoryFile constructor.
@@ -60,7 +64,7 @@ class InMemoryFile implements ISimpleFile {
 	 * @inheritdoc
 	 * @since 16.0.0
 	 */
-	public function getName(): string {
+	public function getName() {
 		return $this->name;
 	}
 
@@ -68,7 +72,7 @@ class InMemoryFile implements ISimpleFile {
 	 * @inheritdoc
 	 * @since 16.0.0
 	 */
-	public function getSize(): int {
+	public function getSize() {
 		return strlen($this->contents);
 	}
 
@@ -76,7 +80,7 @@ class InMemoryFile implements ISimpleFile {
 	 * @inheritdoc
 	 * @since 16.0.0
 	 */
-	public function getETag(): string {
+	public function getETag() {
 		return '';
 	}
 
@@ -84,7 +88,7 @@ class InMemoryFile implements ISimpleFile {
 	 * @inheritdoc
 	 * @since 16.0.0
 	 */
-	public function getMTime(): int {
+	public function getMTime() {
 		return time();
 	}
 
@@ -92,7 +96,7 @@ class InMemoryFile implements ISimpleFile {
 	 * @inheritdoc
 	 * @since 16.0.0
 	 */
-	public function getContent(): string {
+	public function getContent() {
 		return $this->contents;
 	}
 
@@ -100,7 +104,7 @@ class InMemoryFile implements ISimpleFile {
 	 * @inheritdoc
 	 * @since 16.0.0
 	 */
-	public function putContent($data): void {
+	public function putContent($data) {
 		$this->contents = $data;
 	}
 
@@ -109,7 +113,7 @@ class InMemoryFile implements ISimpleFile {
 	 *
 	 * @since 16.0.0
 	 */
-	public function delete(): void {
+	public function delete() {
 		// unimplemented for in memory files
 	}
 
@@ -117,7 +121,7 @@ class InMemoryFile implements ISimpleFile {
 	 * @inheritdoc
 	 * @since 16.0.0
 	 */
-	public function getMimeType(): string {
+	public function getMimeType() {
 		$fileInfo = new \finfo(FILEINFO_MIME_TYPE);
 		return $fileInfo->buffer($this->contents);
 	}

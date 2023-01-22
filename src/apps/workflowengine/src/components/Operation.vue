@@ -4,9 +4,11 @@
 		<div class="actions__item__description">
 			<h3>{{ operation.name }}</h3>
 			<small>{{ operation.description }}</small>
-			<NcButton v-if="colored">
-				{{ t('workflowengine', 'Add new flow') }}
-			</NcButton>
+			<div>
+				<button v-if="colored">
+					{{ t('workflowengine', 'Add new flow') }}
+				</button>
+			</div>
 		</div>
 		<div class="actions__item_options">
 			<slot />
@@ -15,13 +17,8 @@
 </template>
 
 <script>
-import NcButton from '@nextcloud/vue/dist/Components/NcButton'
-
 export default {
 	name: 'Operation',
-	components: {
-		NcButton,
-	},
 	props: {
 		operation: {
 			type: Object,

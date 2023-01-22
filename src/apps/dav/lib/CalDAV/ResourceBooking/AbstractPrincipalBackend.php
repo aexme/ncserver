@@ -33,8 +33,8 @@ use OCP\DB\Exception;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
+use OCP\ILogger;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Sabre\DAV\PropPatch;
 use Sabre\DAVACL\PrincipalBackend\BackendInterface;
 use function array_intersect;
@@ -54,7 +54,8 @@ abstract class AbstractPrincipalBackend implements BackendInterface {
 	/** @var IGroupManager */
 	private $groupManager;
 
-	private LoggerInterface $logger;
+	/** @var ILogger */
+	private $logger;
 
 	/** @var ProxyMapper */
 	private $proxyMapper;
@@ -74,10 +75,19 @@ abstract class AbstractPrincipalBackend implements BackendInterface {
 	/** @var string */
 	private $cuType;
 
+	/**
+	 * @param IDBConnection $dbConnection
+	 * @param IUserSession $userSession
+	 * @param IGroupManager $groupManager
+	 * @param ILogger $logger
+	 * @param string $principalPrefix
+	 * @param string $dbPrefix
+	 * @param string $cuType
+	 */
 	public function __construct(IDBConnection $dbConnection,
 								IUserSession $userSession,
 								IGroupManager $groupManager,
-								LoggerInterface $logger,
+								ILogger $logger,
 								ProxyMapper $proxyMapper,
 								string $principalPrefix,
 								string $dbPrefix,

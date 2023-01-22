@@ -28,7 +28,7 @@
  */
 namespace OC\Files\Config;
 
-use OCP\Cache\CappedMemoryCache;
+use OC\Cache\CappedMemoryCache;
 use OCA\Files_Sharing\SharedMount;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\Files\Config\ICachedMountFileInfo;
@@ -36,26 +36,40 @@ use OCP\Files\Config\ICachedMountInfo;
 use OCP\Files\Config\IUserMountCache;
 use OCP\Files\Mount\IMountPoint;
 use OCP\Files\NotFoundException;
+use OCP\ICache;
 use OCP\IDBConnection;
 use OCP\IUser;
 use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
 
 /**
- * Cache mounts points per user in the cache so we can easily look them up
+ * Cache mounts points per user in the cache so we can easilly look them up
  */
 class UserMountCache implements IUserMountCache {
-	private IDBConnection $connection;
-	private IUserManager $userManager;
+	/**
+	 * @var IDBConnection
+	 */
+	private $connection;
+
+	/**
+	 * @var IUserManager
+	 */
+	private $userManager;
 
 	/**
 	 * Cached mount info.
-	 * @var CappedMemoryCache<ICachedMountInfo[]>
+	 * Map of $userId to ICachedMountInfo.
+	 *
+	 * @var ICache
 	 **/
-	private CappedMemoryCache $mountsForUsers;
+	private $mountsForUsers;
+
 	private LoggerInterface $logger;
-	/** @var CappedMemoryCache<array> */
-	private CappedMemoryCache $cacheInfoCache;
+
+	/**
+	 * @var ICache
+	 */
+	private $cacheInfoCache;
 
 	/**
 	 * UserMountCache constructor.
@@ -71,7 +85,7 @@ class UserMountCache implements IUserMountCache {
 	public function registerMounts(IUser $user, array $mounts, array $mountProviderClasses = null) {
 		// filter out non-proper storages coming from unit tests
 		$mounts = array_filter($mounts, function (IMountPoint $mount) {
-			return $mount instanceof SharedMount || ($mount->getStorage() && $mount->getStorage()->getCache());
+			return $mount instanceof SharedMount || $mount->getStorage() && $mount->getStorage()->getCache();
 		});
 		/** @var ICachedMountInfo[] $newMounts */
 		$newMounts = array_map(function (IMountPoint $mount) use ($user) {
@@ -123,7 +137,6 @@ class UserMountCache implements IUserMountCache {
 
 		foreach ($addedMounts as $mount) {
 			$this->addToCache($mount);
-			/** @psalm-suppress InvalidArgument */
 			$this->mountsForUsers[$user->getUID()][] = $mount;
 		}
 		foreach ($removedMounts as $mount) {

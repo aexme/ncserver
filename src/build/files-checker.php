@@ -67,7 +67,6 @@ $expectedFiles = [
 	'dist',
 	'index.html',
 	'index.php',
-	'jest.config.js',
 	'lib',
 	'Makefile',
 	'occ',

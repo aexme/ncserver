@@ -29,7 +29,9 @@ use OCP\Contacts\ContactsMenu\IAction;
 use Test\TestCase;
 
 class ActionFactoryTest extends TestCase {
-	private ActionFactory $actionFactory;
+
+	/** @var ActionFactory */
+	private $actionFactory;
 
 	protected function setUp(): void {
 		parent::setUp();

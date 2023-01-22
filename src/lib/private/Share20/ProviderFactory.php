@@ -40,7 +40,6 @@ use OCA\FederatedFileSharing\Notifications;
 use OCA\FederatedFileSharing\TokenHandler;
 use OCA\ShareByMail\Settings\SettingsManager;
 use OCA\ShareByMail\ShareByMailProvider;
-use OCA\Talk\Share\RoomShareProvider;
 use OCP\Defaults;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IServerContainer;
@@ -48,7 +47,6 @@ use OCP\Share\IManager;
 use OCP\Share\IProviderFactory;
 use OCP\Share\IShare;
 use OCP\Share\IShareProvider;
-use Psr\Log\LoggerInterface;
 
 /**
  * Class ProviderFactory
@@ -259,15 +257,8 @@ class ProviderFactory implements IProviderFactory {
 			}
 
 			try {
-				/**
-				 * @psalm-suppress UndefinedClass
-				 */
-				$this->roomShareProvider = $this->serverContainer->get(RoomShareProvider::class);
-			} catch (\Throwable $e) {
-				$this->serverContainer->get(LoggerInterface::class)->error(
-					$e->getMessage(),
-					['exception' => $e]
-				);
+				$this->roomShareProvider = $this->serverContainer->query('\OCA\Talk\Share\RoomShareProvider');
+			} catch (\OCP\AppFramework\QueryException $e) {
 				return null;
 			}
 		}
@@ -297,16 +288,9 @@ class ProviderFactory implements IProviderFactory {
 		}
 
 		foreach ($this->registeredShareProviders as $shareProvider) {
-			try {
-				/** @var IShareProvider $instance */
-				$instance = $this->serverContainer->get($shareProvider);
-				$this->shareProviders[$instance->identifier()] = $instance;
-			} catch (\Throwable $e) {
-				$this->serverContainer->get(LoggerInterface::class)->error(
-					$e->getMessage(),
-					['exception' => $e]
-				);
-			}
+			/** @var IShareProvider $instance */
+			$instance = $this->serverContainer->get($shareProvider);
+			$this->shareProviders[$instance->identifier()] = $instance;
 		}
 
 		if (isset($this->shareProviders[$id])) {
@@ -367,17 +351,8 @@ class ProviderFactory implements IProviderFactory {
 		}
 
 		foreach ($this->registeredShareProviders as $shareProvider) {
-			try {
-				/** @var IShareProvider $instance */
-				$instance = $this->serverContainer->get($shareProvider);
-			} catch (\Throwable $e) {
-				$this->serverContainer->get(LoggerInterface::class)->error(
-					$e->getMessage(),
-					['exception' => $e]
-				);
-				continue;
-			}
-
+			/** @var IShareProvider $instance */
+			$instance = $this->serverContainer->get($shareProvider);
 			if (!isset($this->shareProviders[$instance->identifier()])) {
 				$this->shareProviders[$instance->identifier()] = $instance;
 			}

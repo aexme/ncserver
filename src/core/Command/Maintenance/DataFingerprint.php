@@ -29,8 +29,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class DataFingerprint extends Command {
-	protected IConfig $config;
-	protected ITimeFactory $timeFactory;
+
+	/** @var IConfig */
+	protected $config;
+	/** @var ITimeFactory */
+	protected $timeFactory;
 
 	public function __construct(IConfig $config,
 								ITimeFactory $timeFactory) {

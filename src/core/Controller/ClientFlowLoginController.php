@@ -56,21 +56,47 @@ use OCP\Security\ISecureRandom;
 use OCP\Session\Exceptions\SessionNotAvailableException;
 
 class ClientFlowLoginController extends Controller {
-	private IUserSession $userSession;
-	private IL10N $l10n;
-	private Defaults $defaults;
-	private ISession $session;
-	private IProvider $tokenProvider;
-	private ISecureRandom $random;
-	private IURLGenerator $urlGenerator;
-	private ClientMapper $clientMapper;
-	private AccessTokenMapper $accessTokenMapper;
-	private ICrypto $crypto;
-	private IEventDispatcher $eventDispatcher;
+	/** @var IUserSession */
+	private $userSession;
+	/** @var IL10N */
+	private $l10n;
+	/** @var Defaults */
+	private $defaults;
+	/** @var ISession */
+	private $session;
+	/** @var IProvider */
+	private $tokenProvider;
+	/** @var ISecureRandom */
+	private $random;
+	/** @var IURLGenerator */
+	private $urlGenerator;
+	/** @var ClientMapper */
+	private $clientMapper;
+	/** @var AccessTokenMapper */
+	private $accessTokenMapper;
+	/** @var ICrypto */
+	private $crypto;
+	/** @var IEventDispatcher */
+	private $eventDispatcher;
 
 	public const STATE_NAME = 'client.flow.state.token';
 
-	public function __construct(string $appName,
+	/**
+	 * @param string $appName
+	 * @param IRequest $request
+	 * @param IUserSession $userSession
+	 * @param IL10N $l10n
+	 * @param Defaults $defaults
+	 * @param ISession $session
+	 * @param IProvider $tokenProvider
+	 * @param ISecureRandom $random
+	 * @param IURLGenerator $urlGenerator
+	 * @param ClientMapper $clientMapper
+	 * @param AccessTokenMapper $accessTokenMapper
+	 * @param ICrypto $crypto
+	 * @param IEventDispatcher $eventDispatcher
+	 */
+	public function __construct($appName,
 								IRequest $request,
 								IUserSession $userSession,
 								IL10N $l10n,
@@ -97,20 +123,30 @@ class ClientFlowLoginController extends Controller {
 		$this->eventDispatcher = $eventDispatcher;
 	}
 
-	private function getClientName(): string {
+	/**
+	 * @return string
+	 */
+	private function getClientName() {
 		$userAgent = $this->request->getHeader('USER_AGENT');
 		return $userAgent !== '' ? $userAgent : 'unknown';
 	}
 
-	private function isValidToken(string $stateToken): bool {
+	/**
+	 * @param string $stateToken
+	 * @return bool
+	 */
+	private function isValidToken($stateToken) {
 		$currentToken = $this->session->get(self::STATE_NAME);
-		if (!is_string($currentToken)) {
+		if (!is_string($stateToken) || !is_string($currentToken)) {
 			return false;
 		}
 		return hash_equals($currentToken, $stateToken);
 	}
 
-	private function stateTokenForbiddenResponse(): StandaloneTemplateResponse {
+	/**
+	 * @return StandaloneTemplateResponse
+	 */
+	private function stateTokenForbiddenResponse() {
 		$response = new StandaloneTemplateResponse(
 			$this->appName,
 			'403',
@@ -245,10 +281,12 @@ class ClientFlowLoginController extends Controller {
 	 * @NoAdminRequired
 	 * @UseSession
 	 *
+	 * @param string $stateToken
+	 * @param string $clientIdentifier
 	 * @return Http\RedirectResponse|Response
 	 */
-	public function generateAppPassword(string $stateToken,
-										string $clientIdentifier = '') {
+	public function generateAppPassword($stateToken,
+										$clientIdentifier = '') {
 		if (!$this->isValidToken($stateToken)) {
 			$this->session->remove(self::STATE_NAME);
 			return $this->stateTokenForbiddenResponse();
@@ -337,7 +375,7 @@ class ClientFlowLoginController extends Controller {
 	/**
 	 * @PublicPage
 	 */
-	public function apptokenRedirect(string $stateToken, string $user, string $password): Response {
+	public function apptokenRedirect(string $stateToken, string $user, string $password) {
 		if (!$this->isValidToken($stateToken)) {
 			return $this->stateTokenForbiddenResponse();
 		}

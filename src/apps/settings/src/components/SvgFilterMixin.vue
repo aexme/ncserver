@@ -34,7 +34,7 @@ export default {
 		},
 	},
 	mounted() {
-		this.filterId = 'invertIconApps-' + Math.random().toString(36).substring(2)
+		this.filterId = 'invertIconApps' + Math.floor((Math.random() * 100)) + new Date().getSeconds() + new Date().getMilliseconds()
 	},
 }
 </script>

@@ -26,7 +26,7 @@
 		<!-- Comment header toolbar -->
 		<div class="comment__header">
 			<!-- Author -->
-			<NcAvatar class="comment__avatar"
+			<Avatar class="comment__avatar"
 				:display-name="actorDisplayName"
 				:user="actorId"
 				:size="32" />
@@ -34,27 +34,27 @@
 
 			<!-- Comment actions,
 				show if we have a message id and current user is author -->
-			<NcActions v-if="isOwnComment && id && !loading" class="comment__actions">
+			<Actions v-if="isOwnComment && id && !loading" class="comment__actions">
 				<template v-if="!editing">
-					<NcActionButton :close-after-click="true"
+					<ActionButton :close-after-click="true"
 						icon="icon-rename"
 						@click="onEdit">
 						{{ t('comments', 'Edit comment') }}
-					</NcActionButton>
-					<NcActionSeparator />
-					<NcActionButton :close-after-click="true"
+					</ActionButton>
+					<ActionSeparator />
+					<ActionButton :close-after-click="true"
 						icon="icon-delete"
 						@click="onDeleteWithUndo">
 						{{ t('comments', 'Delete comment') }}
-					</NcActionButton>
+					</ActionButton>
 				</template>
 
-				<NcActionButton v-else
+				<ActionButton v-else
 					icon="icon-close"
 					@click="onEditCancel">
 					{{ t('comments', 'Cancel edit') }}
-				</NcActionButton>
-			</NcActions>
+				</ActionButton>
+			</Actions>
 
 			<!-- Show loading if we're editing or deleting, not on new ones -->
 			<div v-if="id && loading" class="comment_loading icon-loading-small" />
@@ -65,24 +65,20 @@
 
 		<!-- Message editor -->
 		<div v-if="editor || editing" class="comment__editor ">
-			<NcRichContenteditable ref="editor"
+			<RichContenteditable ref="editor"
 				:auto-complete="autoComplete"
 				:contenteditable="!loading"
 				:value="localMessage"
 				:user-data="userData"
 				@update:value="updateLocalMessage"
 				@submit="onSubmit" />
-			<NcButton class="comment__submit"
-				type="tertiary-no-background"
-				native-type="submit"
-				:aria-label="t('comments', 'Post comment')"
+			<input v-tooltip="t('comments', 'Post comment')"
+				:class="loading ? 'icon-loading-small' :'icon-confirm'"
+				class="comment__submit"
+				type="submit"
 				:disabled="isEmptyMessage"
+				value=""
 				@click="onSubmit">
-				<template #icon>
-					<span v-if="loading" class="icon-loading-small" />
-					<ArrowRight v-else :size="20" />
-				</template>
-			</NcButton>
 		</div>
 
 		<!-- Message content -->
@@ -100,14 +96,12 @@
 import { getCurrentUser } from '@nextcloud/auth'
 import moment from '@nextcloud/moment'
 
-import NcActionButton from '@nextcloud/vue/dist/Components/NcActionButton'
-import NcActions from '@nextcloud/vue/dist/Components/NcActions'
-import NcActionSeparator from '@nextcloud/vue/dist/Components/NcActionSeparator'
-import NcAvatar from '@nextcloud/vue/dist/Components/NcAvatar'
-import NcButton from '@nextcloud/vue/dist/Components/NcButton'
-import NcRichContenteditable from '@nextcloud/vue/dist/Components/NcRichContenteditable'
+import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
+import Actions from '@nextcloud/vue/dist/Components/Actions'
+import ActionSeparator from '@nextcloud/vue/dist/Components/ActionSeparator'
+import Avatar from '@nextcloud/vue/dist/Components/Avatar'
+import RichContenteditable from '@nextcloud/vue/dist/Components/RichContenteditable'
 import RichEditorMixin from '@nextcloud/vue/dist/Mixins/richEditor'
-import ArrowRight from 'vue-material-design-icons/ArrowRight'
 
 import Moment from './Moment'
 import CommentMixin from '../mixins/CommentMixin'
@@ -116,14 +110,12 @@ export default {
 	name: 'Comment',
 
 	components: {
-		NcActionButton,
-		NcActions,
-		NcActionSeparator,
-		ArrowRight,
-		NcAvatar,
-		NcButton,
+		ActionButton,
+		Actions,
+		ActionSeparator,
+		Avatar,
 		Moment,
-		NcRichContenteditable,
+		RichContenteditable,
 	},
 	mixins: [RichEditorMixin, CommentMixin],
 
@@ -294,11 +286,27 @@ $comment-padding: 10px;
 	}
 
 	&__submit {
-		position: absolute !important;
+		position: absolute;
 		right: 0;
 		bottom: 0;
+		width: 44px;
+		height: 44px;
 		// Align with input border
 		margin: 1px;
+		cursor: pointer;
+		opacity: .7;
+		border: none;
+		background-color: transparent !important;
+
+		&:disabled {
+			cursor: not-allowed;
+			opacity: .5;
+		}
+
+		&:focus,
+		&:hover {
+			opacity: 1;
+		}
 	}
 
 	&__message {

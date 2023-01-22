@@ -25,21 +25,11 @@ import { getRequestToken } from '@nextcloud/auth'
 import { translate as t } from '@nextcloud/l10n'
 import VTooltip from 'v-tooltip'
 
-import logger from './logger.js'
+import logger from './logger'
 
-import Profile from './views/Profile.vue'
-import ProfileSections from './profile/ProfileSections.js'
+import Profile from './views/Profile'
 
 __webpack_nonce__ = btoa(getRequestToken())
-
-if (!window.OCA) {
-	window.OCA = {}
-}
-
-if (!window.OCA.Core) {
-	window.OCA.Core = {}
-}
-Object.assign(window.OCA.Core, { ProfileSections: new ProfileSections() })
 
 Vue.use(VTooltip)
 

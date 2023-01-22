@@ -23,6 +23,9 @@
 
 namespace Test\Collaboration\Collaborators;
 
+use OC\Collaboration\Collaborators\SearchResult;
+use OC\Collaboration\Collaborators\UserPlugin;
+use OC\KnownUser\KnownUserService;
 use OCP\Collaboration\Collaborators\ISearchResult;
 use OCP\IConfig;
 use OCP\IGroup;
@@ -32,29 +35,25 @@ use OCP\IUserManager;
 use OCP\IUserSession;
 use OCP\Share\IShare;
 use OCP\UserStatus\IManager as IUserStatusManager;
-use OC\Collaboration\Collaborators\SearchResult;
-use OC\Collaboration\Collaborators\UserPlugin;
-use OC\KnownUser\KnownUserService;
-use PHPUnit\Framework\MockObject\MockObject;
 use Test\TestCase;
 
 class UserPluginTest extends TestCase {
-	/** @var  IConfig|MockObject */
+	/** @var  IConfig|\PHPUnit\Framework\MockObject\MockObject */
 	protected $config;
 
-	/** @var  IUserManager|MockObject */
+	/** @var  IUserManager|\PHPUnit\Framework\MockObject\MockObject */
 	protected $userManager;
 
-	/** @var  IGroupManager|MockObject */
+	/** @var  IGroupManager|\PHPUnit\Framework\MockObject\MockObject */
 	protected $groupManager;
 
-	/** @var  IUserSession|MockObject */
+	/** @var  IUserSession|\PHPUnit\Framework\MockObject\MockObject */
 	protected $session;
 
-	/** @var  KnownUserService|MockObject */
+	/** @var  KnownUserService|\PHPUnit\Framework\MockObject\MockObject */
 	protected $knownUserService;
 
-	/** @var IUserStatusManager|MockObject */
+	/** @var IUserStatusManager|\PHPUnit\Framework\MockObject\MockObject */
 	protected $userStatusManager;
 
 	/** @var  UserPlugin */
@@ -63,11 +62,13 @@ class UserPluginTest extends TestCase {
 	/** @var  ISearchResult */
 	protected $searchResult;
 
-	protected int $limit = 2;
+	/** @var int */
+	protected $limit = 2;
 
-	protected int $offset = 0;
+	/** @var int */
+	protected $offset = 0;
 
-	/** @var  IUser|MockObject */
+	/** @var  IUser|\PHPUnit\Framework\MockObject\MockObject */
 	protected $user;
 
 	protected function setUp(): void {
@@ -797,15 +798,13 @@ class UserPluginTest extends TestCase {
 		$this->session->expects($this->any())
 			->method('getUser')
 			->willReturn($this->getUserMock('test', 'foo'));
+		// current user
+		$this->groupManager->expects($this->at(0))
+			->method('getUserGroupIds')
+			->willReturn($userGroups);
 		$this->groupManager->expects($this->any())
 			->method('getUserGroupIds')
-			->willReturnCallback(function ($user) use ($matchingUsers, $userGroups) {
-				static $firstCall = true;
-				if ($firstCall) {
-					$firstCall = false;
-					// current user
-					return $userGroups;
-				}
+			->willReturnCallback(function ($user) use ($matchingUsers) {
 				$neededObject = array_filter(
 					$matchingUsers,
 					function ($e) use ($user) {

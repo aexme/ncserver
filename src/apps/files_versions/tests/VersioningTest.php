@@ -949,6 +949,12 @@ class VersioningTest extends \Test\TestCase {
 			\OC::$server->getUserManager()->registerBackend($backend);
 		}
 
+		$storage = new \ReflectionClass('\OCA\Files_Sharing\SharedStorage');
+		$isInitialized = $storage->getProperty('initialized');
+		$isInitialized->setAccessible(true);
+		$isInitialized->setValue($storage, false);
+		$isInitialized->setAccessible(false);
+
 		\OC_Util::tearDownFS();
 		\OC_User::setUserId('');
 		\OC\Files\Filesystem::tearDown();

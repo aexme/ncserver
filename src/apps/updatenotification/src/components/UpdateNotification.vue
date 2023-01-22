@@ -1,10 +1,13 @@
 <template>
-	<NcSettingsSection id="updatenotification" :title="t('updatenotification', 'Update')">
+	<div id="updatenotification" class="followupsection">
 		<div class="update">
 			<template v-if="isNewVersionAvailable">
-				<NcNoteCard v-if="versionIsEol" type="warning">
-					{{ t('updatenotification', 'The version you are running is not maintained anymore. Please make sure to update to a supported version as soon as possible.') }}
-				</NcNoteCard>
+				<p v-if="versionIsEol">
+					<span class="warning">
+						<span class="icon icon-error-white" />
+						{{ t('updatenotification', 'The version you are running is not maintained anymore. Please make sure to update to a supported version as soon as possible.') }}
+					</span>
+				</p>
 
 				<p>
 					<span v-html="newVersionAvailableString" /><br>
@@ -60,7 +63,7 @@
 						<div class="toggleWhatsNew">
 							<a v-click-outside="hideMenu" class="button" @click="toggleMenu">{{ t('updatenotification', 'What\'s new?') }}</a>
 							<div class="popovermenu" :class="{ 'menu-center': true, open: openedWhatsNew }">
-								<NcPopoverMenu :menu="whatsNew" />
+								<PopoverMenu :menu="whatsNew" />
 							</div>
 						</div>
 					</div>
@@ -93,7 +96,7 @@
 					<span class="icon-triangle-s" />
 				</span>
 				<div class="popovermenu menu menu-center" :class="{ 'show-menu': openedUpdateChannelMenu}">
-					<NcPopoverMenu :menu="channelList" />
+					<PopoverMenu :menu="channelList" />
 				</div>
 			</div>
 		</h3>
@@ -105,52 +108,33 @@
 
 		<p id="oca_updatenotification_groups">
 			{{ t('updatenotification', 'Notify members of the following groups about available updates:') }}
-			<NcMultiselect v-model="notifyGroups"
-				:options="groups"
+			<Multiselect v-model="notifyGroups"
+				:options="availableGroups"
 				:multiple="true"
-				:searchable="true"
-				label="displayname"
-				:loading="loadingGroups"
-				:show-no-options="false"
-				:close-on-select="false"
-				track-by="id"
-				:tag-width="75"
-				@search-change="searchGroup" /><br>
+				label="label"
+				track-by="value"
+				:tag-width="75" /><br>
 			<em v-if="currentChannel === 'daily' || currentChannel === 'git'">{{ t('updatenotification', 'Only notifications for app updates are available.') }}</em>
 			<em v-if="currentChannel === 'daily'">{{ t('updatenotification', 'The selected update channel makes dedicated notifications for the server obsolete.') }}</em>
 			<em v-if="currentChannel === 'git'">{{ t('updatenotification', 'The selected update channel does not support updates of the server.') }}</em>
 		</p>
-	</NcSettingsSection>
+	</div>
 </template>
 
 <script>
 import { generateUrl, getRootUrl, generateOcsUrl } from '@nextcloud/router'
-import NcPopoverMenu from '@nextcloud/vue/dist/Components/NcPopoverMenu.js'
-import NcMultiselect from '@nextcloud/vue/dist/Components/NcMultiselect.js'
-import NcSettingsSection from '@nextcloud/vue/dist/Components/NcSettingsSection.js'
-import NcNoteCard from '@nextcloud/vue/dist/Components/NcNoteCard.js'
+import PopoverMenu from '@nextcloud/vue/dist/Components/PopoverMenu'
+import Multiselect from '@nextcloud/vue/dist/Components/Multiselect'
 import { VTooltip } from 'v-tooltip'
 import ClickOutside from 'vue-click-outside'
-import axios from '@nextcloud/axios'
-import { loadState } from '@nextcloud/initial-state'
-import { showSuccess } from '@nextcloud/dialogs'
-import debounce from 'debounce'
-import { getLoggerBuilder } from '@nextcloud/logger'
-
-const logger = getLoggerBuilder()
-	.setApp('updatenotification')
-	.detectUser()
-	.build()
 
 VTooltip.options.defaultHtml = false
 
 export default {
 	name: 'UpdateNotification',
 	components: {
-		NcMultiselect,
-		NcPopoverMenu,
-		NcSettingsSection,
-		NcNoteCard,
+		Multiselect,
+		PopoverMenu,
 	},
 	directives: {
 		ClickOutside,
@@ -158,7 +142,6 @@ export default {
 	},
 	data() {
 		return {
-			loadingGroups: false,
 			newVersionString: '',
 			lastCheckedDate: '',
 			isUpdateChecked: false,
@@ -175,7 +158,7 @@ export default {
 			currentChannel: '',
 			channels: [],
 			notifyGroups: '',
-			groups: [],
+			availableGroups: [],
 			isDefaultUpdateServerURL: true,
 			enableChangeWatcher: false,
 
@@ -190,6 +173,9 @@ export default {
 			openedUpdateChannelMenu: false,
 		}
 	},
+
+	_$el: null,
+	_$notifyGroups: null,
 
 	computed: {
 		newVersionAvailableString() {
@@ -307,41 +293,46 @@ export default {
 	watch: {
 		notifyGroups(selectedOptions) {
 			if (!this.enableChangeWatcher) {
-				// The first time is when loading the app
-				this.enableChangeWatcher = true
 				return
 			}
 
-			const groups = this.notifyGroups.map(group => {
-				return group.id
+			const selectedGroups = []
+			_.each(selectedOptions, function(group) {
+				selectedGroups.push(group.value)
 			})
 
-			OCP.AppConfig.setValue('updatenotification', 'notify_groups', JSON.stringify(groups))
+			OCP.AppConfig.setValue('updatenotification', 'notify_groups', JSON.stringify(selectedGroups))
 		},
 		isNewVersionAvailable() {
 			if (!this.isNewVersionAvailable) {
 				return
 			}
 
-			axios.get(generateOcsUrl('apps/updatenotification/api/v1/applist/{newVersion}', {
-				newVersion: this.newVersion,
-			})).then(({ data }) => {
-				this.availableAppUpdates = data.ocs.data.available
-				this.missingAppUpdates = data.ocs.data.missing
-				this.isListFetched = true
-				this.appStoreFailed = false
-			}).catch(({ data }) => {
-				this.availableAppUpdates = []
-				this.missingAppUpdates = []
-				this.appStoreDisabled = data.ocs.data.appstore_disabled
-				this.isListFetched = true
-				this.appStoreFailed = true
+			$.ajax({
+				url: generateOcsUrl('apps/updatenotification/api/v1/applist/{newVersion}', { newVersion: this.newVersion }),
+				type: 'GET',
+				beforeSend(request) {
+					request.setRequestHeader('Accept', 'application/json')
+				},
+				success: function(response) {
+					this.availableAppUpdates = response.ocs.data.available
+					this.missingAppUpdates = response.ocs.data.missing
+					this.isListFetched = true
+					this.appStoreFailed = false
+				}.bind(this),
+				error: function(xhr) {
+					this.availableAppUpdates = []
+					this.missingAppUpdates = []
+					this.appStoreDisabled = xhr.responseJSON.ocs.data.appstore_disabled
+					this.isListFetched = true
+					this.appStoreFailed = true
+				}.bind(this),
 			})
 		},
 	},
 	beforeMount() {
 		// Parse server data
-		const data = loadState('updatenotification', 'data')
+		const data = JSON.parse($('#updatenotification').attr('data-json'))
 
 		this.newVersion = data.newVersion
 		this.newVersionString = data.newVersionString
@@ -369,50 +360,51 @@ export default {
 			this.whatsNewData = this.whatsNewData.concat(data.changes.whatsNew.regular)
 		}
 	},
-
 	mounted() {
-		this.searchGroup()
+		this._$el = $(this.$el)
+		this._$notifyGroups = this._$el.find('#oca_updatenotification_groups_list')
+		this._$notifyGroups.on('change', function() {
+			this.$emit('input')
+		}.bind(this))
+
+		$.ajax({
+			url: generateOcsUrl('cloud/groups'),
+			dataType: 'json',
+			success: function(data) {
+				const results = []
+				$.each(data.ocs.data.groups, function(i, group) {
+					results.push({ value: group, label: group })
+				})
+
+				this.availableGroups = results
+				this.enableChangeWatcher = true
+			}.bind(this),
+		})
 	},
 
 	methods: {
-		searchGroup: debounce(async function(query) {
-			this.loadingGroups = true
-			try {
-				const response = await axios.get(generateOcsUrl('cloud/groups/details'), {
-					search: query,
-					limit: 20,
-					offset: 0,
-				})
-				this.groups = response.data.ocs.data.groups.sort(function(a, b) {
-					return a.displayname.localeCompare(b.displayname)
-				})
-			} catch (err) {
-				logger.error('Could not fetch groups', err)
-			} finally {
-				this.loadingGroups = false
-			}
-		}, 500),
 		/**
 		 * Creates a new authentication token and loads the updater URL
 		 */
 		clickUpdaterButton() {
-			axios.get(generateUrl('/apps/updatenotification/credentials'))
-				.then(({ data }) => {
+			$.ajax({
+				url: generateUrl('/apps/updatenotification/credentials'),
+			}).success(function(token) {
 				// create a form to send a proper post request to the updater
-					const form = document.createElement('form')
-					form.setAttribute('method', 'post')
-					form.setAttribute('action', getRootUrl() + '/updater/')
+				const form = document.createElement('form')
+				form.setAttribute('method', 'post')
+				form.setAttribute('action', getRootUrl() + '/updater/')
 
-					const hiddenField = document.createElement('input')
-					hiddenField.setAttribute('type', 'hidden')
-					hiddenField.setAttribute('name', 'updater-secret-input')
-					hiddenField.setAttribute('value', data)
+				const hiddenField = document.createElement('input')
+				hiddenField.setAttribute('type', 'hidden')
+				hiddenField.setAttribute('name', 'updater-secret-input')
+				hiddenField.setAttribute('value', token)
 
-					form.appendChild(hiddenField)
+				form.appendChild(hiddenField)
 
-					document.body.appendChild(form)
-					form.submit()
-				})
+				document.body.appendChild(form)
+				form.submit()
+			})
 		},
 		changeReleaseChannelToEnterprise() {
 			this.changeReleaseChannel('enterprise')
@@ -426,10 +418,15 @@ export default {
 		changeReleaseChannel(channel) {
 			this.currentChannel = channel
 
-			axios.post(generateUrl('/apps/updatenotification/channel'), {
-				channel: this.currentChannel,
-			}).then(({ data }) => {
-				showSuccess(data.data.message)
+			$.ajax({
+				url: generateUrl('/apps/updatenotification/channel'),
+				type: 'POST',
+				data: {
+					channel: this.currentChannel,
+				},
+				success(data) {
+					OC.msg.finishedAction('#channel_save_msg', data)
+				},
 			})
 
 			this.openedUpdateChannelMenu = false
@@ -458,10 +455,8 @@ export default {
 
 <style lang="scss" scoped>
 	#updatenotification {
-		& > * {
-			max-width: 900px;
-		}
-
+		margin-top: -25px;
+		margin-bottom: 200px;
 		div.update,
 		p:not(.inlineblock) {
 			margin-bottom: 25px;
@@ -544,7 +539,7 @@ export default {
 	/* override needed to replace yellow hover state with a dark one */
 	#updatenotification .update-menu .icon-star:hover,
 	#updatenotification .update-menu .icon-star:focus {
-		background-image: var(--icon-starred);
+		background-image: var(--icon-star-000);
 	}
 	#updatenotification .topMargin {
 		margin-top: 15px;

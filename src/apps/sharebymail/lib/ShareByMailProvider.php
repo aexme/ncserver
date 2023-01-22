@@ -75,6 +75,7 @@ use OCP\Share\IShareProvider;
  * @package OCA\ShareByMail
  */
 class ShareByMailProvider implements IShareProvider {
+
 	private IConfig $config;
 
 	/** @var  IDBConnection */
@@ -1157,7 +1158,7 @@ class ShareByMailProvider implements IShareProvider {
 		return $data;
 	}
 
-	public function getSharesInFolder($userId, Folder $node, $reshares, $shallow = true) {
+	public function getSharesInFolder($userId, Folder $node, $reshares) {
 		$qb = $this->dbConnection->getQueryBuilder();
 		$qb->select('*')
 			->from('share', 's')
@@ -1183,13 +1184,8 @@ class ShareByMailProvider implements IShareProvider {
 			);
 		}
 
-		$qb->innerJoin('s', 'filecache', 'f', $qb->expr()->eq('s.file_source', 'f.fileid'));
-
-		if ($shallow) {
-			$qb->andWhere($qb->expr()->eq('f.parent', $qb->createNamedParameter($node->getId())));
-		} else {
-			$qb->andWhere($qb->expr()->like('f.path', $qb->createNamedParameter($this->dbConnection->escapeLikeParameter($node->getInternalPath()) . '/%')));
-		}
+		$qb->innerJoin('s', 'filecache' ,'f', $qb->expr()->eq('s.file_source', 'f.fileid'));
+		$qb->andWhere($qb->expr()->eq('f.parent', $qb->createNamedParameter($node->getId())));
 
 		$qb->orderBy('id');
 

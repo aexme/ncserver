@@ -36,9 +36,16 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Setting extends Base {
-	protected IUserManager $userManager;
-	protected IConfig $config;
+	/** @var IUserManager */
+	protected $userManager;
 
+	/** @var IConfig */
+	protected $config;
+
+	/**
+	 * @param IUserManager $userManager
+	 * @param IConfig $config
+	 */
 	public function __construct(IUserManager $userManager, IConfig $config) {
 		parent::__construct();
 		$this->userManager = $userManager;

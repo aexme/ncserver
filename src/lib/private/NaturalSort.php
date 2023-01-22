@@ -26,7 +26,7 @@
  */
 namespace OC;
 
-use Psr\Log\LoggerInterface;
+use OCP\ILogger;
 
 class NaturalSort {
 	private static $instance;
@@ -42,7 +42,7 @@ class NaturalSort {
 		// or inject an instance of \OC\NaturalSort_DefaultCollator to force using Owncloud's default collator
 		if (isset($injectedCollator)) {
 			$this->collator = $injectedCollator;
-			\OC::$server->get(LoggerInterface::class)->debug('forced use of '.get_class($injectedCollator));
+			\OCP\Util::writeLog('core', 'forced use of '.get_class($injectedCollator), ILogger::DEBUG);
 		}
 	}
 

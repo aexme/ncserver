@@ -32,8 +32,12 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ListCommand extends Base {
-	protected IGroupManager $groupManager;
+	/** @var IGroupManager */
+	protected $groupManager;
 
+	/**
+	 * @param IGroupManager $groupManager
+	 */
 	public function __construct(IGroupManager $groupManager) {
 		$this->groupManager = $groupManager;
 		parent::__construct();

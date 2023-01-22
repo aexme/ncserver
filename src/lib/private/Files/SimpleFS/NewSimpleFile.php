@@ -34,12 +34,15 @@ use OCP\Files\NotPermittedException;
 use OCP\Files\SimpleFS\ISimpleFile;
 
 class NewSimpleFile implements ISimpleFile {
-	private Folder $parentFolder;
-	private string $name;
-	private ?File $file = null;
+	private $parentFolder;
+	private $name;
+	/** @var File|null */
+	private $file = null;
 
 	/**
 	 * File constructor.
+	 *
+	 * @param File $file
 	 */
 	public function __construct(Folder $parentFolder, string $name) {
 		$this->parentFolder = $parentFolder;
@@ -48,15 +51,19 @@ class NewSimpleFile implements ISimpleFile {
 
 	/**
 	 * Get the name
+	 *
+	 * @return string
 	 */
-	public function getName(): string {
+	public function getName() {
 		return $this->name;
 	}
 
 	/**
 	 * Get the size in bytes
+	 *
+	 * @return int
 	 */
-	public function getSize(): int {
+	public function getSize() {
 		if ($this->file) {
 			return $this->file->getSize();
 		} else {
@@ -66,8 +73,10 @@ class NewSimpleFile implements ISimpleFile {
 
 	/**
 	 * Get the ETag
+	 *
+	 * @return string
 	 */
-	public function getETag(): string {
+	public function getETag() {
 		if ($this->file) {
 			return $this->file->getEtag();
 		} else {
@@ -77,8 +86,10 @@ class NewSimpleFile implements ISimpleFile {
 
 	/**
 	 * Get the last modification time
+	 *
+	 * @return int
 	 */
-	public function getMTime(): int {
+	public function getMTime() {
 		if ($this->file) {
 			return $this->file->getMTime();
 		} else {
@@ -89,10 +100,11 @@ class NewSimpleFile implements ISimpleFile {
 	/**
 	 * Get the content
 	 *
+	 * @return string
 	 * @throws NotFoundException
 	 * @throws NotPermittedException
 	 */
-	public function getContent(): string {
+	public function getContent() {
 		if ($this->file) {
 			$result = $this->file->getContent();
 
@@ -113,7 +125,7 @@ class NewSimpleFile implements ISimpleFile {
 	 * @throws NotPermittedException
 	 * @throws NotFoundException
 	 */
-	public function putContent($data): void {
+	public function putContent($data) {
 		try {
 			if ($this->file) {
 				$this->file->putContent($data);
@@ -127,7 +139,7 @@ class NewSimpleFile implements ISimpleFile {
 
 	/**
 	 * Sometimes there are some issues with the AppData. Most of them are from
-	 * user error. But we should handle them gracefully anyway.
+	 * user error. But we should handle them gracefull anyway.
 	 *
 	 * If for some reason the current file can't be found. We remove it.
 	 * Then traverse up and check all folders if they exists. This so that the
@@ -135,7 +147,7 @@ class NewSimpleFile implements ISimpleFile {
 	 *
 	 * @throws NotFoundException
 	 */
-	private function checkFile(): void {
+	private function checkFile() {
 		$cur = $this->file;
 
 		while ($cur->stat() === false) {
@@ -159,7 +171,7 @@ class NewSimpleFile implements ISimpleFile {
 	 *
 	 * @throws NotPermittedException
 	 */
-	public function delete(): void {
+	public function delete() {
 		if ($this->file) {
 			$this->file->delete();
 		}
@@ -170,7 +182,7 @@ class NewSimpleFile implements ISimpleFile {
 	 *
 	 * @return string
 	 */
-	public function getMimeType(): string {
+	public function getMimeType() {
 		if ($this->file) {
 			return $this->file->getMimeType();
 		} else {

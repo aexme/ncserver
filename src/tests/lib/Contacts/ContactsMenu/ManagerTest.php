@@ -33,24 +33,24 @@ use OCP\Contacts\ContactsMenu\IEntry;
 use OCP\Contacts\ContactsMenu\IProvider;
 use OCP\IConfig;
 use OCP\IUser;
-use PHPUnit\Framework\MockObject\MockObject;
 use Test\TestCase;
 
 class ManagerTest extends TestCase {
 
-	/** @var ContactsStore|MockObject */
+	/** @var ContactsStore|\PHPUnit\Framework\MockObject\MockObject */
 	private $contactsStore;
 
-	/** @var IAppManager|MockObject */
+	/** @var IAppManager|\PHPUnit\Framework\MockObject\MockObject */
 	private $appManager;
 
-	/** @var IConfig|MockObject */
+	/** @var IConfig|\PHPUnit\Framework\MockObject\MockObject */
 	private $config;
 
-	/** @var ActionProviderStore|MockObject */
+	/** @var ActionProviderStore|\PHPUnit\Framework\MockObject\MockObject */
 	private $actionProviderStore;
 
-	private Manager $manager;
+	/** @var Manager */
+	private $manager;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -63,7 +63,7 @@ class ManagerTest extends TestCase {
 		$this->manager = new Manager($this->contactsStore, $this->actionProviderStore, $this->appManager, $this->config);
 	}
 
-	private function generateTestEntries(): array {
+	private function generateTestEntries() {
 		$entries = [];
 		foreach (range('Z', 'A') as $char) {
 			$entry = $this->createMock(IEntry::class);
@@ -81,13 +81,14 @@ class ManagerTest extends TestCase {
 		$entries = $this->generateTestEntries();
 		$provider = $this->createMock(IProvider::class);
 
-		$this->config->expects($this->exactly(2))
+		$this->config->expects($this->at(0))
 			->method('getSystemValueInt')
-			->withConsecutive(
-				['sharing.maxAutocompleteResults', Constants::SHARING_MAX_AUTOCOMPLETE_RESULTS_DEFAULT],
-				['sharing.minSearchStringLength', 0]
-			)
-			->willReturnOnConsecutiveCalls(25, 0);
+			->with('sharing.maxAutocompleteResults', Constants::SHARING_MAX_AUTOCOMPLETE_RESULTS_DEFAULT)
+			->willReturn(25);
+		$this->config->expects($this->at(1))
+			->method('getSystemValueInt')
+			->with('sharing.minSearchStringLength', 0)
+			->willReturn(0);
 		$this->contactsStore->expects($this->once())
 			->method('getContacts')
 			->with($user, $filter)
@@ -118,13 +119,14 @@ class ManagerTest extends TestCase {
 		$entries = $this->generateTestEntries();
 		$provider = $this->createMock(IProvider::class);
 
-		$this->config->expects($this->exactly(2))
+		$this->config->expects($this->at(0))
 			->method('getSystemValueInt')
-			->withConsecutive(
-				['sharing.maxAutocompleteResults', Constants::SHARING_MAX_AUTOCOMPLETE_RESULTS_DEFAULT],
-				['sharing.minSearchStringLength', 0]
-			)
-			->willReturnOnConsecutiveCalls(3, 0);
+			->with('sharing.maxAutocompleteResults', Constants::SHARING_MAX_AUTOCOMPLETE_RESULTS_DEFAULT)
+			->willReturn(3);
+		$this->config->expects($this->at(1))
+			->method('getSystemValueInt')
+			->with('sharing.minSearchStringLength', 0)
+			->willReturn(0);
 		$this->contactsStore->expects($this->once())
 			->method('getContacts')
 			->with($user, $filter)
@@ -154,13 +156,14 @@ class ManagerTest extends TestCase {
 		$user = $this->createMock(IUser::class);
 		$provider = $this->createMock(IProvider::class);
 
-		$this->config->expects($this->exactly(2))
+		$this->config->expects($this->at(0))
 			->method('getSystemValueInt')
-			->withConsecutive(
-				['sharing.maxAutocompleteResults', Constants::SHARING_MAX_AUTOCOMPLETE_RESULTS_DEFAULT],
-				['sharing.minSearchStringLength', 0]
-			)
-			->willReturnOnConsecutiveCalls(3, 4);
+			->with('sharing.maxAutocompleteResults', Constants::SHARING_MAX_AUTOCOMPLETE_RESULTS_DEFAULT)
+			->willReturn(3);
+		$this->config->expects($this->at(1))
+			->method('getSystemValueInt')
+			->with('sharing.minSearchStringLength', 0)
+			->willReturn(4);
 		$this->appManager->expects($this->once())
 			->method('isEnabledForUser')
 			->with($this->equalTo('contacts'), $user)

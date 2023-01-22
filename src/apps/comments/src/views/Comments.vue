@@ -2,7 +2,6 @@
   - @copyright Copyright (c) 2020 John Molakvoæ <skjnldsv@protonmail.com>
   -
   - @author John Molakvoæ <skjnldsv@protonmail.com>
-  - @author Richard Steinmetz <richard@steinmetz.cloud>
   -
   - @license GNU AGPL version 3 or any later version
   -
@@ -33,13 +32,9 @@
 			@new="onNewComment" />
 
 		<template v-if="!isFirstLoading">
-			<NcEmptyContent v-if="!hasComments && done"
-				class="comments__empty"
-				:title="t('comments', 'No comments yet, start the conversation!')">
-				<template #icon>
-					<MessageReplyTextIcon />
-				</template>
-			</NcEmptyContent>
+			<EmptyContent v-if="!hasComments && done" icon="icon-comment">
+				{{ t('comments', 'No comments yet, start the conversation!') }}
+			</EmptyContent>
 
 			<!-- Comments -->
 			<Comment v-for="comment in comments"
@@ -61,19 +56,14 @@
 			</div>
 
 			<!-- Error message -->
-			<template v-else-if="error">
-				<NcEmptyContent class="comments__error" :title="error">
-					<template #icon>
-						<AlertCircleOutlineIcon />
-					</template>
-				</NcEmptyContent>
-				<NcButton class="comments__retry" @click="getComments">
-					<template #icon>
-						<RefreshIcon />
-					</template>
-					{{ t('comments', 'Retry') }}
-				</NcButton>
-			</template>
+			<EmptyContent v-else-if="error" class="comments__error" icon="icon-error">
+				{{ error }}
+				<template #desc>
+					<button icon="icon-history" @click="getComments">
+						{{ t('comments', 'Retry') }}
+					</button>
+				</template>
+			</EmptyContent>
 		</template>
 	</div>
 </template>
@@ -86,11 +76,7 @@ import axios from '@nextcloud/axios'
 import VTooltip from 'v-tooltip'
 import Vue from 'vue'
 
-import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent'
-import NcButton from '@nextcloud/vue/dist/Components/NcButton'
-import RefreshIcon from 'vue-material-design-icons/Refresh'
-import MessageReplyTextIcon from 'vue-material-design-icons/MessageReplyText'
-import AlertCircleOutlineIcon from 'vue-material-design-icons/AlertCircleOutline'
+import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 
 import Comment from '../components/Comment.vue'
 import getComments, { DEFAULT_LIMIT } from '../services/GetComments.js'
@@ -104,11 +90,7 @@ export default {
 	components: {
 		// Avatar,
 		Comment,
-		NcEmptyContent,
-		NcButton,
-		RefreshIcon,
-		MessageReplyTextIcon,
-		AlertCircleOutlineIcon,
+		EmptyContent,
 	},
 
 	data() {
@@ -299,13 +281,8 @@ export default {
 <style lang="scss" scoped>
 .comments {
 	// Do not add emptycontent top margin
-	&__empty,
-	&__error {
-		margin-top: 0 !important;
-	}
-
-	&__retry {
-		margin: 0 auto;
+	&__error{
+		margin-top: 0;
 	}
 
 	&__info {

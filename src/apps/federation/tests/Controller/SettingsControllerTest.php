@@ -5,7 +5,6 @@
  * @author Björn Schießle <bjoern@schiessle.org>
  * @author Morris Jobke <hey@morrisjobke.de>
  * @author Roeland Jago Douma <roeland@famdouma.nl>
- * @author Carl Schwan <carl@carlschwan.eu>
  *
  * @license AGPL-3.0
  *
@@ -32,7 +31,9 @@ use OCP\IRequest;
 use Test\TestCase;
 
 class SettingsControllerTest extends TestCase {
-	private SettingsController $controller;
+
+	/** @var SettingsController  */
+	private $controller;
 
 	/** @var \PHPUnit\Framework\MockObject\MockObject | \OCP\IRequest */
 	private $request;
@@ -59,7 +60,7 @@ class SettingsControllerTest extends TestCase {
 		);
 	}
 
-	public function testAddServer(): void {
+	public function testAddServer() {
 		$this->trustedServers
 			->expects($this->once())
 			->method('isTrustedServer')
@@ -67,7 +68,7 @@ class SettingsControllerTest extends TestCase {
 			->willReturn(false);
 		$this->trustedServers
 			->expects($this->once())
-			->method('isNextcloudServer')
+			->method('isOwnCloudServer')
 			->with('url')
 			->willReturn(true);
 
@@ -82,8 +83,11 @@ class SettingsControllerTest extends TestCase {
 
 	/**
 	 * @dataProvider checkServerFails
+	 *
+	 * @param bool $isTrustedServer
+	 * @param bool $isOwnCloud
 	 */
-	public function testAddServerFail(bool $isTrustedServer, bool $isNextcloud): void {
+	public function testAddServerFail($isTrustedServer, $isOwnCloud) {
 		$this->expectException(\OCP\HintException::class);
 
 		$this->trustedServers
@@ -93,23 +97,22 @@ class SettingsControllerTest extends TestCase {
 			->willReturn($isTrustedServer);
 		$this->trustedServers
 			->expects($this->any())
-			->method('isNextcloudServer')
+			->method('isOwnCloudServer')
 			->with('url')
-			->willReturn($isNextcloud);
+			->willReturn($isOwnCloud);
 
 		$this->controller->addServer('url');
 	}
 
-	public function testRemoveServer(): void {
-		$this->trustedServers->expects($this->once())
-			->method('removeServer')
-			->with(1);
-		$result = $this->controller->removeServer(1);
+	public function testRemoveServer() {
+		$this->trustedServers->expects($this->once())->method('removeServer')
+		->with('url');
+		$result = $this->controller->removeServer('url');
 		$this->assertTrue($result instanceof DataResponse);
 		$this->assertSame(200, $result->getStatus());
 	}
 
-	public function testCheckServer(): void {
+	public function testCheckServer() {
 		$this->trustedServers
 			->expects($this->once())
 			->method('isTrustedServer')
@@ -117,7 +120,7 @@ class SettingsControllerTest extends TestCase {
 			->willReturn(false);
 		$this->trustedServers
 			->expects($this->once())
-			->method('isNextcloudServer')
+			->method('isOwnCloudServer')
 			->with('url')
 			->willReturn(true);
 
@@ -128,8 +131,11 @@ class SettingsControllerTest extends TestCase {
 
 	/**
 	 * @dataProvider checkServerFails
+	 *
+	 * @param bool $isTrustedServer
+	 * @param bool $isOwnCloud
 	 */
-	public function testCheckServerFail(bool $isTrustedServer, bool $isNextcloud): void {
+	public function testCheckServerFail($isTrustedServer, $isOwnCloud) {
 		$this->expectException(\OCP\HintException::class);
 
 		$this->trustedServers
@@ -139,9 +145,9 @@ class SettingsControllerTest extends TestCase {
 			->willReturn($isTrustedServer);
 		$this->trustedServers
 			->expects($this->any())
-			->method('isNextcloudServer')
+			->method('isOwnCloudServer')
 			->with('url')
-			->willReturn($isNextcloud);
+			->willReturn($isOwnCloud);
 
 		$this->assertTrue(
 			$this->invokePrivate($this->controller, 'checkServer', ['url'])
@@ -149,9 +155,11 @@ class SettingsControllerTest extends TestCase {
 	}
 
 	/**
-	 * Data to simulate checkServer fails
+	 * data to simulate checkServer fails
+	 *
+	 * @return array
 	 */
-	public function checkServerFails(): array {
+	public function checkServerFails() {
 		return [
 			[true, true],
 			[false, false]

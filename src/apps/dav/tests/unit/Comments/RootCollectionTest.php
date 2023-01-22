@@ -30,6 +30,7 @@ use OC\EventDispatcher\SymfonyAdapter;
 use OCA\DAV\Comments\EntityTypeCollection as EntityTypeCollectionImplementation;
 use OCP\Comments\CommentsEntityEvent;
 use OCP\Comments\ICommentsManager;
+use OCP\ILogger;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\IUserSession;
@@ -86,7 +87,7 @@ class RootCollectionTest extends \Test\TestCase {
 			$this->userManager,
 			$this->userSession,
 			$this->dispatcher,
-			$this->logger
+			$this->createMock(ILogger::class)
 		);
 	}
 

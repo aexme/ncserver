@@ -5,9 +5,4 @@ jQuery(document).ready(function() {
 		$('#redirect-link').addClass('hidden');
 		$('#app-token-login-field').removeClass('hidden');
 	});
-
-	document.getElementById('login-form').addEventListener('submit', function (e) {
-		e.preventDefault();
-		document.location.href = e.target.attributes.action.value
-	})
-})
+});

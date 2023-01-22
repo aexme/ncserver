@@ -22,51 +22,51 @@
 <template>
 	<li :class="{ inline }">
 		<div id="weather-status-menu-item">
-			<NcActions class="weather-status-menu-item__subheader"
+			<Actions class="weather-status-menu-item__subheader"
 				:default-icon="weatherIcon"
 				:menu-title="currentWeatherMessage">
-				<NcActionText v-if="gotWeather"
+				<ActionText v-if="gotWeather"
 					:icon="futureWeatherIcon">
 					{{ forecastMessage }}
-				</NcActionText>
-				<NcActionLink v-if="gotWeather"
+				</ActionText>
+				<ActionLink v-if="gotWeather"
 					icon="icon-address"
 					target="_blank"
 					:href="weatherLinkTarget"
 					:close-after-click="true">
 					{{ locationText }}
-				</NcActionLink>
-				<NcActionButton v-if="gotWeather"
+				</ActionLink>
+				<ActionButton v-if="gotWeather"
 					:icon="addRemoveFavoriteIcon"
 					@click="onAddRemoveFavoriteClick">
 					{{ addRemoveFavoriteText }}
-				</NcActionButton>
-				<NcActionSeparator v-if="address && !errorMessage" />
-				<NcActionButton icon="icon-crosshair"
+				</ActionButton>
+				<ActionSeparator v-if="address && !errorMessage" />
+				<ActionButton icon="icon-crosshair"
 					:close-after-click="true"
 					@click="onBrowserLocationClick">
 					{{ t('weather_status', 'Detect location') }}
-				</NcActionButton>
-				<NcActionInput ref="addressInput"
+				</ActionButton>
+				<ActionInput ref="addressInput"
 					:disabled="false"
 					icon="icon-rename"
 					type="text"
 					value=""
 					@submit="onAddressSubmit">
 					{{ t('weather_status', 'Set custom address') }}
-				</NcActionInput>
-				<NcActionButton v-show="favorites.length > 0"
+				</ActionInput>
+				<ActionButton v-show="favorites.length > 0"
 					:icon="toggleFavoritesIcon"
 					@click="showFavorites = !showFavorites">
 					{{ t('weather_status', 'Favorites') }}
-				</NcActionButton>
-				<NcActionButton v-for="f in displayedFavorites"
+				</ActionButton>
+				<ActionButton v-for="f in displayedFavorites"
 					:key="f"
 					icon="icon-starred"
 					@click="onFavoriteClick($event, f)">
 					{{ f }}
-				</NcActionButton>
-			</NcActions>
+				</ActionButton>
+			</Actions>
 		</div>
 	</li>
 </template>
@@ -75,12 +75,12 @@
 import { showError } from '@nextcloud/dialogs'
 import moment from '@nextcloud/moment'
 import { getLocale } from '@nextcloud/l10n'
-import NcActions from '@nextcloud/vue/dist/Components/NcActions'
-import NcActionButton from '@nextcloud/vue/dist/Components/NcActionButton'
-import NcActionInput from '@nextcloud/vue/dist/Components/NcActionInput'
-import NcActionLink from '@nextcloud/vue/dist/Components/NcActionLink'
-import NcActionSeparator from '@nextcloud/vue/dist/Components/NcActionSeparator'
-import NcActionText from '@nextcloud/vue/dist/Components/NcActionText'
+import Actions from '@nextcloud/vue/dist/Components/Actions'
+import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
+import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
+import ActionLink from '@nextcloud/vue/dist/Components/ActionLink'
+import ActionSeparator from '@nextcloud/vue/dist/Components/ActionSeparator'
+import ActionText from '@nextcloud/vue/dist/Components/ActionText'
 import * as network from './services/weatherStatusService'
 
 const MODE_BROWSER_LOCATION = 1
@@ -193,12 +193,7 @@ const weatherOptions = {
 export default {
 	name: 'App',
 	components: {
-		NcActions,
-		NcActionButton,
-		NcActionInput,
-		NcActionLink,
-		NcActionSeparator,
-		NcActionText,
+		Actions, ActionButton, ActionInput, ActionLink, ActionSeparator, ActionText,
 	},
 	props: {
 		inline: {
@@ -504,9 +499,9 @@ export default {
 			if (loading) {
 				return 'icon-loading-small'
 			} else {
-				return 'icon-weather ' + (weatherCode && weatherCode in weatherOptions
+				return weatherCode && weatherCode in weatherOptions
 					? weatherOptions[weatherCode].icon
-					: 'icon-fair-day')
+					: 'icon-fair-day'
 			}
 		},
 		getWeatherMessage(weatherCode, temperature, later = false) {
@@ -523,11 +518,11 @@ export default {
 </script>
 
 <style lang="scss">
-.icon-weather {
-	background-size: 16px;
-}
 .icon-weather-status {
 	background-image: url('./../img/app-dark.svg');
+}
+body.theme--dark .icon-weather-status {
+	background-image: url('./../img/app.svg');
 }
 .icon-clearsky-day {
 	background-image: url('./../img/sun.svg');

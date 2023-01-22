@@ -34,12 +34,11 @@ namespace OCA\DAV\CalDAV\Reminder\NotificationProvider;
 use DateTime;
 use OCP\IConfig;
 use OCP\IL10N;
+use OCP\ILogger;
 use OCP\IURLGenerator;
 use OCP\L10N\IFactory as L10NFactory;
 use OCP\Mail\IEMailTemplate;
 use OCP\Mail\IMailer;
-use OCP\IUser;
-use Psr\Log\LoggerInterface;
 use Sabre\VObject;
 use Sabre\VObject\Component\VEvent;
 use Sabre\VObject\Parameter;
@@ -55,11 +54,19 @@ class EmailProvider extends AbstractProvider {
 	/** @var string */
 	public const NOTIFICATION_TYPE = 'EMAIL';
 
-	private IMailer $mailer;
+	/** @var IMailer */
+	private $mailer;
 
+	/**
+	 * @param IConfig $config
+	 * @param IMailer $mailer
+	 * @param ILogger $logger
+	 * @param L10NFactory $l10nFactory
+	 * @param IUrlGenerator $urlGenerator
+	 */
 	public function __construct(IConfig $config,
 								IMailer $mailer,
-								LoggerInterface $logger,
+								ILogger $logger,
 								L10NFactory $l10nFactory,
 								IURLGenerator $urlGenerator) {
 		parent::__construct($logger, $l10nFactory, $urlGenerator, $config);
@@ -138,7 +145,7 @@ class EmailProvider extends AbstractProvider {
 						$this->logger->error('Unable to deliver message to {failed}', ['app' => 'dav', 'failed' => implode(', ', $failed)]);
 					}
 				} catch (\Exception $ex) {
-					$this->logger->error($ex->getMessage(), ['app' => 'dav', 'exception' => $ex]);
+					$this->logger->logException($ex, ['app' => 'dav']);
 				}
 			}
 		}
@@ -180,6 +187,10 @@ class EmailProvider extends AbstractProvider {
 		}
 	}
 
+	/**
+	 * @param string $path
+	 * @return string
+	 */
 	private function getAbsoluteImagePath(string $path):string {
 		return $this->urlGenerator->getAbsoluteURL(
 			$this->urlGenerator->imagePath('core', $path)
@@ -215,8 +226,9 @@ class EmailProvider extends AbstractProvider {
 	}
 
 	/**
-	 * @param array<string, array{LANG?: string}> $emails
-	 * @return array<string, string[]>
+	 * @param array $emails
+	 * @param string $defaultLanguage
+	 * @return array
 	 */
 	private function sortEMailAddressesByLanguage(array $emails,
 												  string $defaultLanguage):array {
@@ -241,7 +253,7 @@ class EmailProvider extends AbstractProvider {
 
 	/**
 	 * @param VEvent $vevent
-	 * @return array<string, array{LANG?: string}>
+	 * @return array
 	 */
 	private function getAllEMailAddressesFromEvent(VEvent $vevent):array {
 		$emailAddresses = [];
@@ -287,7 +299,7 @@ class EmailProvider extends AbstractProvider {
 					$properties = [];
 
 					$langProp = $attendee->offsetGet('LANG');
-					if ($langProp instanceof VObject\Parameter && $langProp->getValue() !== null) {
+					if ($langProp instanceof VObject\Parameter) {
 						$properties['LANG'] = $langProp->getValue();
 					}
 
@@ -297,15 +309,18 @@ class EmailProvider extends AbstractProvider {
 		}
 
 		if (isset($vevent->ORGANIZER) && $this->hasAttendeeMailURI($vevent->ORGANIZER)) {
-			$organizerEmailAddress = $this->getEMailAddressOfAttendee($vevent->ORGANIZER);
-			if ($organizerEmailAddress !== null) {
-				$emailAddresses[$organizerEmailAddress] = [];
-			}
+			$emailAddresses[$this->getEMailAddressOfAttendee($vevent->ORGANIZER)] = [];
 		}
 
 		return $emailAddresses;
 	}
 
+
+
+	/**
+	 * @param VObject\Property $attendee
+	 * @return string
+	 */
 	private function getCUTypeOfAttendee(VObject\Property $attendee):string {
 		$cuType = $attendee->offsetGet('CUTYPE');
 		if ($cuType instanceof VObject\Parameter) {
@@ -315,6 +330,10 @@ class EmailProvider extends AbstractProvider {
 		return 'INDIVIDUAL';
 	}
 
+	/**
+	 * @param VObject\Property $attendee
+	 * @return string
+	 */
 	private function getPartstatOfAttendee(VObject\Property $attendee):string {
 		$partstat = $attendee->offsetGet('PARTSTAT');
 		if ($partstat instanceof VObject\Parameter) {
@@ -324,11 +343,19 @@ class EmailProvider extends AbstractProvider {
 		return 'NEEDS-ACTION';
 	}
 
-	private function hasAttendeeMailURI(VObject\Property $attendee): bool {
+	/**
+	 * @param VObject\Property $attendee
+	 * @return bool
+	 */
+	private function hasAttendeeMailURI(VObject\Property $attendee):bool {
 		return stripos($attendee->getValue(), 'mailto:') === 0;
 	}
 
-	private function getEMailAddressOfAttendee(VObject\Property $attendee): ?string {
+	/**
+	 * @param VObject\Property $attendee
+	 * @return string|null
+	 */
+	private function getEMailAddressOfAttendee(VObject\Property $attendee):?string {
 		if (!$this->hasAttendeeMailURI($attendee)) {
 			return null;
 		}
@@ -341,8 +368,8 @@ class EmailProvider extends AbstractProvider {
 	}
 
 	/**
-	 * @param IUser[] $users
-	 * @return array<string, array{LANG?: string}>
+	 * @param array $users
+	 * @return array
 	 */
 	private function getEMailAddressesOfAllUsersWithWriteAccessToCalendar(array $users):array {
 		$emailAddresses = [];
@@ -365,9 +392,12 @@ class EmailProvider extends AbstractProvider {
 	}
 
 	/**
+	 * @param IL10N $l10n
+	 * @param VEvent $vevent
+	 * @return string
 	 * @throws \Exception
 	 */
-	private function generateDateString(IL10N $l10n, VEvent $vevent): string {
+	private function generateDateString(IL10N $l10n, VEvent $vevent):string {
 		$isAllDay = $vevent->DTSTART instanceof Property\ICalendar\Date;
 
 		/** @var Property\ICalendar\Date | Property\ICalendar\DateTime $dtstart */
@@ -433,27 +463,57 @@ class EmailProvider extends AbstractProvider {
 			. ' (' . $startTimezone . ')';
 	}
 
+	/**
+	 * @param DateTime $dtStart
+	 * @param DateTime $dtEnd
+	 * @return bool
+	 */
 	private function isDayEqual(DateTime $dtStart,
 								DateTime $dtEnd):bool {
 		return $dtStart->format('Y-m-d') === $dtEnd->format('Y-m-d');
 	}
 
+	/**
+	 * @param IL10N $l10n
+	 * @param DateTime $dt
+	 * @return string
+	 */
 	private function getWeekDayName(IL10N $l10n, DateTime $dt):string {
-		return (string)$l10n->l('weekdayName', $dt, ['width' => 'abbreviated']);
+		return $l10n->l('weekdayName', $dt, ['width' => 'abbreviated']);
 	}
 
+	/**
+	 * @param IL10N $l10n
+	 * @param DateTime $dt
+	 * @return string
+	 */
 	private function getDateString(IL10N $l10n, DateTime $dt):string {
-		return (string)$l10n->l('date', $dt, ['width' => 'medium']);
+		return $l10n->l('date', $dt, ['width' => 'medium']);
 	}
 
+	/**
+	 * @param IL10N $l10n
+	 * @param DateTime $dt
+	 * @return string
+	 */
 	private function getDateTimeString(IL10N $l10n, DateTime $dt):string {
-		return (string)$l10n->l('datetime', $dt, ['width' => 'medium|short']);
+		return $l10n->l('datetime', $dt, ['width' => 'medium|short']);
 	}
 
+	/**
+	 * @param IL10N $l10n
+	 * @param DateTime $dt
+	 * @return string
+	 */
 	private function getTimeString(IL10N $l10n, DateTime $dt):string {
-		return (string)$l10n->l('time', $dt, ['width' => 'short']);
+		return $l10n->l('time', $dt, ['width' => 'short']);
 	}
 
+	/**
+	 * @param VEvent $vevent
+	 * @param IL10N $l10n
+	 * @return string
+	 */
 	private function getTitleFromVEvent(VEvent $vevent, IL10N $l10n):string {
 		if (isset($vevent->SUMMARY)) {
 			return (string)$vevent->SUMMARY;

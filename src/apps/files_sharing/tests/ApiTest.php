@@ -54,7 +54,7 @@ use OCP\UserStatus\IManager as IUserStatusManager;
  * Class ApiTest
  *
  * @group DB
- * TODO: convert to real integration tests
+ * TODO: convert to real intergration tests
  */
 class ApiTest extends TestCase {
 	public const TEST_FOLDER_NAME = '/folder_share_api_test';
@@ -929,7 +929,7 @@ class ApiTest extends TestCase {
 			$ocs->getShare(0);
 			$this->fail();
 		} catch (OCSNotFoundException $e) {
-			$this->assertEquals('Wrong share ID, share does not exist', $e->getMessage());
+			$this->assertEquals('Wrong share ID, share doesn\'t exist', $e->getMessage());
 		}
 		$ocs->cleanup();
 	}

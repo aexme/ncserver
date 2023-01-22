@@ -102,8 +102,4 @@ class Profiler implements IProfiler {
 	public function setEnabled(bool $enabled): void {
 		$this->enabled = $enabled;
 	}
-
-	public function clear(): void {
-		$this->storage->purge();
-	}
 }

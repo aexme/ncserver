@@ -33,10 +33,6 @@
   vertical-align: top;
 }
 
-.versionsTabView .version-container img, .revertVersion img {
-	filter: var(--background-invert-if-dark);
-}
-
 .versionsTabView img {
 	cursor: pointer;
 	padding-right: 4px;

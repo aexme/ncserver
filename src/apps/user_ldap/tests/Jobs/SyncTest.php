@@ -34,7 +34,6 @@ use OCA\User_LDAP\Jobs\Sync;
 use OCA\User_LDAP\LDAP;
 use OCA\User_LDAP\Mapping\UserMapping;
 use OCA\User_LDAP\User\Manager;
-use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IAvatarManager;
 use OCP\IConfig;
 use OCP\IDBConnection;
@@ -99,7 +98,7 @@ class SyncTest extends TestCase {
 			'accessFactory' => $this->accessFactory,
 		];
 
-		$this->sync = new Sync($this->userManager, $this->createMock(ITimeFactory::class));
+		$this->sync = new Sync($this->userManager);
 	}
 
 	public function intervalDataProvider() {

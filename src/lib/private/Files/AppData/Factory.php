@@ -27,16 +27,17 @@ declare(strict_types=1);
 namespace OC\Files\AppData;
 
 use OC\SystemConfig;
-use OCP\Files\AppData\IAppDataFactory;
-use OCP\Files\IAppData;
 use OCP\Files\IRootFolder;
 
-class Factory implements IAppDataFactory {
-	private IRootFolder $rootFolder;
-	private SystemConfig $config;
+class Factory {
 
-	/** @var array<string, IAppData> */
-	private array $folders = [];
+	/** @var IRootFolder */
+	private $rootFolder;
+
+	/** @var SystemConfig */
+	private $config;
+
+	private $folders = [];
 
 	public function __construct(IRootFolder $rootFolder,
 								SystemConfig $systemConfig) {
@@ -44,7 +45,11 @@ class Factory implements IAppDataFactory {
 		$this->config = $systemConfig;
 	}
 
-	public function get(string $appId): IAppData {
+	/**
+	 * @param string $appId
+	 * @return AppData
+	 */
+	public function get(string $appId): AppData {
 		if (!isset($this->folders[$appId])) {
 			$this->folders[$appId] = new AppData($this->rootFolder, $this->config, $appId);
 		}

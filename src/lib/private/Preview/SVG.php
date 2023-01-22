@@ -29,7 +29,7 @@ namespace OC\Preview;
 
 use OCP\Files\File;
 use OCP\IImage;
-use Psr\Log\LoggerInterface;
+use OCP\ILogger;
 
 class SVG extends ProviderV2 {
 	/**
@@ -60,15 +60,15 @@ class SVG extends ProviderV2 {
 			$svg->readImageBlob($content);
 			$svg->setImageFormat('png32');
 		} catch (\Exception $e) {
-			\OC::$server->get(LoggerInterface::class)->error($e->getMessage(), [
-				'exception' => $e,
+			\OC::$server->getLogger()->logException($e, [
+				'level' => ILogger::ERROR,
 				'app' => 'core',
 			]);
 			return null;
 		}
 
 		//new image object
-		$image = new \OCP\Image();
+		$image = new \OC_Image();
 		$image->loadFromData((string) $svg);
 		//check if image object is valid
 		if ($image->valid()) {

@@ -31,7 +31,7 @@ namespace OC\Preview;
 use OCP\Files\File;
 use OCP\Files\FileInfo;
 use OCP\IImage;
-use Psr\Log\LoggerInterface;
+use OCP\ILogger;
 
 abstract class Office extends ProviderV2 {
 	/**
@@ -76,14 +76,14 @@ abstract class Office extends ProviderV2 {
 		} catch (\Exception $e) {
 			$this->cleanTmpFiles();
 			unlink($pngPreview);
-			\OC::$server->get(LoggerInterface::class)->error($e->getMessage(), [
-				'exception' => $e,
+			\OC::$server->getLogger()->logException($e, [
+				'level' => ILogger::ERROR,
 				'app' => 'core',
 			]);
 			return null;
 		}
 
-		$image = new \OCP\Image();
+		$image = new \OC_Image();
 		$image->loadFromData((string) $png);
 
 		$this->cleanTmpFiles();

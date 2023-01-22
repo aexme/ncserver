@@ -33,8 +33,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdateTheme extends UpdateJS {
-	protected IMimeTypeDetector $mimetypeDetector;
-	protected ICacheFactory $cacheFactory;
+
+	/** @var IMimeTypeDetector */
+	protected $mimetypeDetector;
+
+	/** @var ICacheFactory */
+	protected $cacheFactory;
 
 	public function __construct(
 		IMimeTypeDetector $mimetypeDetector,

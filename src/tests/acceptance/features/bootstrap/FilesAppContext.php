@@ -46,7 +46,7 @@ class FilesAppContext implements Context, ActorAwareInterface {
 	 * @return Locator
 	 */
 	private static function appMenu() {
-		return Locator::forThe()->css("header nav.app-menu")->
+		return Locator::forThe()->id("appmenu")->
 				describedAs("App menu in header");
 	}
 
@@ -54,7 +54,7 @@ class FilesAppContext implements Context, ActorAwareInterface {
 	 * @return Locator
 	 */
 	public static function filesItemInAppMenu() {
-		return Locator::forThe()->xpath("//li[@data-app-id = 'files']")->
+		return Locator::forThe()->xpath("/li[@data-id = 'files']")->
 				descendantOf(self::appMenu())->
 				describedAs("Files item in app menu in header");
 	}
@@ -116,7 +116,7 @@ class FilesAppContext implements Context, ActorAwareInterface {
 	 * @return Locator
 	 */
 	public static function notFavoritedStateIconInFileDetailsInDetailsView() {
-		return Locator::forThe()->css(".star-outline-icon")->
+		return Locator::forThe()->css(".star--star")->
 				descendantOf(self::favoriteActionInFileDetailsInDetailsView())->
 				describedAs("Not favorited state icon in file details in details view in Files app");
 	}
@@ -125,7 +125,7 @@ class FilesAppContext implements Context, ActorAwareInterface {
 	 * @return Locator
 	 */
 	public static function favoritedStateIconInFileDetailsInDetailsView() {
-		return Locator::forThe()->css(".star-icon")->
+		return Locator::forThe()->css(".star--starred")->
 				descendantOf(self::favoriteActionInFileDetailsInDetailsView())->
 				describedAs("Favorited state icon in file details in details view in Files app");
 	}

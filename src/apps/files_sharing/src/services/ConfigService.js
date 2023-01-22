@@ -32,8 +32,8 @@ export default class Config {
 	 * @memberof Config
 	 */
 	get isPublicUploadEnabled() {
-		return document.getElementsByClassName('files-filestable')[0]
-			&& document.getElementsByClassName('files-filestable')[0].dataset.allowPublicUpload === 'yes'
+		return document.getElementById('filestable')
+			&& document.getElementById('filestable').dataset.allowPublicUpload === 'yes'
 	}
 
 	/**
@@ -60,45 +60,57 @@ export default class Config {
 	}
 
 	/**
-	 * Get the default link share expiration date
+	 * Get the default link share expiration date as string
 	 *
-	 * @return {Date|null}
+	 * @return {string}
 	 * @readonly
 	 * @memberof Config
 	 */
-	get defaultExpirationDate() {
+	get defaultExpirationDateString() {
+		let expireDateString = ''
 		if (this.isDefaultExpireDateEnabled) {
-			return new Date(new Date().setDate(new Date().getDate() + this.defaultExpireDate))
+			const date = window.moment.utc()
+			const expireAfterDays = this.defaultExpireDate
+			date.add(expireAfterDays, 'days')
+			expireDateString = date.format('YYYY-MM-DD')
 		}
-		return null
+		return expireDateString
 	}
 
 	/**
-	 * Get the default internal expiration date
+	 * Get the default internal expiration date as string
 	 *
-	 * @return {Date|null}
+	 * @return {string}
 	 * @readonly
 	 * @memberof Config
 	 */
-	get defaultInternalExpirationDate() {
+	get defaultInternalExpirationDateString() {
+		let expireDateString = ''
 		if (this.isDefaultInternalExpireDateEnabled) {
-			return new Date(new Date().setDate(new Date().getDate() + this.defaultInternalExpireDate))
+			const date = window.moment.utc()
+			const expireAfterDays = this.defaultInternalExpireDate
+			date.add(expireAfterDays, 'days')
+			expireDateString = date.format('YYYY-MM-DD')
 		}
-		return null
+		return expireDateString
 	}
 
 	/**
-	 * Get the default remote expiration date
+	 * Get the default remote expiration date as string
 	 *
-	 * @return {Date|null}
+	 * @return {string}
 	 * @readonly
 	 * @memberof Config
 	 */
 	get defaultRemoteExpirationDateString() {
+		let expireDateString = ''
 		if (this.isDefaultRemoteExpireDateEnabled) {
-			return new Date(new Date().setDate(new Date().getDate() + this.defaultRemoteExpireDate))
+			const date = window.moment.utc()
+			const expireAfterDays = this.defaultRemoteExpireDate
+			date.add(expireAfterDays, 'days')
+			expireDateString = date.format('YYYY-MM-DD')
 		}
-		return null
+		return expireDateString
 	}
 
 	/**
@@ -176,17 +188,6 @@ export default class Config {
 	 */
 	get isDefaultInternalExpireDateEnabled() {
 		return OC.appConfig.core.defaultInternalExpireDateEnabled === true
-	}
-
-	/**
-	 * Is there a default expiration date for new remote shares ?
-	 *
-	 * @return {boolean}
-	 * @readonly
-	 * @memberof Config
-	 */
-	get isDefaultRemoteExpireDateEnabled() {
-		return OC.appConfig.core.defaultRemoteExpireDateEnabled === true
 	}
 
 	/**

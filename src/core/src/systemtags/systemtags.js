@@ -35,37 +35,34 @@ import escapeHTML from 'escape-html'
 		/**
 		 *
 		 * @param {OC.SystemTags.SystemTagModel|Object|String} tag
-		 * @returns {HTMLElement}
+		 * @returns {jQuery}
 		 */
 		getDescriptiveTag: function(tag) {
 			if (_.isUndefined(tag.name) && !_.isUndefined(tag.toJSON)) {
 				tag = tag.toJSON()
 			}
 
-			var $span = document.createElement('span')
-
 			if (_.isUndefined(tag.name)) {
-				$span.classList.add('non-existing-tag')
-				$span.textContent = t('core', 'Non-existing tag #{tag}', {
+				return $('<span>').addClass('non-existing-tag').text(
+					t('core', 'Non-existing tag #{tag}', {
 						tag: tag
-				})
-				return $span
+					})
+				)
 			}
 
-			$span.textContent = escapeHTML(tag.name)
+			var $span = $('<span>')
+			$span.append(escapeHTML(tag.name))
 
 			var scope
 			if (!tag.userAssignable) {
-				scope = t('core', 'Restricted')
+				scope = t('core', 'restricted')
 			}
 			if (!tag.userVisible) {
 				// invisible also implicitly means not assignable
-				scope = t('core', 'Invisible')
+				scope = t('core', 'invisible')
 			}
 			if (scope) {
-				var $scope = document.createElement('em')
-				$scope.textContent = ' (' + scope + ')'
-				$span.appendChild($scope)
+				$span.append($('<em>').text(' (' + scope + ')'))
 			}
 			return $span
 		}

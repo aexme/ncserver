@@ -28,14 +28,14 @@ namespace OCP\Contacts\ContactsMenu;
 interface ILinkAction extends IAction {
 
 	/**
-	 * @param string $href the target URL of the action
 	 * @since 12.0
+	 * @param string $href the target URL of the action
 	 */
-	public function setHref(string $href);
+	public function setHref($href);
 
 	/**
 	 * @since 12.0
 	 * @return string
 	 */
-	public function getHref(): string;
+	public function getHref();
 }

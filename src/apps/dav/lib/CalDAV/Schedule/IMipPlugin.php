@@ -39,6 +39,7 @@ use OCP\Defaults;
 use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IL10N;
+use OCP\ILogger;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
 use OCP\L10N\IFactory as L10NFactory;
@@ -46,7 +47,6 @@ use OCP\Mail\IEMailTemplate;
 use OCP\Mail\IMailer;
 use OCP\Security\ISecureRandom;
 use OCP\Util;
-use Psr\Log\LoggerInterface;
 use Sabre\CalDAV\Schedule\IMipPlugin as SabreIMipPlugin;
 use Sabre\VObject\Component\VCalendar;
 use Sabre\VObject\Component\VEvent;
@@ -81,7 +81,8 @@ class IMipPlugin extends SabreIMipPlugin {
 	/** @var IMailer */
 	private $mailer;
 
-	private LoggerInterface $logger;
+	/** @var ILogger */
+	private $logger;
 
 	/** @var ITimeFactory */
 	private $timeFactory;
@@ -111,8 +112,19 @@ class IMipPlugin extends SabreIMipPlugin {
 	public const METHOD_CANCEL = 'cancel';
 	public const IMIP_INDENT = 15; // Enough for the length of all body bullet items, in all languages
 
-	public function __construct(IConfig $config, IMailer $mailer,
-								LoggerInterface $logger,
+	/**
+	 * @param IConfig $config
+	 * @param IMailer $mailer
+	 * @param ILogger $logger
+	 * @param ITimeFactory $timeFactory
+	 * @param L10NFactory $l10nFactory
+	 * @param IUrlGenerator $urlGenerator
+	 * @param Defaults $defaults
+	 * @param ISecureRandom $random
+	 * @param IDBConnection $db
+	 * @param string $userId
+	 */
+	public function __construct(IConfig $config, IMailer $mailer, ILogger $logger,
 								ITimeFactory $timeFactory, L10NFactory $l10nFactory,
 								IURLGenerator $urlGenerator, Defaults $defaults,
 								ISecureRandom $random, IDBConnection $db, IUserManager $userManager,
@@ -294,7 +306,7 @@ class IMipPlugin extends SabreIMipPlugin {
 				$iTipMessage->scheduleStatus = '5.0; EMail delivery failed';
 			}
 		} catch (\Exception $ex) {
-			$this->logger->error($ex->getMessage(), ['app' => 'dav', 'exception' => $ex]);
+			$this->logger->logException($ex, ['app' => 'dav']);
 			$iTipMessage->scheduleStatus = '5.0; EMail delivery failed';
 		}
 	}

@@ -36,21 +36,25 @@ use OCP\Collaboration\Resources\ICollection;
 use OCP\Collaboration\Resources\IManager;
 use OCP\Collaboration\Resources\IResource;
 use OCP\Collaboration\Resources\ResourceException;
+use OCP\ILogger;
 use OCP\IRequest;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 
 class CollaborationResourcesController extends OCSController {
-	private IManager $manager;
-	private IUserSession $userSession;
-	private LoggerInterface $logger;
+
+	/** @var IManager */
+	private $manager;
+	/** @var IUserSession */
+	private $userSession;
+	/** @var ILogger */
+	private $logger;
 
 	public function __construct(
 		string $appName,
 		IRequest $request,
 		IManager $manager,
 		IUserSession $userSession,
-		LoggerInterface $logger
+		ILogger $logger
 	) {
 		parent::__construct($appName, $request);
 
@@ -236,7 +240,7 @@ class CollaborationResourcesController extends OCSController {
 		} catch (CollectionException $e) {
 			return new DataResponse([], Http::STATUS_NOT_FOUND);
 		} catch (Exception $e) {
-			$this->logger->critical($e->getMessage(), ['exception' => $e, 'app' => 'core']);
+			$this->logger->logException($e);
 			return new DataResponse([], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -249,7 +253,7 @@ class CollaborationResourcesController extends OCSController {
 				$result[] = $this->prepareCollection($collection);
 			} catch (CollectionException $e) {
 			} catch (Exception $e) {
-				$this->logger->critical($e->getMessage(), ['exception' => $e, 'app' => 'core']);
+				$this->logger->logException($e);
 			}
 		}
 
@@ -276,7 +280,7 @@ class CollaborationResourcesController extends OCSController {
 				$result[] = $this->prepareResource($resource);
 			} catch (ResourceException $e) {
 			} catch (Exception $e) {
-				$this->logger->critical($e->getMessage(), ['exception' => $e, 'app' => 'core']);
+				$this->logger->logException($e);
 			}
 		}
 

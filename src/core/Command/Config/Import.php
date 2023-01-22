@@ -34,9 +34,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Import extends Command implements CompletionAwareInterface {
-	protected array $validRootKeys = ['system', 'apps'];
-	protected IConfig $config;
+	protected $validRootKeys = ['system', 'apps'];
 
+	/** @var IConfig */
+	protected $config;
+
+	/**
+	 * @param IConfig $config
+	 */
 	public function __construct(IConfig $config) {
 		parent::__construct();
 		$this->config = $config;
@@ -169,8 +174,8 @@ class Import extends Command implements CompletionAwareInterface {
 	 * @param string $configName
 	 */
 	protected function checkTypeRecursively($configValue, $configName) {
-		if (!is_array($configValue) && !is_bool($configValue) && !is_int($configValue) && !is_string($configValue) && !is_null($configValue) && !is_float($configValue)) {
-			throw new \UnexpectedValueException('Invalid system config value for "' . $configName . '". Only arrays, bools, integers, floats, strings and null (delete) are allowed.');
+		if (!is_array($configValue) && !is_bool($configValue) && !is_int($configValue) && !is_string($configValue) && !is_null($configValue)) {
+			throw new \UnexpectedValueException('Invalid system config value for "' . $configName . '". Only arrays, bools, integers, strings and null (delete) are allowed.');
 		}
 		if (is_array($configValue)) {
 			foreach ($configValue as $key => $value) {

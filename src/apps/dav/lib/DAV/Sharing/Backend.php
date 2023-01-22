@@ -32,20 +32,32 @@ use OCA\DAV\Connector\Sabre\Principal;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\IUserManager;
-use OCP\DB\QueryBuilder\IQueryBuilder;
 
 class Backend {
-	private IDBConnection $db;
-	private IUserManager $userManager;
-	private IGroupManager $groupManager;
-	private Principal $principalBackend;
-	private string $resourceType;
+
+	/** @var IDBConnection */
+	private $db;
+	/** @var IUserManager */
+	private $userManager;
+	/** @var IGroupManager */
+	private $groupManager;
+	/** @var Principal */
+	private $principalBackend;
+	/** @var string */
+	private $resourceType;
 
 	public const ACCESS_OWNER = 1;
 	public const ACCESS_READ_WRITE = 2;
 	public const ACCESS_READ = 3;
 
-	public function __construct(IDBConnection $db, IUserManager $userManager, IGroupManager $groupManager, Principal $principalBackend, string $resourceType) {
+	/**
+	 * @param IDBConnection $db
+	 * @param IUserManager $userManager
+	 * @param IGroupManager $groupManager
+	 * @param Principal $principalBackend
+	 * @param string $resourceType
+	 */
+	public function __construct(IDBConnection $db, IUserManager $userManager, IGroupManager $groupManager, Principal $principalBackend, $resourceType) {
 		$this->db = $db;
 		$this->userManager = $userManager;
 		$this->groupManager = $groupManager;
@@ -54,10 +66,11 @@ class Backend {
 	}
 
 	/**
-	 * @param list<array{href: string, commonName: string, readOnly: bool}> $add
-	 * @param list<string> $remove
+	 * @param IShareable $shareable
+	 * @param string[] $add
+	 * @param string[] $remove
 	 */
-	public function updateShares(IShareable $shareable, array $add, array $remove): void {
+	public function updateShares(IShareable $shareable, array $add, array $remove) {
 		foreach ($add as $element) {
 			$principal = $this->principalBackend->findByUri($element['href'], '');
 			if ($principal !== '') {
@@ -73,9 +86,10 @@ class Backend {
 	}
 
 	/**
-	 * @param array{href: string, commonName: string, readOnly: bool} $element
+	 * @param IShareable $shareable
+	 * @param string $element
 	 */
-	private function shareWith(IShareable $shareable, array $element): void {
+	private function shareWith($shareable, $element) {
 		$user = $element['href'];
 		$parts = explode(':', $user, 2);
 		if ($parts[0] !== 'principal') {
@@ -115,26 +129,33 @@ class Backend {
 				'access' => $query->createNamedParameter($access),
 				'resourceid' => $query->createNamedParameter($shareable->getResourceId())
 			]);
-		$query->executeStatement();
+		$query->execute();
 	}
 
-	public function deleteAllShares(int $resourceId): void {
+	/**
+	 * @param $resourceId
+	 */
+	public function deleteAllShares($resourceId) {
 		$query = $this->db->getQueryBuilder();
 		$query->delete('dav_shares')
 			->where($query->expr()->eq('resourceid', $query->createNamedParameter($resourceId)))
 			->andWhere($query->expr()->eq('type', $query->createNamedParameter($this->resourceType)))
-			->executeStatement();
+			->execute();
 	}
 
-	public function deleteAllSharesByUser(string $principaluri): void {
+	public function deleteAllSharesByUser($principaluri) {
 		$query = $this->db->getQueryBuilder();
 		$query->delete('dav_shares')
 			->where($query->expr()->eq('principaluri', $query->createNamedParameter($principaluri)))
 			->andWhere($query->expr()->eq('type', $query->createNamedParameter($this->resourceType)))
-			->executeStatement();
+			->execute();
 	}
 
-	private function unshare(IShareable $shareable, string $element): void {
+	/**
+	 * @param IShareable $shareable
+	 * @param string $element
+	 */
+	private function unshare($shareable, $element) {
 		$parts = explode(':', $element, 2);
 		if ($parts[0] !== 'principal') {
 			return;
@@ -151,7 +172,7 @@ class Backend {
 			->andWhere($query->expr()->eq('type', $query->createNamedParameter($this->resourceType)))
 			->andWhere($query->expr()->eq('principaluri', $query->createNamedParameter($parts[1])))
 		;
-		$query->executeStatement();
+		$query->execute();
 	}
 
 	/**
@@ -162,28 +183,29 @@ class Backend {
 	 *   * commonName - Optional, for example a first + last name
 	 *   * status - See the Sabre\CalDAV\SharingPlugin::STATUS_ constants.
 	 *   * readOnly - boolean
+	 *   * summary - Optional, a description for the share
 	 *
 	 * @param int $resourceId
-	 * @return list<array{href: string, commonName: string, status: int, readOnly: bool, '{http://owncloud.org/ns}principal': string, '{http://owncloud.org/ns}group-share': bool}>
+	 * @return array
 	 */
-	public function getShares(int $resourceId): array {
+	public function getShares($resourceId) {
 		$query = $this->db->getQueryBuilder();
 		$result = $query->select(['principaluri', 'access'])
 			->from('dav_shares')
-			->where($query->expr()->eq('resourceid', $query->createNamedParameter($resourceId, IQueryBuilder::PARAM_INT)))
+			->where($query->expr()->eq('resourceid', $query->createNamedParameter($resourceId)))
 			->andWhere($query->expr()->eq('type', $query->createNamedParameter($this->resourceType)))
 			->groupBy(['principaluri', 'access'])
-			->executeQuery();
+			->execute();
 
 		$shares = [];
 		while ($row = $result->fetch()) {
 			$p = $this->principalBackend->getPrincipalByPath($row['principaluri']);
 			$shares[] = [
-				'href' => "principal:{$row['principaluri']}",
-				'commonName' => isset($p['{DAV:}displayname']) ? (string)$p['{DAV:}displayname'] : '',
+				'href' => "principal:${row['principaluri']}",
+				'commonName' => isset($p['{DAV:}displayname']) ? $p['{DAV:}displayname'] : '',
 				'status' => 1,
 				'readOnly' => (int) $row['access'] === self::ACCESS_READ,
-				'{http://owncloud.org/ns}principal' => (string)$row['principaluri'],
+				'{http://owncloud.org/ns}principal' => $row['principaluri'],
 				'{http://owncloud.org/ns}group-share' => is_null($p)
 			];
 		}
@@ -195,10 +217,10 @@ class Backend {
 	 * For shared resources the sharee is set in the ACL of the resource
 	 *
 	 * @param int $resourceId
-	 * @param list<array{privilege: string, principal: string, protected: bool}> $acl
-	 * @return list<array{privilege: string, principal: string, protected: bool}>
+	 * @param array $acl
+	 * @return array
 	 */
-	public function applyShareAcl(int $resourceId, array $acl): array {
+	public function applyShareAcl($resourceId, $acl) {
 		$shares = $this->getShares($resourceId);
 		foreach ($shares as $share) {
 			$acl[] = [

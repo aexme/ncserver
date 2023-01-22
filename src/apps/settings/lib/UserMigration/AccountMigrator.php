@@ -28,9 +28,7 @@ namespace OCA\Settings\UserMigration;
 
 use InvalidArgumentException;
 use OC\Accounts\TAccountsHelper;
-use OC\Core\Db\ProfileConfigMapper;
 use OC\NotSquareException;
-use OC\Profile\ProfileManager;
 use OCA\Settings\AppInfo\Application;
 use OCP\Accounts\IAccountManager;
 use OCP\IAvatarManager;
@@ -53,10 +51,6 @@ class AccountMigrator implements IMigrator, ISizeEstimationMigrator {
 
 	private IAvatarManager $avatarManager;
 
-	private ProfileManager $profileManager;
-
-	private ProfileConfigMapper $configMapper;
-
 	private IL10N $l10n;
 
 	private const PATH_ROOT = Application::APP_ID . '/';
@@ -65,19 +59,13 @@ class AccountMigrator implements IMigrator, ISizeEstimationMigrator {
 
 	private const AVATAR_BASENAME = 'avatar';
 
-	private const PATH_CONFIG_FILE = AccountMigrator::PATH_ROOT . 'config.json';
-
 	public function __construct(
 		IAccountManager $accountManager,
 		IAvatarManager $avatarManager,
-		ProfileManager $profileManager,
-		ProfileConfigMapper $configMapper,
 		IL10N $l10n
 	) {
 		$this->accountManager = $accountManager;
 		$this->avatarManager = $avatarManager;
-		$this->profileManager = $profileManager;
-		$this->configMapper = $configMapper;
 		$this->l10n = $l10n;
 	}
 
@@ -125,14 +113,6 @@ class AccountMigrator implements IMigrator, ISizeEstimationMigrator {
 		} catch (Throwable $e) {
 			throw new AccountMigratorException('Could not export avatar', 0, $e);
 		}
-
-		try {
-			$output->writeln('Exporting profile config in ' . AccountMigrator::PATH_CONFIG_FILE . '…');
-			$config = $this->profileManager->getProfileConfig($user, $user);
-			$exportDestination->addFileContents(AccountMigrator::PATH_CONFIG_FILE, json_encode($config));
-		} catch (Throwable $e) {
-			throw new AccountMigratorException('Could not export profile config', 0, $e);
-		}
 	}
 
 	/**
@@ -173,7 +153,7 @@ class AccountMigrator implements IMigrator, ISizeEstimationMigrator {
 
 			$output->writeln('Importing avatar from ' . $importPath . '…');
 			$stream = $importSource->getFileAsStream($importPath);
-			$image = new \OCP\Image();
+			$image = new \OC_Image();
 			$image->loadFromFileHandle($stream);
 
 			try {
@@ -184,19 +164,6 @@ class AccountMigrator implements IMigrator, ISizeEstimationMigrator {
 			} catch (Throwable $e) {
 				throw new AccountMigratorException('Failed to import avatar', 0, $e);
 			}
-		}
-
-		try {
-			$output->writeln('Importing profile config from ' . AccountMigrator::PATH_CONFIG_FILE . '…');
-			/** @var array $configData */
-			$configData = json_decode($importSource->getFileContents(AccountMigrator::PATH_CONFIG_FILE), true, 512, JSON_THROW_ON_ERROR);
-			// Ensure that a profile config entry exists in the database
-			$this->profileManager->getProfileConfig($user, $user);
-			$config = $this->configMapper->get($user->getUID());
-			$config->setConfigArray($configData);
-			$this->configMapper->update($config);
-		} catch (Throwable $e) {
-			throw new AccountMigratorException('Failed to import profile config');
 		}
 	}
 

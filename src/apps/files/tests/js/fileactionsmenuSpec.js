@@ -31,6 +31,7 @@ describe('OCA.Files.FileActionsMenu tests', function() {
 	beforeEach(function() {
 		// init horrible parameters
 		var $body = $('#testArea');
+		$body.append('<input type="hidden" id="dir" value="/subdir"></input>');
 		$body.append('<input type="hidden" id="permissions" value="31"></input>');
 		// dummy files table
 		actionStub = sinon.stub();
@@ -38,7 +39,6 @@ describe('OCA.Files.FileActionsMenu tests', function() {
 		fileList = new OCA.Files.FileList($body, {
 			fileActions: fileActions
 		});
-		fileList.changeDirectory('/subdir', false, true);
 
 		fileActions.registerAction({
 			name: 'Testdropdown',
@@ -100,7 +100,7 @@ describe('OCA.Files.FileActionsMenu tests', function() {
 		fileList.destroy();
 		fileList = undefined;
 		menu.remove();
-		$('#permissions, .files-filestable').remove();
+		$('#dir, #permissions, #filestable').remove();
 	});
 
 	describe('rendering', function() {

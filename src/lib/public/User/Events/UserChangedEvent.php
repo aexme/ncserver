@@ -32,10 +32,16 @@ use OCP\IUser;
  * @since 18.0.0
  */
 class UserChangedEvent extends Event {
-	private IUser $user;
-	private string $feature;
+
+	/** @var IUser */
+	private $user;
+
+	/** @var string */
+	private $feature;
+
 	/** @var mixed */
 	private $value;
+
 	/** @var mixed */
 	private $oldValue;
 

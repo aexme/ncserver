@@ -245,7 +245,7 @@
 		 */
 		showAt: function($target) {
 			this.render();
-			OC.showMenu($target, this.$el);
+			OC.showMenu(null, this.$el);
 		}
 	});
 

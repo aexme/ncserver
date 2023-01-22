@@ -45,7 +45,7 @@ abstract class Image extends ProviderV2 {
 			return null;
 		}
 
-		$image = new \OCP\Image();
+		$image = new \OC_Image();
 
 		$fileName = $this->getLocalFile($file);
 

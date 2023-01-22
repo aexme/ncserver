@@ -30,37 +30,52 @@ use OCP\Files\NotPermittedException;
 use OCP\Files\SimpleFS\ISimpleFile;
 
 class SimpleFile implements ISimpleFile {
-	private File $file;
 
+	/** @var File $file */
+	private $file;
+
+	/**
+	 * File constructor.
+	 *
+	 * @param File $file
+	 */
 	public function __construct(File $file) {
 		$this->file = $file;
 	}
 
 	/**
 	 * Get the name
+	 *
+	 * @return string
 	 */
-	public function getName(): string {
+	public function getName() {
 		return $this->file->getName();
 	}
 
 	/**
 	 * Get the size in bytes
+	 *
+	 * @return int
 	 */
-	public function getSize(): int {
+	public function getSize() {
 		return $this->file->getSize();
 	}
 
 	/**
 	 * Get the ETag
+	 *
+	 * @return string
 	 */
-	public function getETag(): string {
+	public function getETag() {
 		return $this->file->getEtag();
 	}
 
 	/**
 	 * Get the last modification time
+	 *
+	 * @return int
 	 */
-	public function getMTime(): int {
+	public function getMTime() {
 		return $this->file->getMTime();
 	}
 
@@ -69,8 +84,9 @@ class SimpleFile implements ISimpleFile {
 	 *
 	 * @throws NotPermittedException
 	 * @throws NotFoundException
+	 * @return string
 	 */
-	public function getContent(): string {
+	public function getContent() {
 		$result = $this->file->getContent();
 
 		if ($result === false) {
@@ -87,9 +103,9 @@ class SimpleFile implements ISimpleFile {
 	 * @throws NotPermittedException
 	 * @throws NotFoundException
 	 */
-	public function putContent($data): void {
+	public function putContent($data) {
 		try {
-			$this->file->putContent($data);
+			return $this->file->putContent($data);
 		} catch (NotFoundException $e) {
 			$this->checkFile();
 		}
@@ -97,7 +113,7 @@ class SimpleFile implements ISimpleFile {
 
 	/**
 	 * Sometimes there are some issues with the AppData. Most of them are from
-	 * user error. But we should handle them gracefully anyway.
+	 * user error. But we should handle them gracefull anyway.
 	 *
 	 * If for some reason the current file can't be found. We remove it.
 	 * Then traverse up and check all folders if they exists. This so that the
@@ -105,7 +121,7 @@ class SimpleFile implements ISimpleFile {
 	 *
 	 * @throws NotFoundException
 	 */
-	private function checkFile(): void {
+	private function checkFile() {
 		$cur = $this->file;
 
 		while ($cur->stat() === false) {
@@ -129,14 +145,16 @@ class SimpleFile implements ISimpleFile {
 	 *
 	 * @throws NotPermittedException
 	 */
-	public function delete(): void {
+	public function delete() {
 		$this->file->delete();
 	}
 
 	/**
 	 * Get the MimeType
+	 *
+	 * @return string
 	 */
-	public function getMimeType(): string {
+	public function getMimeType() {
 		return $this->file->getMimeType();
 	}
 
@@ -161,7 +179,7 @@ class SimpleFile implements ISimpleFile {
 	/**
 	 * Open the file as stream for writing, resulting resource can be operated as stream like the result from php's own fopen
 	 *
-	 * @return resource|false
+	 * @return resource
 	 * @throws \OCP\Files\NotPermittedException
 	 * @since 14.0.0
 	 */

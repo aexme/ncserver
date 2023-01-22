@@ -35,7 +35,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Enforce extends Command {
-	private MandatoryTwoFactor $mandatoryTwoFactor;
+
+	/** @var MandatoryTwoFactor */
+	private $mandatoryTwoFactor;
 
 	public function __construct(MandatoryTwoFactor $mandatoryTwoFactor) {
 		parent::__construct();
@@ -90,6 +92,9 @@ class Enforce extends Command {
 		return 0;
 	}
 
+	/**
+	 * @param OutputInterface $output
+	 */
 	protected function writeEnforced(OutputInterface $output, EnforcementState $state) {
 		if (empty($state->getEnforcedGroups())) {
 			$message = 'Two-factor authentication is enforced for all users';
@@ -102,6 +107,9 @@ class Enforce extends Command {
 		$output->writeln($message);
 	}
 
+	/**
+	 * @param OutputInterface $output
+	 */
 	protected function writeNotEnforced(OutputInterface $output) {
 		$output->writeln('Two-factor authentication is not enforced');
 	}

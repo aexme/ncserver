@@ -69,14 +69,14 @@ abstract class AbstractDatabase {
 	public function validate($config) {
 		$errors = [];
 		if (empty($config['dbuser']) && empty($config['dbname'])) {
-			$errors[] = $this->trans->t("Enter the database username and name for %s", [$this->dbprettyname]);
+			$errors[] = $this->trans->t("%s enter the database username and name.", [$this->dbprettyname]);
 		} elseif (empty($config['dbuser'])) {
-			$errors[] = $this->trans->t("Enter the database username for %s", [$this->dbprettyname]);
+			$errors[] = $this->trans->t("%s enter the database username.", [$this->dbprettyname]);
 		} elseif (empty($config['dbname'])) {
-			$errors[] = $this->trans->t("Enter the database name for %s", [$this->dbprettyname]);
+			$errors[] = $this->trans->t("%s enter the database name.", [$this->dbprettyname]);
 		}
 		if (substr_count($config['dbname'], '.') >= 1) {
-			$errors[] = $this->trans->t("You cannot use dots in the database name %s", [$this->dbprettyname]);
+			$errors[] = $this->trans->t("%s you may not use dots in the database name", [$this->dbprettyname]);
 		}
 		return $errors;
 	}
@@ -141,9 +141,9 @@ abstract class AbstractDatabase {
 	}
 
 	/**
-	 * @param string $username
+	 * @param string $userName
 	 */
-	abstract public function setupDatabase($username);
+	abstract public function setupDatabase($userName);
 
 	public function runMigrations() {
 		if (!is_dir(\OC::$SERVERROOT."/core/Migrations")) {

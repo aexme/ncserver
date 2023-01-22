@@ -43,8 +43,6 @@ use OC\Security\CSRF\CsrfTokenManager;
 class SessionTest extends \Test\TestCase {
 	/** @var ITimeFactory|MockObject */
 	private $timeFactory;
-	/** @var IProvider|MockObject */
-	private $tokenProvider;
 	/** @var IConfig|MockObject */
 	private $config;
 	/** @var Throttler|MockObject */

@@ -41,39 +41,44 @@ interface ISimpleFile {
 	/**
 	 * Get the name
 	 *
+	 * @return string
 	 * @since 11.0.0
 	 */
-	public function getName(): string;
+	public function getName();
 
 	/**
 	 * Get the size in bytes
 	 *
+	 * @return int
 	 * @since 11.0.0
 	 */
-	public function getSize(): int;
+	public function getSize();
 
 	/**
 	 * Get the ETag
 	 *
+	 * @return string
 	 * @since 11.0.0
 	 */
-	public function getETag(): string;
+	public function getETag();
 
 	/**
 	 * Get the last modification time
 	 *
+	 * @return int
 	 * @since 11.0.0
 	 */
-	public function getMTime(): int;
+	public function getMTime();
 
 	/**
 	 * Get the content
 	 *
 	 * @throws NotPermittedException
 	 * @throws NotFoundException
+	 * @return string
 	 * @since 11.0.0
 	 */
-	public function getContent(): string;
+	public function getContent();
 
 	/**
 	 * Overwrite the file
@@ -83,7 +88,7 @@ interface ISimpleFile {
 	 * @throws NotFoundException
 	 * @since 11.0.0
 	 */
-	public function putContent($data): void;
+	public function putContent($data);
 
 	/**
 	 * Delete the file
@@ -91,14 +96,15 @@ interface ISimpleFile {
 	 * @throws NotPermittedException
 	 * @since 11.0.0
 	 */
-	public function delete(): void;
+	public function delete();
 
 	/**
 	 * Get the MimeType
 	 *
+	 * @return string
 	 * @since 11.0.0
 	 */
-	public function getMimeType(): string;
+	public function getMimeType();
 
 	/**
 	 * @since 24.0.0

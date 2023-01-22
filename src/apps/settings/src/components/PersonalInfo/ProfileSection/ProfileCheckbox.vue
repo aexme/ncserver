@@ -22,12 +22,14 @@
 
 <template>
 	<div class="checkbox-container">
-		<NcCheckboxRadioSwitch type="switch"
-			:checked.sync="isProfileEnabled"
-			:loading="loading"
-			@update:checked="saveEnableProfile">
+		<input id="enable-profile"
+			class="checkbox"
+			type="checkbox"
+			:checked="profileEnabled"
+			@change="onEnableProfileChange">
+		<label for="enable-profile">
 			{{ t('settings', 'Enable Profile') }}
-		</NcCheckboxRadioSwitch>
+		</label>
 	</div>
 </template>
 
@@ -35,17 +37,12 @@
 import { showError } from '@nextcloud/dialogs'
 import { emit } from '@nextcloud/event-bus'
 
-import { savePrimaryAccountProperty } from '../../../service/PersonalInfo/PersonalInfoService.js'
-import { ACCOUNT_PROPERTY_ENUM } from '../../../constants/AccountPropertyConstants.js'
-import logger from '../../../logger.js'
-import NcCheckboxRadioSwitch from '@nextcloud/vue/dist/Components/NcCheckboxRadioSwitch.js'
+import { savePrimaryAccountProperty } from '../../../service/PersonalInfo/PersonalInfoService'
+import { validateBoolean } from '../../../utils/validate'
+import { ACCOUNT_PROPERTY_ENUM } from '../../../constants/AccountPropertyConstants'
 
 export default {
 	name: 'ProfileCheckbox',
-
-	components: {
-		NcCheckboxRadioSwitch,
-	},
 
 	props: {
 		profileEnabled: {
@@ -56,18 +53,25 @@ export default {
 
 	data() {
 		return {
-			isProfileEnabled: this.profileEnabled,
-			loading: false,
+			initialProfileEnabled: this.profileEnabled,
 		}
 	},
 
 	methods: {
-		async saveEnableProfile() {
-			this.loading = true
+		async onEnableProfileChange(e) {
+			const isEnabled = e.target.checked
+			this.$emit('update:profile-enabled', isEnabled)
+
+			if (validateBoolean(isEnabled)) {
+				await this.updateEnableProfile(isEnabled)
+			}
+		},
+
+		async updateEnableProfile(isEnabled) {
 			try {
-				const responseData = await savePrimaryAccountProperty(ACCOUNT_PROPERTY_ENUM.PROFILE_ENABLED, this.isProfileEnabled)
+				const responseData = await savePrimaryAccountProperty(ACCOUNT_PROPERTY_ENUM.PROFILE_ENABLED, isEnabled)
 				this.handleResponse({
-					isProfileEnabled: this.isProfileEnabled,
+					isEnabled,
 					status: responseData.ocs?.meta?.status,
 				})
 			} catch (e) {
@@ -78,15 +82,19 @@ export default {
 			}
 		},
 
-		handleResponse({ isProfileEnabled, status, errorMessage, error }) {
+		handleResponse({ isEnabled, status, errorMessage, error }) {
 			if (status === 'ok') {
-				emit('settings:profile-enabled:updated', isProfileEnabled)
+				// Ensure that local state reflects server state
+				this.initialProfileEnabled = isEnabled
+				emit('settings:profile-enabled:updated', isEnabled)
 			} else {
 				showError(errorMessage)
-				logger.error(errorMessage, error)
+				this.logger.error(errorMessage, error)
 			}
-			this.loading = false
 		},
 	},
 }
 </script>
+
+<style lang="scss" scoped>
+</style>

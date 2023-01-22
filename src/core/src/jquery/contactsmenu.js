@@ -25,7 +25,6 @@
 import $ from 'jquery'
 
 import OC from '../OC'
-import { isA11yActivation } from '../Util/a11y.js'
 
 const LIST = ''
 	+ '<div class="menu popovermenu menu-left hidden contactsmenu-popover">'
@@ -51,11 +50,7 @@ $.fn.contactsMenu = function(shareWith, shareType, appendTo) {
 	appendTo.append(LIST)
 	const $list = appendTo.find('div.contactsmenu-popover')
 
-	$div.on('click keydown', function(event) {
-		if (!isA11yActivation(event)) {
-			return
-		}
-
+	$div.click(function() {
 		if (!$list.hasClass('hidden')) {
 			$list.addClass('hidden')
 			$list.hide()

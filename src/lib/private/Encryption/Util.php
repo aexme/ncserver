@@ -32,12 +32,12 @@ use OC\Encryption\Exceptions\EncryptionHeaderToLargeException;
 use OC\Encryption\Exceptions\ModuleDoesNotExistsException;
 use OC\Files\Filesystem;
 use OC\Files\View;
+use OCA\Files_External\Lib\StorageConfig;
+use OCA\Files_External\Service\GlobalStoragesService;
+use OCA\GroupFolders\Mount\GroupMountPoint;
 use OCP\Encryption\IEncryptionModule;
-use OCP\Files\Mount\ISystemMountPoint;
 use OCP\IConfig;
-use OCP\IGroupManager;
 use OCP\IUser;
-use OCP\IUserManager;
 
 class Util {
 	public const HEADER_START = 'HBEGIN';
@@ -66,23 +66,29 @@ class Util {
 	/** @var array */
 	protected $ocHeaderKeys;
 
+	/** @var \OC\User\Manager */
+	protected $userManager;
+
 	/** @var IConfig */
 	protected $config;
 
 	/** @var array paths excluded from encryption */
 	protected $excludedPaths;
-	protected IGroupManager $groupManager;
-	protected IUserManager $userManager;
+
+	/** @var \OC\Group\Manager $manager */
+	protected $groupManager;
 
 	/**
 	 *
 	 * @param View $rootView
+	 * @param \OC\User\Manager $userManager
+	 * @param \OC\Group\Manager $groupManager
 	 * @param IConfig $config
 	 */
 	public function __construct(
 		View $rootView,
-		IUserManager $userManager,
-		IGroupManager $groupManager,
+		\OC\User\Manager $userManager,
+		\OC\Group\Manager $groupManager,
 		IConfig $config) {
 		$this->ocHeaderKeys = [
 			self::HEADER_ENCRYPTION_MODULE_KEY
@@ -215,7 +221,7 @@ class Util {
 	 * get the owner and the path for the file relative to the owners files folder
 	 *
 	 * @param string $path
-	 * @return array{0: string, 1: string}
+	 * @return array
 	 * @throws \BadMethodCallException
 	 */
 	public function getUidAndFilename($path) {
@@ -270,7 +276,7 @@ class Util {
 		} else {
 			$result = array_merge($result, $users);
 
-			$groupManager = $this->groupManager;
+			$groupManager = \OC::$server->getGroupManager();
 			foreach ($groups as $group) {
 				$groupObject = $groupManager->get($group);
 				if ($groupObject) {
@@ -293,9 +299,54 @@ class Util {
 	 * @param string $uid
 	 * @return boolean
 	 */
-	public function isSystemWideMountPoint(string $path, string $uid) {
+	public function isSystemWideMountPoint($path, $uid) {
 		$mount = Filesystem::getMountManager()->find('/' . $uid . $path);
-		return $mount instanceof ISystemMountPoint;
+
+		/**
+		 * @psalm-suppress UndefinedClass
+		 */
+		if ($mount instanceof GroupMountPoint) {
+			return true;
+		}
+
+		if (\OCP\App::isEnabled("files_external")) {
+			/** @var GlobalStoragesService $storageService */
+			$storageService = \OC::$server->get(GlobalStoragesService::class);
+			$storages = $storageService->getAllStorages();
+			foreach ($storages as $storage) {
+				if (strpos($path, '/files/' . ltrim($storage->getMountPoint(), '/')) === 0) {
+					if ($this->isMountPointApplicableToUser($storage, $uid)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * check if mount point is applicable to user
+	 *
+	 * @param StorageConfig $mount
+	 * @param string $uid
+	 * @return boolean
+	 */
+	private function isMountPointApplicableToUser(StorageConfig $mount, string $uid) {
+		if ($mount->getApplicableUsers() === [] && $mount->getApplicableGroups() === []) {
+			// applicable for everyone
+			return true;
+		}
+		// check if mount point is applicable for the user
+		if (array_search($uid, $mount->getApplicableUsers()) !== false) {
+			return true;
+		}
+		// check if mount point is applicable for group where the user is a member
+		foreach ($mount->getApplicableGroups() as $gid) {
+			if ($this->groupManager->isInGroup($uid, $gid)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -336,29 +387,32 @@ class Util {
 	}
 
 	/**
-	 * Check if recovery key is enabled for user
+	 * check if recovery key is enabled for user
+	 *
+	 * @param string $uid
+	 * @return boolean
 	 */
-	public function recoveryEnabled(string $uid): bool {
+	public function recoveryEnabled($uid) {
 		$enabled = $this->config->getUserValue($uid, 'encryption', 'recovery_enabled', '0');
 
 		return $enabled === '1';
 	}
 
 	/**
-	 * Set new key storage root
+	 * set new key storage root
 	 *
 	 * @param string $root new key store root relative to the data folder
 	 */
-	public function setKeyStorageRoot(string $root): void {
+	public function setKeyStorageRoot($root) {
 		$this->config->setAppValue('core', 'encryption_key_storage_root', $root);
 	}
 
 	/**
-	 * Get key storage root
+	 * get key storage root
 	 *
 	 * @return string key storage root
 	 */
-	public function getKeyStorageRoot(): string {
+	public function getKeyStorageRoot() {
 		return $this->config->getAppValue('core', 'encryption_key_storage_root', '');
 	}
 }

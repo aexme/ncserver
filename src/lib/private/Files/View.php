@@ -49,7 +49,9 @@ namespace OC\Files;
 use Icewind\Streams\CallbackWrapper;
 use OC\Files\Mount\MoveableMount;
 use OC\Files\Storage\Storage;
+use OC\User\DisplayNameCache;
 use OC\User\LazyUser;
+use OC\User\User;
 use OCA\Files_Sharing\SharedMount;
 use OCP\Constants;
 use OCP\Files\Cache\ICacheEntry;
@@ -62,10 +64,10 @@ use OCP\Files\Mount\IMountPoint;
 use OCP\Files\NotFoundException;
 use OCP\Files\ReservedWordException;
 use OCP\Files\Storage\IStorage;
+use OCP\ILogger;
 use OCP\IUser;
 use OCP\Lock\ILockingProvider;
 use OCP\Lock\LockedException;
-use Psr\Log\LoggerInterface;
 
 /**
  * Class to provide access to ownCloud filesystem via a "view", and methods for
@@ -99,7 +101,10 @@ class View {
 	/** @var \OC\User\Manager */
 	private $userManager;
 
-	private LoggerInterface $logger;
+	/** @var \OCP\ILogger */
+	private $logger;
+
+	private DisplayNameCache $displayNameCache;
 
 	/**
 	 * @param string $root
@@ -117,7 +122,8 @@ class View {
 		$this->lockingProvider = \OC::$server->getLockingProvider();
 		$this->lockingEnabled = !($this->lockingProvider instanceof \OC\Lock\NoopLockingProvider);
 		$this->userManager = \OC::$server->getUserManager();
-		$this->logger = \OC::$server->get(LoggerInterface::class);
+		$this->displayNameCache = \OC::$server->get(DisplayNameCache::class);
+		$this->logger = \OC::$server->getLogger();
 	}
 
 	public function getAbsolutePath($path = '/') {
@@ -573,7 +579,7 @@ class View {
 		try {
 			$result = $this->basicOperation('touch', $path, $hooks, $mtime);
 		} catch (\Exception $e) {
-			$this->logger->info('Error while setting modified time', ['app' => 'core', 'exception' => $e]);
+			$this->logger->logException($e, ['level' => ILogger::INFO, 'message' => 'Error while setting modified time']);
 			$result = false;
 		}
 		if (!$result) {
@@ -994,11 +1000,11 @@ class View {
 				$hooks[] = 'write';
 				break;
 			default:
-				$this->logger->error('invalid mode (' . $mode . ') for ' . $path, ['app' => 'core']);
+				\OCP\Util::writeLog('core', 'invalid mode (' . $mode . ') for ' . $path, ILogger::ERROR);
 		}
 
 		if ($mode !== 'r' && $mode !== 'w') {
-			$this->logger->info('Trying to open a file with a mode other than "r" or "w" can cause severe performance issues with some backends', ['app' => 'core']);
+			\OC::$server->getLogger()->info('Trying to open a file with a mode other than "r" or "w" can cause severe performance issues with some backends');
 		}
 
 		$handle = $this->basicOperation('fopen', $path, $hooks, $mode);
@@ -1169,7 +1175,7 @@ class View {
 					try {
 						$this->changeLock($path, ILockingProvider::LOCK_EXCLUSIVE);
 					} catch (LockedException $e) {
-						// release the shared lock we acquired before quitting
+						// release the shared lock we acquired before quiting
 						$this->unlockFile($path, ILockingProvider::LOCK_SHARED);
 						throw $e;
 					}
@@ -1324,7 +1330,7 @@ class View {
 	 * @return IUser
 	 */
 	private function getUserObjectForOwner(string $ownerId) {
-		return new LazyUser($ownerId, $this->userManager);
+		return new LazyUser($ownerId, $this->displayNameCache, $this->userManager);
 	}
 
 	/**
@@ -1422,7 +1428,7 @@ class View {
 
 			return $info;
 		} else {
-			$this->logger->warning('Storage not valid for mountpoint: ' . $mount->getMountPoint(), ['app' => 'core']);
+			\OC::$server->getLogger()->warning('Storage not valid for mountpoint: ' . $mount->getMountPoint());
 		}
 
 		return false;
@@ -1506,9 +1512,10 @@ class View {
 						continue;
 					} catch (\Exception $e) {
 						// sometimes when the storage is not available it can be any exception
-						$this->logger->error('Exception while scanning storage "' . $subStorage->getId() . '"', [
-							'exception' => $e,
-							'app' => 'core',
+						\OC::$server->getLogger()->logException($e, [
+							'message' => 'Exception while scanning storage "' . $subStorage->getId() . '"',
+							'level' => ILogger::ERROR,
+							'app' => 'lib',
 						]);
 						continue;
 					}
@@ -1730,7 +1737,7 @@ class View {
 	/**
 	 * Get the path of a file by id, relative to the view
 	 *
-	 * Note that the resulting path is not guaranteed to be unique for the id, multiple paths can point to the same file
+	 * Note that the resulting path is not guarantied to be unique for the id, multiple paths can point to the same file
 	 *
 	 * @param int $id
 	 * @param int|null $storageId
@@ -1819,9 +1826,9 @@ class View {
 		);
 
 		if (count($shares) > 0) {
-			$this->logger->debug(
+			\OCP\Util::writeLog('files',
 				'It is not allowed to move one mount point into a shared folder',
-				['app' => 'files']);
+				ILogger::DEBUG);
 			return false;
 		}
 
@@ -2149,9 +2156,9 @@ class View {
 		// "$user", "files", "path/to/dir"
 		if (!isset($parts[1]) || $parts[1] !== 'files') {
 			$this->logger->error(
-				'$absolutePath must be relative to "files", value is "{absolutePath}"',
+				'$absolutePath must be relative to "files", value is "%s"',
 				[
-					'absolutePath' => $absolutePath,
+					$absolutePath
 				]
 			);
 			throw new \InvalidArgumentException('$absolutePath must be relative to "files"');

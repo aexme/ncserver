@@ -1,9 +1,4 @@
-<?php
-// SPDX-FileCopyrightText: 2020 Christoph Wurst <christoph@winzerhof-wurst.at>
-// SPDX-FileCopyrightText: 2022 Carl Schwan <carl@carlschwan.eu>
-// SPDX-License-Identifier: AGPL-3.0-or-later
-?>
-<div class="guest-box">
-	<div class="icon icon-checkmark"></div>
+<div class="update" style="justify-content: space-around; display: flex;">
+	<span class="icon icon-checkmark-white"></span>
 	<p class="message"><?php p($l->t('Your attendance was updated successfully.'));?></p>
 </div>

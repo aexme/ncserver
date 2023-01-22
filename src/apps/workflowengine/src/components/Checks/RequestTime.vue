@@ -12,7 +12,7 @@
 		<p v-if="!valid" class="invalid-hint">
 			{{ t('workflowengine', 'Please enter a valid time span') }}
 		</p>
-		<NcMultiselect v-show="valid"
+		<Multiselect v-show="valid"
 			v-model="newValue.timezone"
 			:options="timezones"
 			@input="update" />
@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import NcMultiselect from '@nextcloud/vue/dist/Components/NcMultiselect'
+import Multiselect from '@nextcloud/vue/dist/Components/Multiselect'
 import moment from 'moment-timezone'
 import valueMixin from '../../mixins/valueMixin'
 
@@ -28,7 +28,7 @@ const zones = moment.tz.names()
 export default {
 	name: 'RequestTime',
 	components: {
-		NcMultiselect,
+		Multiselect,
 	},
 	mixins: [
 		valueMixin,

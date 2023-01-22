@@ -174,17 +174,8 @@ trait Avatar {
 	public function lastAvatarIsASquareOfSize(string $size) {
 		[$width, $height] = getimagesizefromstring($this->lastAvatar);
 
-		Assert::assertEquals($width, $height, 'Expected avatar to be a square');
+		Assert::assertEquals($width, $height, 'Avatar is not a square');
 		Assert::assertEquals($size, $width);
-	}
-
-	/**
-	 * @Then last avatar is not a square
-	 */
-	public function lastAvatarIsNotASquare() {
-		[$width, $height] = getimagesizefromstring($this->lastAvatar);
-
-		Assert::assertNotEquals($width, $height, 'Expected avatar to not be a square');
 	}
 
 	/**

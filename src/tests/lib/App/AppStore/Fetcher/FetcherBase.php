@@ -76,20 +76,22 @@ abstract class FetcherBase extends TestCase {
 
 	public function testGetWithAlreadyExistingFileAndUpToDateTimestampAndVersion() {
 		$this->config
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getSystemValueBool')
 			->with('appstoreenabled', true)
 			->willReturn(true);
 		$this->config
-			->expects($this->exactly(2))
+			->expects($this->at(1))
 			->method('getSystemValue')
-			->withConsecutive(
-				['has_internet_connection', true],
-				[$this->equalTo('version'), $this->anything()],
-			)->willReturnOnConsecutiveCalls(
-				true,
-				'11.0.0.2',
-			);
+			->with('has_internet_connection', true)
+			->willReturn(true);
+		$this->config
+			->expects($this->at(2))
+			->method('getSystemValue')
+			->with(
+				$this->equalTo('version'),
+				$this->anything()
+			)->willReturn('11.0.0.2');
 
 		$folder = $this->createMock(ISimpleFolder::class);
 		$file = $this->createMock(ISimpleFile::class);
@@ -146,12 +148,12 @@ abstract class FetcherBase extends TestCase {
 			->with('/')
 			->willReturn($folder);
 		$folder
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getFile')
 			->with($this->fileName)
 			->willThrowException(new NotFoundException());
 		$folder
-			->expects($this->once())
+			->expects($this->at(1))
 			->method('newFile')
 			->with($this->fileName)
 			->willReturn($file);
@@ -175,15 +177,15 @@ abstract class FetcherBase extends TestCase {
 			->willReturn('"myETag"');
 		$fileData = '{"data":[{"id":"MyNewApp","foo":"foo"},{"id":"bar"}],"timestamp":1502,"ncversion":"11.0.0.2","ETag":"\"myETag\""}';
 		$file
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('putContent')
 			->with($fileData);
 		$file
-			->expects($this->once())
+			->expects($this->at(1))
 			->method('getContent')
 			->willReturn($fileData);
 		$this->timeFactory
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getTime')
 			->willReturn(1502);
 
@@ -225,25 +227,14 @@ abstract class FetcherBase extends TestCase {
 			->method('getFile')
 			->with($this->fileName)
 			->willReturn($file);
-		$fileData = '{"data":[{"id":"MyNewApp","foo":"foo"},{"id":"bar"}],"timestamp":1502,"ncversion":"11.0.0.2","ETag":"\"myETag\""}';
 		$file
-			->expects($this->once())
-			->method('putContent')
-			->with($fileData);
-		$file
-			->expects($this->exactly(2))
+			->expects($this->at(0))
 			->method('getContent')
-			->willReturnOnConsecutiveCalls(
-				'{"timestamp":1200,"data":{"MyApp":{"id":"MyApp"}},"ncversion":"11.0.0.2"}',
-				$fileData
-			);
+			->willReturn('{"timestamp":1200,"data":{"MyApp":{"id":"MyApp"}},"ncversion":"11.0.0.2"}');
 		$this->timeFactory
-			->expects($this->exactly(2))
+			->expects($this->at(0))
 			->method('getTime')
-			->willReturnOnConsecutiveCalls(
-				4801,
-				1502
-			);
+			->willReturn(4801);
 		$client = $this->createMock(IClient::class);
 		$this->clientService
 			->expects($this->once())
@@ -262,6 +253,19 @@ abstract class FetcherBase extends TestCase {
 		$response->method('getHeader')
 			->with($this->equalTo('ETag'))
 			->willReturn('"myETag"');
+		$fileData = '{"data":[{"id":"MyNewApp","foo":"foo"},{"id":"bar"}],"timestamp":1502,"ncversion":"11.0.0.2","ETag":"\"myETag\""}';
+		$file
+			->expects($this->at(1))
+			->method('putContent')
+			->with($fileData);
+		$file
+			->expects($this->at(2))
+			->method('getContent')
+			->willReturn($fileData);
+		$this->timeFactory
+			->expects($this->at(1))
+			->method('getTime')
+			->willReturn(1502);
 
 		$expected = [
 			[
@@ -305,20 +309,12 @@ abstract class FetcherBase extends TestCase {
 			->method('getFile')
 			->with($this->fileName)
 			->willReturn($file);
-		$fileData = '{"data":[{"id":"MyNewApp","foo":"foo"},{"id":"bar"}],"timestamp":1201,"ncversion":"11.0.0.2","ETag":"\"myETag\""}';
 		$file
-			->expects($this->once())
-			->method('putContent')
-			->with($fileData);
-		$file
-			->expects($this->exactly(2))
+			->expects($this->at(0))
 			->method('getContent')
-			->willReturnOnConsecutiveCalls(
-				'{"timestamp":1200,"data":{"MyApp":{"id":"MyApp"}}',
-				$fileData
-			);
+			->willReturn('{"timestamp":1200,"data":{"MyApp":{"id":"MyApp"}}');
 		$this->timeFactory
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getTime')
 			->willReturn(1201);
 		$client = $this->createMock(IClient::class);
@@ -339,6 +335,15 @@ abstract class FetcherBase extends TestCase {
 		$response->method('getHeader')
 			->with($this->equalTo('ETag'))
 			->willReturn('"myETag"');
+		$fileData = '{"data":[{"id":"MyNewApp","foo":"foo"},{"id":"bar"}],"timestamp":1201,"ncversion":"11.0.0.2","ETag":"\"myETag\""}';
+		$file
+			->expects($this->at(1))
+			->method('putContent')
+			->with($fileData);
+		$file
+			->expects($this->at(2))
+			->method('getContent')
+			->willReturn($fileData);
 
 		$expected = [
 			[
@@ -382,18 +387,10 @@ abstract class FetcherBase extends TestCase {
 			->method('getFile')
 			->with($this->fileName)
 			->willReturn($file);
-		$fileData = '{"data":[{"id":"MyNewApp","foo":"foo"},{"id":"bar"}],"timestamp":1201,"ncversion":"11.0.0.2","ETag":"\"myETag\""}';
 		$file
-			->expects($this->once())
-			->method('putContent')
-			->with($fileData);
-		$file
-			->expects($this->exactly(2))
+			->expects($this->at(0))
 			->method('getContent')
-			->willReturnOnConsecutiveCalls(
-				'{"timestamp":1200,"data":{"MyApp":{"id":"MyApp"}},"ncversion":"11.0.0.1"',
-				$fileData
-			);
+			->willReturn('{"timestamp":1200,"data":{"MyApp":{"id":"MyApp"}},"ncversion":"11.0.0.1"');
 		$this->timeFactory
 			->method('getTime')
 			->willReturn(1201);
@@ -415,6 +412,15 @@ abstract class FetcherBase extends TestCase {
 		$response->method('getHeader')
 			->with($this->equalTo('ETag'))
 			->willReturn('"myETag"');
+		$fileData = '{"data":[{"id":"MyNewApp","foo":"foo"},{"id":"bar"}],"timestamp":1201,"ncversion":"11.0.0.2","ETag":"\"myETag\""}';
+		$file
+			->expects($this->at(1))
+			->method('putContent')
+			->with($fileData);
+		$file
+			->expects($this->at(2))
+			->method('getContent')
+			->willReturn($fileData);
 
 		$expected = [
 			[
@@ -451,7 +457,7 @@ abstract class FetcherBase extends TestCase {
 			->with($this->fileName)
 			->willReturn($file);
 		$file
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getContent')
 			->willReturn('{"timestamp":1200,"data":{"MyApp":{"id":"MyApp"}}}');
 		$client = $this->createMock(IClient::class);
@@ -495,26 +501,18 @@ abstract class FetcherBase extends TestCase {
 			->with($this->fileName)
 			->willReturn($file);
 		$origData = '{"data":[{"id":"MyNewApp","foo":"foo"},{"id":"bar"}],"timestamp":1200,"ncversion":"11.0.0.2","ETag":"\"myETag\""}';
-
-		$newData = '{"data":[{"id":"MyNewApp","foo":"foo"},{"id":"bar"}],"timestamp":4802,"ncversion":"11.0.0.2","ETag":"\"myETag\""}';
 		$file
-			->expects($this->once())
-			->method('putContent')
-			->with($newData);
-		$file
-			->expects($this->exactly(2))
+			->expects($this->at(0))
 			->method('getContent')
-			->willReturnOnConsecutiveCalls(
-				$origData,
-				$newData,
-			);
+			->willReturn($origData);
 		$this->timeFactory
-			->expects($this->exactly(2))
+			->expects($this->at(0))
 			->method('getTime')
-			->willReturnOnConsecutiveCalls(
-				4801,
-				4802
-			);
+			->willReturn(4801);
+		$this->timeFactory
+			->expects($this->at(1))
+			->method('getTime')
+			->willReturn(4802);
 		$client = $this->createMock(IClient::class);
 		$this->clientService
 			->expects($this->once())
@@ -535,6 +533,16 @@ abstract class FetcherBase extends TestCase {
 			)->willReturn($response);
 		$response->method('getStatusCode')
 			->willReturn(304);
+
+		$newData = '{"data":[{"id":"MyNewApp","foo":"foo"},{"id":"bar"}],"timestamp":4802,"ncversion":"11.0.0.2","ETag":"\"myETag\""}';
+		$file
+			->expects($this->at(1))
+			->method('putContent')
+			->with($newData);
+		$file
+			->expects($this->at(2))
+			->method('getContent')
+			->willReturn($newData);
 
 		$expected = [
 			[
@@ -571,29 +579,14 @@ abstract class FetcherBase extends TestCase {
 			->with('/')
 			->willReturn($folder);
 		$folder
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getFile')
 			->with($this->fileName)
 			->willReturn($file);
-		$fileData = '{"data":[{"id":"MyNewApp","foo":"foo"},{"id":"bar"}],"timestamp":4802,"ncversion":"11.0.0.2","ETag":"\"newETag\""}';
 		$file
-			->expects($this->once())
-			->method('putContent')
-			->with($fileData);
-		$file
-			->expects($this->exactly(2))
+			->expects($this->at(0))
 			->method('getContent')
-			->willReturnOnConsecutiveCalls(
-				'{"data":[{"id":"MyOldApp","abc":"def"}],"timestamp":1200,"ncversion":"11.0.0.2","ETag":"\"myETag\""}',
-				$fileData,
-			);
-		$this->timeFactory
-			->expects($this->exactly(2))
-			->method('getTime')
-			->willReturnOnConsecutiveCalls(
-				4801,
-				4802,
-			);
+			->willReturn('{"data":[{"id":"MyOldApp","abc":"def"}],"timestamp":1200,"ncversion":"11.0.0.2","ETag":"\"myETag\""}');
 		$client = $this->createMock(IClient::class);
 		$this->clientService
 			->expects($this->once())
@@ -622,6 +615,23 @@ abstract class FetcherBase extends TestCase {
 		$response->method('getHeader')
 			->with($this->equalTo('ETag'))
 			->willReturn('"newETag"');
+		$fileData = '{"data":[{"id":"MyNewApp","foo":"foo"},{"id":"bar"}],"timestamp":4802,"ncversion":"11.0.0.2","ETag":"\"newETag\""}';
+		$file
+			->expects($this->at(1))
+			->method('putContent')
+			->with($fileData);
+		$file
+			->expects($this->at(2))
+			->method('getContent')
+			->willReturn($fileData);
+		$this->timeFactory
+			->expects($this->at(0))
+			->method('getTime')
+			->willReturn(4801);
+		$this->timeFactory
+			->expects($this->at(1))
+			->method('getTime')
+			->willReturn(4802);
 
 		$expected = [
 			[
@@ -658,22 +668,14 @@ abstract class FetcherBase extends TestCase {
 			->with('/')
 			->willReturn($folder);
 		$folder
-			->expects($this->once())
+			->expects($this->at(0))
 			->method('getFile')
 			->with($this->fileName)
 			->willReturn($file);
-		$fileData = '{"data":[{"id":"MyNewApp","foo":"foo"},{"id":"bar"}],"timestamp":1501,"ncversion":"11.0.0.3","ETag":"\"newETag\""}';
 		$file
-			->expects($this->once())
-			->method('putContent')
-			->with($fileData);
-		$file
-			->expects($this->exactly(2))
+			->expects($this->at(0))
 			->method('getContent')
-			->willReturnOnConsecutiveCalls(
-				'{"data":[{"id":"MyOldApp","abc":"def"}],"timestamp":1200,"ncversion":"11.0.0.2","ETag":"\"myETag\""}',
-				$fileData
-			);
+			->willReturn('{"data":[{"id":"MyOldApp","abc":"def"}],"timestamp":1200,"ncversion":"11.0.0.2","ETag":"\"myETag\""}');
 		$client = $this->createMock(IClient::class);
 		$this->clientService
 			->expects($this->once())
@@ -699,6 +701,15 @@ abstract class FetcherBase extends TestCase {
 		$response->method('getHeader')
 			->with($this->equalTo('ETag'))
 			->willReturn('"newETag"');
+		$fileData = '{"data":[{"id":"MyNewApp","foo":"foo"},{"id":"bar"}],"timestamp":1501,"ncversion":"11.0.0.3","ETag":"\"newETag\""}';
+		$file
+			->expects($this->at(1))
+			->method('putContent')
+			->with($fileData);
+		$file
+			->expects($this->at(2))
+			->method('getContent')
+			->willReturn($fileData);
 		$this->timeFactory
 			->expects($this->once())
 			->method('getTime')

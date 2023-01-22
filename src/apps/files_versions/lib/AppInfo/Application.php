@@ -38,7 +38,6 @@ use OCA\Files_Versions\Listener\LoadAdditionalListener;
 use OCA\Files_Versions\Listener\LoadSidebarListener;
 use OCA\Files_Versions\Versions\IVersionManager;
 use OCA\Files_Versions\Versions\VersionManager;
-use OCP\Accounts\IAccountManager;
 use OCP\App\IAppManager;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -76,7 +75,6 @@ class Application extends App implements IBootstrap {
 			return new Principal(
 				$server->get(IUserManager::class),
 				$server->get(IGroupManager::class),
-				\OC::$server->get(IAccountManager::class),
 				$server->get(IShareManager::class),
 				$server->get(IUserSession::class),
 				$server->get(IAppManager::class),

@@ -32,8 +32,15 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class SetConfig extends Base {
+	/** * @var SystemConfig */
+	protected $systemConfig;
+
+	/**
+	 * @param SystemConfig $systemConfig
+	 */
 	public function __construct(SystemConfig $systemConfig) {
-		parent::__construct($systemConfig);
+		parent::__construct();
+		$this->systemConfig = $systemConfig;
 	}
 
 	protected function configure() {

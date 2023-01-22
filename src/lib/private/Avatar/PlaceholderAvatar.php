@@ -44,8 +44,11 @@ use Psr\Log\LoggerInterface;
  * for faster retrieval, unlike the GuestAvatar.
  */
 class PlaceholderAvatar extends Avatar {
-	private ISimpleFolder $folder;
-	private User $user;
+	/** @var ISimpleFolder */
+	private $folder;
+
+	/** @var User */
+	private $user;
 
 	/**
 	 * UserAvatar constructor.
@@ -68,8 +71,10 @@ class PlaceholderAvatar extends Avatar {
 
 	/**
 	 * Check if an avatar exists for the user
+	 *
+	 * @return bool
 	 */
-	public function exists(): bool {
+	public function exists() {
 		return true;
 	}
 
@@ -82,14 +87,14 @@ class PlaceholderAvatar extends Avatar {
 	 * @throws NotSquareException if the image is not square
 	 * @return void
 	 */
-	public function set($data): void {
+	public function set($data) {
 		// unimplemented for placeholder avatars
 	}
 
 	/**
 	 * Removes the users avatar.
 	 */
-	public function remove(bool $silent = false): void {
+	public function remove(bool $silent = false) {
 		$avatars = $this->folder->getDirectoryListing();
 
 		foreach ($avatars as $avatar) {
@@ -108,13 +113,15 @@ class PlaceholderAvatar extends Avatar {
 	 * @throws \OCP\Files\NotPermittedException
 	 * @throws \OCP\PreConditionNotMetException
 	 */
-	public function getFile(int $size, bool $darkTheme = false): ISimpleFile {
+	public function getFile($size) {
+		$size = (int) $size;
+
 		$ext = 'png';
 
 		if ($size === -1) {
-			$path = 'avatar-placeholder' . ($darkTheme ? '-dark' : '') . '.' . $ext;
+			$path = 'avatar-placeholder.' . $ext;
 		} else {
-			$path = 'avatar-placeholder' . ($darkTheme ? '-dark' : '') . '.' . $size . '.' . $ext;
+			$path = 'avatar-placeholder.' . $size . '.' . $ext;
 		}
 
 		try {
@@ -124,8 +131,8 @@ class PlaceholderAvatar extends Avatar {
 				throw new NotFoundException;
 			}
 
-			if (!$data = $this->generateAvatarFromSvg($size, $darkTheme)) {
-				$data = $this->generateAvatar($this->getDisplayName(), $size, $darkTheme);
+			if (!$data = $this->generateAvatarFromSvg($size)) {
+				$data = $this->generateAvatar($this->getDisplayName(), $size);
 			}
 
 			try {
@@ -142,6 +149,8 @@ class PlaceholderAvatar extends Avatar {
 
 	/**
 	 * Returns the user display name.
+	 *
+	 * @return string
 	 */
 	public function getDisplayName(): string {
 		return $this->user->getDisplayName();
@@ -156,12 +165,14 @@ class PlaceholderAvatar extends Avatar {
 	 * @throws NotPermittedException
 	 * @throws \OCP\PreConditionNotMetException
 	 */
-	public function userChanged(string $feature, $oldValue, $newValue): void {
+	public function userChanged($feature, $oldValue, $newValue) {
 		$this->remove();
 	}
 
 	/**
 	 * Check if the avatar of a user is a custom uploaded one
+	 *
+	 * @return bool
 	 */
 	public function isCustomAvatar(): bool {
 		return false;

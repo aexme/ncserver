@@ -27,8 +27,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Disable extends Command {
-	protected IConfig $config;
+	/** @var IConfig */
+	protected $config;
 
+	/**
+	 * @param IConfig $config
+	 */
 	public function __construct(IConfig $config) {
 		parent::__construct();
 		$this->config = $config;

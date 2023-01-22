@@ -192,16 +192,15 @@ class SettingsControllerTest extends TestCase {
 			->method('get')->with('loginname')->willReturn('testUser');
 
 		$this->userManagerMock
-			->expects($this->exactly(2))
+			->expects($this->at(0))
 			->method('checkPassword')
-			->withConsecutive(
-				['testUserUid', 'new'],
-				['testUser', 'new'],
-			)
-			->willReturnOnConsecutiveCalls(
-				false,
-				true,
-			);
+			->with('testUserUid', 'new')
+			->willReturn(false);
+		$this->userManagerMock
+			->expects($this->at(1))
+			->method('checkPassword')
+			->with('testUser', 'new')
+			->willReturn(true);
 
 
 

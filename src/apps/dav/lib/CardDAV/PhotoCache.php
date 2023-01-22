@@ -34,12 +34,12 @@ use OCP\Files\NotFoundException;
 use OCP\Files\NotPermittedException;
 use OCP\Files\SimpleFS\ISimpleFile;
 use OCP\Files\SimpleFS\ISimpleFolder;
+use OCP\ILogger;
 use Sabre\CardDAV\Card;
 use Sabre\VObject\Document;
 use Sabre\VObject\Parameter;
 use Sabre\VObject\Property\Binary;
 use Sabre\VObject\Reader;
-use Psr\Log\LoggerInterface;
 
 class PhotoCache {
 
@@ -51,21 +51,33 @@ class PhotoCache {
 		'image/vnd.microsoft.icon' => 'ico',
 	];
 
-	protected IAppData $appData;
-	protected LoggerInterface $logger;
+	/** @var IAppData */
+	protected $appData;
+
+	/** @var ILogger */
+	protected $logger;
 
 	/**
 	 * PhotoCache constructor.
+	 *
+	 * @param IAppData $appData
+	 * @param ILogger $logger
 	 */
-	public function __construct(IAppData $appData, LoggerInterface $logger) {
+	public function __construct(IAppData $appData, ILogger $logger) {
 		$this->appData = $appData;
 		$this->logger = $logger;
 	}
 
 	/**
+	 * @param int $addressBookId
+	 * @param string $cardUri
+	 * @param int $size
+	 * @param Card $card
+	 *
+	 * @return ISimpleFile
 	 * @throws NotFoundException
 	 */
-	public function get(int $addressBookId, string $cardUri, int $size, Card $card): ISimpleFile {
+	public function get($addressBookId, $cardUri, $size, Card $card) {
 		$folder = $this->getFolder($addressBookId, $cardUri);
 
 		if ($this->isEmpty($folder)) {
@@ -83,11 +95,17 @@ class PhotoCache {
 		return $this->getFile($folder, $size);
 	}
 
-	private function isEmpty(ISimpleFolder $folder): bool {
+	/**
+	 * @param ISimpleFolder $folder
+	 * @return bool
+	 */
+	private function isEmpty(ISimpleFolder $folder) {
 		return $folder->getDirectoryListing() === [];
 	}
 
 	/**
+	 * @param ISimpleFolder $folder
+	 * @param Card $card
 	 * @throws NotPermittedException
 	 */
 	private function init(ISimpleFolder $folder, Card $card): void {
@@ -110,14 +128,11 @@ class PhotoCache {
 		$file->putContent($data['body']);
 	}
 
-	private function hasPhoto(ISimpleFolder $folder): bool {
+	private function hasPhoto(ISimpleFolder $folder) {
 		return !$folder->fileExists('nophoto');
 	}
 
-	/**
-	 * @param float|-1 $size
-	 */
-	private function getFile(ISimpleFolder $folder, $size): ISimpleFile {
+	private function getFile(ISimpleFolder $folder, $size) {
 		$ext = $this->getExtension($folder);
 
 		if ($size === -1) {
@@ -133,7 +148,7 @@ class PhotoCache {
 				throw new NotFoundException;
 			}
 
-			$photo = new \OCP\Image();
+			$photo = new \OC_Image();
 			/** @var ISimpleFile $file */
 			$file = $folder->getFile('photo.' . $ext);
 			$photo->loadFromData($file->getContent());
@@ -178,6 +193,8 @@ class PhotoCache {
 	/**
 	 * Get the extension of the avatar. If there is no avatar throw Exception
 	 *
+	 * @param ISimpleFolder $folder
+	 * @return string
 	 * @throws NotFoundException
 	 */
 	private function getExtension(ISimpleFolder $folder): string {
@@ -192,22 +209,23 @@ class PhotoCache {
 
 	/**
 	 * @param Card $node
-	 * @return false|array{body: string, Content-Type: string}
+	 * @return bool|array{body: string, Content-Type: string}
 	 */
 	private function getPhoto(Card $node) {
 		try {
 			$vObject = $this->readCard($node->get());
 			return $this->getPhotoFromVObject($vObject);
 		} catch (\Exception $e) {
-			$this->logger->error('Exception during vcard photo parsing', [
-				'exception' => $e
+			$this->logger->logException($e, [
+				'message' => 'Exception during vcard photo parsing'
 			]);
 		}
 		return false;
 	}
 
 	/**
-	 * @return false|array{body: string, Content-Type: string}
+	 * @param Document $vObject
+	 * @return bool|array{body: string, Content-Type: string}
 	 */
 	public function getPhotoFromVObject(Document $vObject) {
 		try {
@@ -244,14 +262,18 @@ class PhotoCache {
 				'body' => $val
 			];
 		} catch (\Exception $e) {
-			$this->logger->error('Exception during vcard photo parsing', [
-				'exception' => $e
+			$this->logger->logException($e, [
+				'message' => 'Exception during vcard photo parsing'
 			]);
 		}
 		return false;
 	}
 
-	private function readCard(string $cardData): Document {
+	/**
+	 * @param string $cardData
+	 * @return \Sabre\VObject\Document
+	 */
+	private function readCard($cardData) {
 		return Reader::read($cardData);
 	}
 

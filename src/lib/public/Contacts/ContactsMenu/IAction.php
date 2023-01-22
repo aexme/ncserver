@@ -35,31 +35,31 @@ interface IAction extends JsonSerializable {
 	 * @param string $icon absolute URI to an icon
 	 * @since 12.0
 	 */
-	public function setIcon(string $icon);
+	public function setIcon($icon);
 
 	/**
 	 * @return string localized action name, e.g. 'Call'
 	 * @since 12.0
 	 */
-	public function getName(): string;
+	public function getName();
 
 	/**
 	 * @param string $name localized action name, e.g. 'Call'
 	 * @since 12.0
 	 */
-	public function setName(string $name);
+	public function setName($name);
 
 	/**
 	 * @param int $priority priorize actions, high order ones are shown on top
 	 * @since 12.0
 	 */
-	public function setPriority(int $priority);
+	public function setPriority($priority);
 
 	/**
 	 * @return int priority to priorize actions, high order ones are shown on top
 	 * @since 12.0
 	 */
-	public function getPriority(): int;
+	public function getPriority();
 
 	/**
 	 * @param string $appId

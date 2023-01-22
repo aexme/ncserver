@@ -28,16 +28,16 @@
 			href="#"
 			:aria-label="ariaLabel"
 			:aria-controls="`header-menu-${id}`"
-			:aria-expanded="opened.toString()"
+			:aria-expanded="opened"
+			aria-haspopup="menu"
 			@click.prevent="toggleMenu">
 			<slot name="trigger" />
 		</a>
-		<div v-show="opened" class="header-menu__carret" />
 		<div v-show="opened"
 			:id="`header-menu-${id}`"
 			class="header-menu__wrapper"
-			role="menu"
-			@focusout="handleFocusOut">
+			role="menu">
+			<div class="header-menu__carret" />
 			<div class="header-menu__content">
 				<slot />
 			</div>
@@ -82,7 +82,6 @@ export default {
 				handler: this.closeMenu,
 				middleware: this.clickOutsideMiddleware,
 			},
-			shortcutsDisabled: OCP.Accessibility.disableKeyboardShortcuts(),
 		}
 	},
 
@@ -146,10 +145,6 @@ export default {
 		},
 
 		onKeyDown(event) {
-			if (this.shortcutsDisabled) {
-				return
-			}
-
 			// If opened and escape pressed, close
 			if (event.key === 'Escape' && this.opened) {
 				event.preventDefault()
@@ -162,30 +157,28 @@ export default {
 				this.$emit('update:open', false)
 			}
 		},
-
-		handleFocusOut(event) {
-			if (!event.currentTarget.contains(event.relatedTarget)) {
-				this.closeMenu()
-			}
-		},
 	},
 }
 </script>
 
 <style lang="scss" scoped>
-$externalMargin: 8px;
-
+.notifications:not(:empty) ~ #unified-search {
+	order: -1;
+	.header-menu__carret {
+		right: 175px;
+	}
+}
 .header-menu {
 	&__trigger {
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		width: 50px;
-		height: 44px;
-		margin: 2px 0;
+		height: 100%;
+		margin: 0;
 		padding: 0;
 		cursor: pointer;
-		opacity: .85;
+		opacity: .6;
 	}
 
 	&--opened &__trigger,
@@ -195,29 +188,23 @@ $externalMargin: 8px;
 		opacity: 1;
 	}
 
-	&__trigger:focus-visible {
-		outline: none;
-	}
-
 	&__wrapper {
 		position: fixed;
 		z-index: 2000;
 		top: 50px;
 		right: 0;
 		box-sizing: border-box;
-		margin: 0 $externalMargin;
+		margin: 0;
 		border-radius: 0 0 var(--border-radius) var(--border-radius);
 		background-color: var(--color-main-background);
+
 		filter: drop-shadow(0 1px 5px var(--color-box-shadow));
-		padding: 8px;
-		border-radius: var(--border-radius-large);
 	}
 
 	&__carret {
 		position: absolute;
-		z-index: 2001; // Because __wrapper is 2000.
-		left: calc(50% - 10px);
-		bottom: 0;
+		right: 128px;
+		bottom: 100%;
 		width: 0;
 		height: 0;
 		content: ' ';
@@ -229,7 +216,7 @@ $externalMargin: 8px;
 	&__content {
 		overflow: auto;
 		width: 350px;
-		max-width: calc(100vw - 2 * $externalMargin);
+		max-width: 100vw;
 		min-height: calc(44px * 1.5);
 		max-height: calc(100vh - 50px * 2);
 	}

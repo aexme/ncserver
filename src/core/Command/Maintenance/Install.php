@@ -47,8 +47,11 @@ use Throwable;
 use function get_class;
 
 class Install extends Command {
-	private SystemConfig $config;
-	private IniGetWrapper $iniGetWrapper;
+
+	/** @var SystemConfig */
+	private $config;
+	/** @var IniGetWrapper  */
+	private $iniGetWrapper;
 
 	public function __construct(SystemConfig $config, IniGetWrapper $iniGetWrapper) {
 		parent::__construct();

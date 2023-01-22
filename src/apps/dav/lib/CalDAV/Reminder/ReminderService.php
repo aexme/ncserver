@@ -40,16 +40,13 @@ use OCP\IGroup;
 use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserManager;
-use Psr\Log\LoggerInterface;
 use Sabre\VObject;
 use Sabre\VObject\Component\VAlarm;
 use Sabre\VObject\Component\VEvent;
 use Sabre\VObject\InvalidDataException;
 use Sabre\VObject\ParseException;
 use Sabre\VObject\Recur\EventIterator;
-use Sabre\VObject\Recur\MaxInstancesExceededException;
 use Sabre\VObject\Recur\NoInstancesException;
-use function count;
 use function strcasecmp;
 
 class ReminderService {
@@ -75,9 +72,6 @@ class ReminderService {
 	/** @var IConfig */
 	private $config;
 
-	/** @var LoggerInterface */
-	private $logger;
-
 	/** @var Principal */
 	private $principalConnector;
 
@@ -96,6 +90,17 @@ class ReminderService {
 		self::REMINDER_TYPE_AUDIO
 	];
 
+	/**
+	 * ReminderService constructor.
+	 *
+	 * @param Backend $backend
+	 * @param NotificationProviderManager $notificationProviderManager
+	 * @param IUserManager $userManager
+	 * @param IGroupManager $groupManager
+	 * @param CalDavBackend $caldavBackend
+	 * @param ITimeFactory $timeFactory
+	 * @param IConfig $config
+	 */
 	public function __construct(Backend $backend,
 								NotificationProviderManager $notificationProviderManager,
 								IUserManager $userManager,
@@ -103,7 +108,6 @@ class ReminderService {
 								CalDavBackend $caldavBackend,
 								ITimeFactory $timeFactory,
 								IConfig $config,
-								LoggerInterface $logger,
 								Principal $principalConnector) {
 		$this->backend = $backend;
 		$this->notificationProviderManager = $notificationProviderManager;
@@ -112,7 +116,6 @@ class ReminderService {
 		$this->caldavBackend = $caldavBackend;
 		$this->timeFactory = $timeFactory;
 		$this->config = $config;
-		$this->logger = $logger;
 		$this->principalConnector = $principalConnector;
 	}
 
@@ -122,11 +125,8 @@ class ReminderService {
 	 * @throws NotificationProvider\ProviderNotAvailableException
 	 * @throws NotificationTypeDoesNotExistException
 	 */
-	public function processReminders() :void {
+	public function processReminders():void {
 		$reminders = $this->backend->getRemindersToProcess();
-		$this->logger->debug('{numReminders} reminders to process', [
-			'numReminders' => count($reminders),
-		]);
 
 		foreach ($reminders as $reminder) {
 			$calendarData = is_resource($reminder['calendardata'])
@@ -139,34 +139,22 @@ class ReminderService {
 
 			$vcalendar = $this->parseCalendarData($calendarData);
 			if (!$vcalendar) {
-				$this->logger->debug('Reminder {id} does not belong to a valid calendar', [
-					'id' => $reminder['id'],
-				]);
 				$this->backend->removeReminder($reminder['id']);
 				continue;
 			}
 
 			$vevent = $this->getVEventByRecurrenceId($vcalendar, $reminder['recurrence_id'], $reminder['is_recurrence_exception']);
 			if (!$vevent) {
-				$this->logger->debug('Reminder {id} does not belong to a valid event', [
-					'id' => $reminder['id'],
-				]);
 				$this->backend->removeReminder($reminder['id']);
 				continue;
 			}
 
 			if ($this->wasEventCancelled($vevent)) {
-				$this->logger->debug('Reminder {id} belongs to a cancelled event', [
-					'id' => $reminder['id'],
-				]);
 				$this->deleteOrProcessNext($reminder, $vevent);
 				continue;
 			}
 
 			if (!$this->notificationProviderManager->hasProvider($reminder['type'])) {
-				$this->logger->debug('Reminder {id} does not belong to a valid notification provider', [
-					'id' => $reminder['id'],
-				]);
 				$this->deleteOrProcessNext($reminder, $vevent);
 				continue;
 			}
@@ -188,10 +176,6 @@ class ReminderService {
 				$userPrincipalEmailAddresses = $this->principalConnector->getEmailAddressesOfPrincipal($userPrincipal);
 			}
 
-			$this->logger->debug('Reminder {id} will be sent to {numUsers} users', [
-				'id' => $reminder['id'],
-				'numUsers' => count($users),
-			]);
 			$notificationProvider = $this->notificationProviderManager->getProvider($reminder['type']);
 			$notificationProvider->send($vevent, $reminder['displayname'], $userPrincipalEmailAddresses, $users);
 
@@ -275,10 +259,6 @@ class ReminderService {
 				// This event is recurring, but it doesn't have a single
 				// instance. We are skipping this event from the output
 				// entirely.
-				return;
-			} catch (MaxInstancesExceededException $e) {
-				// The event has more than 3500 recurring-instances
-				// so we can ignore it
 				return;
 			}
 

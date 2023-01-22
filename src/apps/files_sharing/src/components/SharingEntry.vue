@@ -22,7 +22,7 @@
 
 <template>
 	<li class="sharing-entry">
-		<NcAvatar class="sharing-entry__avatar"
+		<Avatar class="sharing-entry__avatar"
 			:is-no-user="share.type !== SHARE_TYPES.SHARE_TYPE_USER"
 			:user="share.shareWith"
 			:display-name="share.shareWithDisplayName"
@@ -33,88 +33,93 @@
 			v-tooltip.auto="tooltip"
 			:href="share.shareWithLink"
 			class="sharing-entry__desc">
-			<span>{{ title }}<span v-if="!isUnique" class="sharing-entry__desc-unique"> ({{ share.shareWithDisplayNameUnique }})</span></span>
+			<h5>{{ title }}<span v-if="!isUnique" class="sharing-entry__desc-unique"> ({{ share.shareWithDisplayNameUnique }})</span></h5>
 			<p v-if="hasStatus">
 				<span>{{ share.status.icon || '' }}</span>
 				<span>{{ share.status.message || '' }}</span>
 			</p>
 		</component>
-		<NcActions menu-align="right"
+		<Actions menu-align="right"
 			class="sharing-entry__actions"
 			@close="onMenuClose">
 			<template v-if="share.canEdit">
 				<!-- edit permission -->
-				<NcActionCheckbox ref="canEdit"
+				<ActionCheckbox ref="canEdit"
 					:checked.sync="canEdit"
 					:value="permissionsEdit"
 					:disabled="saving || !canSetEdit">
 					{{ t('files_sharing', 'Allow editing') }}
-				</NcActionCheckbox>
+				</ActionCheckbox>
 
 				<!-- create permission -->
-				<NcActionCheckbox v-if="isFolder"
+				<ActionCheckbox v-if="isFolder"
 					ref="canCreate"
 					:checked.sync="canCreate"
 					:value="permissionsCreate"
 					:disabled="saving || !canSetCreate">
 					{{ t('files_sharing', 'Allow creating') }}
-				</NcActionCheckbox>
+				</ActionCheckbox>
 
 				<!-- delete permission -->
-				<NcActionCheckbox v-if="isFolder"
+				<ActionCheckbox v-if="isFolder"
 					ref="canDelete"
 					:checked.sync="canDelete"
 					:value="permissionsDelete"
 					:disabled="saving || !canSetDelete">
 					{{ t('files_sharing', 'Allow deleting') }}
-				</NcActionCheckbox>
+				</ActionCheckbox>
 
 				<!-- reshare permission -->
-				<NcActionCheckbox v-if="config.isResharingAllowed"
+				<ActionCheckbox v-if="config.isResharingAllowed"
 					ref="canReshare"
 					:checked.sync="canReshare"
 					:value="permissionsShare"
 					:disabled="saving || !canSetReshare">
 					{{ t('files_sharing', 'Allow resharing') }}
-				</NcActionCheckbox>
+				</ActionCheckbox>
 
-				<NcActionCheckbox v-if="isSetDownloadButtonVisible"
-					ref="canDownload"
+				<ActionCheckbox ref="canDownload"
 					:checked.sync="canDownload"
+					v-if="isSetDownloadButtonVisible"
 					:disabled="saving || !canSetDownload">
 					{{ allowDownloadText }}
-				</NcActionCheckbox>
+				</ActionCheckbox>
 
 				<!-- expiration date -->
-				<NcActionCheckbox :checked.sync="hasExpirationDate"
+				<ActionCheckbox :checked.sync="hasExpirationDate"
 					:disabled="config.isDefaultInternalExpireDateEnforced || saving"
 					@uncheck="onExpirationDisable">
 					{{ config.isDefaultInternalExpireDateEnforced
 						? t('files_sharing', 'Expiration date enforced')
 						: t('files_sharing', 'Set expiration date') }}
-				</NcActionCheckbox>
-				<NcActionInput v-if="hasExpirationDate"
+				</ActionCheckbox>
+				<ActionInput v-if="hasExpirationDate"
 					ref="expireDate"
-					:is-native-picker="true"
-					:hide-label="true"
+					v-tooltip.auto="{
+						content: errors.expireDate,
+						show: errors.expireDate,
+						trigger: 'manual'
+					}"
 					:class="{ error: errors.expireDate}"
 					:disabled="saving"
-					:value="new Date(share.expireDate)"
+					:lang="lang"
+					:value="share.expireDate"
+					value-type="format"
+					icon="icon-calendar-dark"
 					type="date"
-					:min="dateTomorrow"
-					:max="dateMaxEnforced"
-					@input="onExpirationChange">
+					:disabled-date="disabledDate"
+					@update:value="onExpirationChange">
 					{{ t('files_sharing', 'Enter a date') }}
-				</NcActionInput>
+				</ActionInput>
 
 				<!-- note -->
 				<template v-if="canHaveNote">
-					<NcActionCheckbox :checked.sync="hasNote"
+					<ActionCheckbox :checked.sync="hasNote"
 						:disabled="saving"
 						@uncheck="queueUpdate('note')">
 						{{ t('files_sharing', 'Note to recipient') }}
-					</NcActionCheckbox>
-					<NcActionTextEditable v-if="hasNote"
+					</ActionCheckbox>
+					<ActionTextEditable v-if="hasNote"
 						ref="note"
 						v-tooltip.auto="{
 							content: errors.note,
@@ -130,37 +135,37 @@
 				</template>
 			</template>
 
-			<NcActionButton v-if="share.canDelete"
+			<ActionButton v-if="share.canDelete"
 				icon="icon-close"
 				:disabled="saving"
 				@click.prevent="onDelete">
 				{{ t('files_sharing', 'Unshare') }}
-			</NcActionButton>
-		</NcActions>
+			</ActionButton>
+		</Actions>
 	</li>
 </template>
 
 <script>
-import NcAvatar from '@nextcloud/vue/dist/Components/NcAvatar'
-import NcActions from '@nextcloud/vue/dist/Components/NcActions'
-import NcActionButton from '@nextcloud/vue/dist/Components/NcActionButton'
-import NcActionCheckbox from '@nextcloud/vue/dist/Components/NcActionCheckbox'
-import NcActionInput from '@nextcloud/vue/dist/Components/NcActionInput'
-import NcActionTextEditable from '@nextcloud/vue/dist/Components/NcActionTextEditable'
+import Avatar from '@nextcloud/vue/dist/Components/Avatar'
+import Actions from '@nextcloud/vue/dist/Components/Actions'
+import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
+import ActionCheckbox from '@nextcloud/vue/dist/Components/ActionCheckbox'
+import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
+import ActionTextEditable from '@nextcloud/vue/dist/Components/ActionTextEditable'
 import Tooltip from '@nextcloud/vue/dist/Directives/Tooltip'
 
-import SharesMixin from '../mixins/SharesMixin.js'
+import SharesMixin from '../mixins/SharesMixin'
 
 export default {
 	name: 'SharingEntry',
 
 	components: {
-		NcActions,
-		NcActionButton,
-		NcActionCheckbox,
-		NcActionInput,
-		NcActionTextEditable,
-		NcAvatar,
+		Actions,
+		ActionButton,
+		ActionCheckbox,
+		ActionInput,
+		ActionTextEditable,
+		Avatar,
 	},
 
 	directives: {
@@ -374,22 +379,22 @@ export default {
 				return this.config.isDefaultInternalExpireDateEnforced || !!this.share.expireDate
 			},
 			set(enabled) {
-				const defaultExpirationDate = this.config.defaultInternalExpirationDate
-					|| new Date(new Date().setDate(new Date().getDate() + 1))
 				this.share.expireDate = enabled
-					? this.formatDateToString(defaultExpirationDate)
+					? this.config.defaultInternalExpirationDateString !== ''
+						? this.config.defaultInternalExpirationDateString
+						: moment().format('YYYY-MM-DD')
 					: ''
-				console.debug('Expiration date status', enabled, this.share.expireDate)
 			},
 		},
 
 		dateMaxEnforced() {
-			if (!this.isRemote && this.config.isDefaultInternalExpireDateEnforced) {
-				return new Date(new Date().setDate(new Date().getDate() + 1 + this.config.defaultInternalExpireDate))
-			} else if (this.config.isDefaultRemoteExpireDateEnforced) {
-				return new Date(new Date().setDate(new Date().getDate() + 1 + this.config.defaultRemoteExpireDate))
+			if (!this.isRemote) {
+				return this.config.isDefaultInternalExpireDateEnforced
+					&& moment().add(1 + this.config.defaultInternalExpireDate, 'days')
+			} else {
+				return this.config.isDefaultRemoteExpireDateEnforced
+					&& moment().add(1 + this.config.defaultRemoteExpireDate, 'days')
 			}
-			return null
 		},
 
 		/**

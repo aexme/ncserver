@@ -37,14 +37,15 @@ namespace OCP;
 interface IAvatarManager {
 
 	/**
-	 * Return a user specific instance of \OCP\IAvatar
+	 * return a user specific instance of \OCP\IAvatar
 	 * @see IAvatar
-	 * @param string $userId the Nextcloud user id
+	 * @param string $user the ownCloud user id
+	 * @return IAvatar
 	 * @throws \Exception In case the username is potentially dangerous
 	 * @throws \OCP\Files\NotFoundException In case there is no user folder yet
 	 * @since 6.0.0
 	 */
-	public function getAvatar(string $userId): IAvatar;
+	public function getAvatar(string $user) : IAvatar;
 
 	/**
 	 * Returns a guest user avatar instance.

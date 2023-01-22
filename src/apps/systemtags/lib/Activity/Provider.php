@@ -55,6 +55,9 @@ class Provider implements IProvider {
 	/** @var IUserManager */
 	protected $userManager;
 
+	/** @var string[] */
+	protected $displayNames = [];
+
 	/**
 	 * @param IFactory $languageFactory
 	 * @param IURLGenerator $url
@@ -331,11 +334,15 @@ class Provider implements IProvider {
 		];
 	}
 
-	protected function getUserParameter(string $uid): array {
+	protected function getUserParameter($uid) {
+		if (!isset($this->displayNames[$uid])) {
+			$this->displayNames[$uid] = $this->getDisplayName($uid);
+		}
+
 		return [
 			'type' => 'user',
 			'id' => $uid,
-			'name' => $this->userManager->getDisplayName($uid) ?? $uid,
+			'name' => $this->displayNames[$uid],
 		];
 	}
 
@@ -346,6 +353,19 @@ class Provider implements IProvider {
 			return $this->l->t('%s (restricted)', $parameter['name']);
 		} else {
 			return $this->l->t('%s (invisible)', $parameter['name']);
+		}
+	}
+
+	/**
+	 * @param string $uid
+	 * @return string
+	 */
+	protected function getDisplayName($uid) {
+		$user = $this->userManager->get($uid);
+		if ($user instanceof IUser) {
+			return $user->getDisplayName();
+		} else {
+			return $uid;
 		}
 	}
 }

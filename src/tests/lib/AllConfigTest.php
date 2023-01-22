@@ -409,6 +409,11 @@ class AllConfigTest extends \Test\TestCase {
 		$systemConfig = $this->getMockBuilder('\OC\SystemConfig')
 			->disableOriginalConstructor()
 			->getMock();
+		$systemConfig->expects($this->once())
+			->method('getValue')
+			->with($this->equalTo('dbtype'),
+				$this->equalTo('sqlite'))
+			->willReturn(\OC::$server->getConfig()->getSystemValue('dbtype', 'sqlite'));
 		$config = $this->getConfig($systemConfig);
 
 		// preparation - add something to the database
@@ -438,6 +443,10 @@ class AllConfigTest extends \Test\TestCase {
 	public function testGetUsersForUserValueCaseInsensitive() {
 		// mock the check for the database to run the correct SQL statements for each database type
 		$systemConfig = $this->createMock(SystemConfig::class);
+		$systemConfig->expects($this->once())
+			->method('getValue')
+			->with($this->equalTo('dbtype'), $this->equalTo('sqlite'))
+			->willReturn(\OC::$server->getConfig()->getSystemValue('dbtype', 'sqlite'));
 		$config = $this->getConfig($systemConfig);
 
 		$config->setUserValue('user1', 'myApp', 'myKey', 'test123');

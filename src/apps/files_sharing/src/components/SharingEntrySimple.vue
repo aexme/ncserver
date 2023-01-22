@@ -24,30 +24,26 @@
 	<li class="sharing-entry">
 		<slot name="avatar" />
 		<div v-tooltip="tooltip" class="sharing-entry__desc">
-			<span class="sharing-entry__title">{{ title }}</span>
+			<h5>{{ title }}</h5>
 			<p v-if="subtitle">
 				{{ subtitle }}
 			</p>
 		</div>
-		<NcActions ref="actionsComponent"
-			v-if="$slots['default']"
-			class="sharing-entry__actions"
-			menu-align="right"
-			:aria-expanded="ariaExpandedValue">
+		<Actions v-if="$slots['default']" menu-align="right" class="sharing-entry__actions">
 			<slot />
-		</NcActions>
+		</Actions>
 	</li>
 </template>
 
 <script>
-import NcActions from '@nextcloud/vue/dist/Components/NcActions'
+import Actions from '@nextcloud/vue/dist/Components/Actions'
 import Tooltip from '@nextcloud/vue/dist/Directives/Tooltip'
 
 export default {
 	name: 'SharingEntrySimple',
 
 	components: {
-		NcActions,
+		Actions,
 	},
 
 	directives: {
@@ -72,20 +68,8 @@ export default {
 			type: Boolean,
 			default: true,
 		},
-		ariaExpanded: {
-			type: Boolean,
-			default: null,
-		},
 	},
 
-	computed: {
-		ariaExpandedValue() {
-			if (this.ariaExpanded === null) {
-				return this.ariaExpanded
-			}
-			return this.ariaExpanded ? 'true' : 'false'
-		},
-	},
 }
 </script>
 
@@ -100,15 +84,15 @@ export default {
 		position: relative;
 		flex: 1 1;
 		min-width: 0;
+		h5 {
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			overflow: hidden;
+			max-width: inherit;
+		}
 		p {
 			color: var(--color-text-maxcontrast);
 		}
-	}
-	&__title {
-		white-space: nowrap;
-		text-overflow: ellipsis;
-		overflow: hidden;
-		max-width: inherit;
 	}
 	&__actions {
 		margin-left: auto !important;

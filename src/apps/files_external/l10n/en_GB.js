@@ -10,7 +10,6 @@ OC.L10N.register(
     "Error configuring OAuth2" : "Error configuring OAuth2",
     "Generate keys" : "Generate keys",
     "Error generating key pair" : "Error generating key pair",
-    "All users. Type to select user or group." : "All users. Type to select user or group.",
     "(Group)" : "(Group)",
     "Compatibility with Mac NFD encoding (slow)" : "Compatibility with Mac NFD encoding (slow)",
     "Enable encryption" : "Enable encryption",
@@ -138,8 +137,6 @@ OC.L10N.register(
     "Advanced settings" : "Advanced settings",
     "Allow users to mount external storage" : "Allow users to mount external storage",
     "Global credentials can be used to authenticate with multiple external storages that have the same credentials." : "Global credentials can be used to authenticate with multiple external storages that have the same credentials.",
-    "Delete" : "Delete",
-    "Are you sure you want to delete this external storage?" : "Are you sure you want to delete this external storage?",
-    "Kerberos ticket apache mode" : "Kerberos ticket apache mode"
+    "All users. Type to select user or group." : "All users. Type to select user or group."
 },
 "nplurals=2; plural=(n != 1);");

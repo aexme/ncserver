@@ -32,7 +32,6 @@ namespace OC\AppFramework\Bootstrap;
 use Closure;
 use OCP\Calendar\Resource\IBackend as IResourceBackend;
 use OCP\Calendar\Room\IBackend as IRoomBackend;
-use OCP\Collaboration\Reference\IReferenceProvider;
 use OCP\Talk\ITalkBackend;
 use RuntimeException;
 use function array_shift;
@@ -121,12 +120,6 @@ class RegistrationContext {
 
 	/** @var ServiceRegistration<ICalendarProvider>[] */
 	private $calendarProviders = [];
-
-	/** @var ServiceRegistration<IReferenceProvider>[] */
-	private array $referenceProviders = [];
-
-	/** @var ParameterRegistration[] */
-	private $sensitiveMethods = [];
 
 	/** @var LoggerInterface */
 	private $logger;
@@ -277,13 +270,6 @@ class RegistrationContext {
 				);
 			}
 
-			public function registerReferenceProvider(string $class): void {
-				$this->context->registerReferenceProvider(
-					$this->appId,
-					$class
-				);
-			}
-
 			public function registerProfileLinkAction(string $actionClass): void {
 				$this->context->registerProfileLinkAction(
 					$this->appId,
@@ -316,14 +302,6 @@ class RegistrationContext {
 				$this->context->registerUserMigrator(
 					$this->appId,
 					$migratorClass
-				);
-			}
-
-			public function registerSensitiveMethods(string $class, array $methods): void {
-				$this->context->registerSensitiveMethods(
-					$this->appId,
-					$class,
-					$methods
 				);
 			}
 		};
@@ -409,10 +387,6 @@ class RegistrationContext {
 		$this->calendarProviders[] = new ServiceRegistration($appId, $class);
 	}
 
-	public function registerReferenceProvider(string $appId, string $class): void {
-		$this->referenceProviders[] = new ServiceRegistration($appId, $class);
-	}
-
 	/**
 	 * @psalm-param class-string<ILinkAction> $actionClass
 	 */
@@ -454,11 +428,6 @@ class RegistrationContext {
 	 */
 	public function registerUserMigrator(string $appId, string $migratorClass): void {
 		$this->userMigrators[] = new ServiceRegistration($appId, $migratorClass);
-	}
-
-	public function registerSensitiveMethods(string $appId, string $class, array $methods): void {
-		$methods = array_filter($methods, 'is_string');
-		$this->sensitiveMethods[] = new ParameterRegistration($appId, $class, $methods);
 	}
 
 	/**
@@ -707,13 +676,6 @@ class RegistrationContext {
 	}
 
 	/**
-	 * @return ServiceRegistration<IReferenceProvider>[]
-	 */
-	public function getReferenceProviders(): array {
-		return $this->referenceProviders;
-	}
-
-	/**
 	 * @return ServiceRegistration<ILinkAction>[]
 	 */
 	public function getProfileLinkActions(): array {
@@ -749,12 +711,5 @@ class RegistrationContext {
 	 */
 	public function getUserMigrators(): array {
 		return $this->userMigrators;
-	}
-
-	/**
-	 * @return ParameterRegistration[]
-	 */
-	public function getSensitiveMethods(): array {
-		return $this->sensitiveMethods;
 	}
 }

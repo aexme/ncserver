@@ -25,44 +25,73 @@ namespace OC\Contacts\ContactsMenu\Actions;
 use OCP\Contacts\ContactsMenu\ILinkAction;
 
 class LinkAction implements ILinkAction {
-	private string $icon = '';
-	private string $name = '';
-	private string $href = '';
-	private int $priority = 10;
-	private string $appId = '';
+
+	/** @var string */
+	private $icon;
+
+	/** @var string */
+	private $name;
+
+	/** @var string */
+	private $href;
+
+	/** @var int */
+	private $priority = 10;
+
+	/** @var string */
+	private $appId;
 
 	/**
 	 * @param string $icon absolute URI to an icon
 	 */
-	public function setIcon(string $icon) {
+	public function setIcon($icon) {
 		$this->icon = $icon;
 	}
 
-	public function setName(string $name) {
+	/**
+	 * @param string $name
+	 */
+	public function setName($name) {
 		$this->name = $name;
 	}
 
-	public function getName(): string {
+	/**
+	 * @return string
+	 */
+	public function getName() {
 		return $this->name;
 	}
 
-	public function setPriority(int $priority) {
+	/**
+	 * @param int $priority
+	 */
+	public function setPriority($priority) {
 		$this->priority = $priority;
 	}
 
-	public function getPriority(): int {
+	/**
+	 * @return int
+	 */
+	public function getPriority() {
 		return $this->priority;
 	}
 
-	public function setHref(string $href) {
+	/**
+	 * @param string $href
+	 */
+	public function setHref($href) {
 		$this->href = $href;
 	}
 
-	public function getHref(): string {
+	/**
+	 * @return string
+	 */
+	public function getHref() {
 		return $this->href;
 	}
 
 	/**
+	 * @param string $appId
 	 * @since 23.0.0
 	 */
 	public function setAppId(string $appId) {
@@ -70,6 +99,7 @@ class LinkAction implements ILinkAction {
 	}
 
 	/**
+	 * @return string
 	 * @since 23.0.0
 	 */
 	public function getAppId(): string {

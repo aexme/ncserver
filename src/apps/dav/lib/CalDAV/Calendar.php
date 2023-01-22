@@ -51,11 +51,27 @@ use Sabre\DAV\PropPatch;
  * @property CalDavBackend $caldavBackend
  */
 class Calendar extends \Sabre\CalDAV\Calendar implements IRestorable, IShareable, IMoveTarget {
-	private IConfig $config;
-	protected IL10N $l10n;
-	private bool $useTrashbin = true;
-	private LoggerInterface $logger;
 
+	/** @var IConfig */
+	private $config;
+
+	/** @var IL10N */
+	protected $l10n;
+
+	/** @var bool */
+	private $useTrashbin = true;
+
+	/** @var LoggerInterface */
+	private $logger;
+
+	/**
+	 * Calendar constructor.
+	 *
+	 * @param BackendInterface $caldavBackend
+	 * @param $calendarInfo
+	 * @param IL10N $l10n
+	 * @param IConfig $config
+	 */
 	public function __construct(BackendInterface $caldavBackend, $calendarInfo, IL10N $l10n, IConfig $config, LoggerInterface $logger) {
 		// Convert deletion date to ISO8601 string
 		if (isset($calendarInfo[TrashbinPlugin::PROPERTY_DELETED_AT])) {
@@ -80,10 +96,25 @@ class Calendar extends \Sabre\CalDAV\Calendar implements IRestorable, IShareable
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * Updates the list of shares.
+	 *
+	 * The first array is a list of people that are to be added to the
+	 * resource.
+	 *
+	 * Every element in the add array has the following properties:
+	 *   * href - A url. Usually a mailto: address
+	 *   * commonName - Usually a first and last name, or false
+	 *   * summary - A description of the share, can also be false
+	 *   * readOnly - A boolean value
+	 *
+	 * Every element in the remove array is just the address string.
+	 *
+	 * @param array $add
+	 * @param array $remove
+	 * @return void
 	 * @throws Forbidden
 	 */
-	public function updateShares(array $add, array $remove): void {
+	public function updateShares(array $add, array $remove) {
 		if ($this->isShared()) {
 			throw new Forbidden();
 		}
@@ -100,16 +131,19 @@ class Calendar extends \Sabre\CalDAV\Calendar implements IRestorable, IShareable
 	 *   * readOnly - boolean
 	 *   * summary - Optional, a description for the share
 	 *
-	 * @return list<array{href: string, commonName: string, status: int, readOnly: bool, '{http://owncloud.org/ns}principal': string, '{http://owncloud.org/ns}group-share': bool}>
+	 * @return array
 	 */
-	public function getShares(): array {
+	public function getShares() {
 		if ($this->isShared()) {
 			return [];
 		}
 		return $this->caldavBackend->getShares($this->getResourceId());
 	}
 
-	public function getResourceId(): int {
+	/**
+	 * @return int
+	 */
+	public function getResourceId() {
 		return $this->calendarInfo['id'];
 	}
 
@@ -121,9 +155,7 @@ class Calendar extends \Sabre\CalDAV\Calendar implements IRestorable, IShareable
 	}
 
 	/**
-	 * @param int $resourceId
-	 * @param list<array{privilege: string, principal: string, protected: bool}> $acl
-	 * @return list<array{privilege: string, principal: ?string, protected: bool}>
+	 * @return array
 	 */
 	public function getACL() {
 		$acl = [
@@ -214,18 +246,16 @@ class Calendar extends \Sabre\CalDAV\Calendar implements IRestorable, IShareable
 			parent::getOwner(),
 			'principals/system/public'
 		];
-		/** @var list<array{privilege: string, principal: string, protected: bool}> $acl */
-		$acl = array_filter($acl, function (array $rule) use ($allowedPrincipals): bool {
+		return array_filter($acl, function ($rule) use ($allowedPrincipals) {
 			return \in_array($rule['principal'], $allowedPrincipals, true);
 		});
-		return $acl;
 	}
 
 	public function getChildACL() {
 		return $this->getACL();
 	}
 
-	public function getOwner(): ?string {
+	public function getOwner() {
 		if (isset($this->calendarInfo['{http://owncloud.org/ns}owner-principal'])) {
 			return $this->calendarInfo['{http://owncloud.org/ns}owner-principal'];
 		}
@@ -370,7 +400,7 @@ class Calendar extends \Sabre\CalDAV\Calendar implements IRestorable, IShareable
 		return isset($this->calendarInfo['{http://owncloud.org/ns}public']);
 	}
 
-	public function isShared() {
+	protected function isShared() {
 		if (!isset($this->calendarInfo['{http://owncloud.org/ns}owner-principal'])) {
 			return false;
 		}
@@ -380,13 +410,6 @@ class Calendar extends \Sabre\CalDAV\Calendar implements IRestorable, IShareable
 
 	public function isSubscription() {
 		return isset($this->calendarInfo['{http://calendarserver.org/ns/}source']);
-	}
-
-	public function isDeleted(): bool {
-		if (!isset($this->calendarInfo[TrashbinPlugin::PROPERTY_DELETED_AT])) {
-			return false;
-		}
-		return $this->calendarInfo[TrashbinPlugin::PROPERTY_DELETED_AT] !== null;
 	}
 
 	/**
@@ -420,7 +443,7 @@ class Calendar extends \Sabre\CalDAV\Calendar implements IRestorable, IShareable
 		}
 
 		try {
-			return $this->caldavBackend->moveCalendarObject($sourceNode->getCalendarId(), (int)$this->calendarInfo['id'], $sourceNode->getId(), $sourceNode->getOwner(), $this->getOwner());
+			return $this->caldavBackend->moveCalendarObject($sourceNode->getCalendarId(), (int)$this->calendarInfo['id'], $sourceNode->getId(), $sourceNode->getPrincipalUri());
 		} catch (Exception $e) {
 			$this->logger->error('Could not move calendar object: ' . $e->getMessage(), ['exception' => $e]);
 			return false;

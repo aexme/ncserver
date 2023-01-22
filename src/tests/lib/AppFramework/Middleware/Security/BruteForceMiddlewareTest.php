@@ -36,7 +36,8 @@ class BruteForceMiddlewareTest extends TestCase {
 	private $throttler;
 	/** @var IRequest|\PHPUnit\Framework\MockObject\MockObject */
 	private $request;
-	private BruteForceMiddleware $bruteForceMiddleware;
+	/** @var BruteForceMiddleware */
+	private $bruteForceMiddleware;
 
 	protected function setUp(): void {
 		parent::setUp();

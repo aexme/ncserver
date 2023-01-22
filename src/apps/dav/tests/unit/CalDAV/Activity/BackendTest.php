@@ -33,7 +33,6 @@ use OCP\App\IAppManager;
 use OCP\IGroup;
 use OCP\IGroupManager;
 use OCP\IUser;
-use OCP\IUserManager;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use Test\TestCase;
@@ -52,16 +51,12 @@ class BackendTest extends TestCase {
 	/** @var IAppManager|MockObject */
 	protected $appManager;
 
-	/** @var IUserManager|MockObject */
-	protected $userManager;
-
 	protected function setUp(): void {
 		parent::setUp();
 		$this->activityManager = $this->createMock(IManager::class);
 		$this->groupManager = $this->createMock(IGroupManager::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->appManager = $this->createMock(IAppManager::class);
-		$this->userManager = $this->createMock(IUserManager::class);
 	}
 
 	/**
@@ -74,8 +69,7 @@ class BackendTest extends TestCase {
 				$this->activityManager,
 				$this->groupManager,
 				$this->userSession,
-				$this->appManager,
-				$this->userManager
+				$this->appManager
 			);
 		} else {
 			return $this->getMockBuilder(Backend::class)
@@ -84,9 +78,8 @@ class BackendTest extends TestCase {
 					$this->groupManager,
 					$this->userSession,
 					$this->appManager,
-					$this->userManager
 				])
-				->onlyMethods($methods)
+				->setMethods($methods)
 				->getMock();
 		}
 	}
@@ -259,10 +252,6 @@ class BackendTest extends TestCase {
 				->with($author)
 				->willReturnSelf();
 
-			$this->userManager->expects($action === Calendar::SUBJECT_DELETE ? $this->exactly(sizeof($users)) : $this->never())
-				->method('userExists')
-				->willReturn(true);
-
 			$event->expects($this->exactly(sizeof($users)))
 				->method('setAffectedUser')
 				->willReturnSelf();
@@ -278,24 +267,6 @@ class BackendTest extends TestCase {
 		}
 
 		$this->invokePrivate($backend, 'triggerCalendarActivity', [$action, $data, $shares, $changedProperties]);
-	}
-
-	public function testUserDeletionDoesNotCreateActivity() {
-		$backend = $this->getBackend();
-
-		$this->userManager->expects($this->once())
-			->method('userExists')
-			->willReturn(false);
-
-		$this->activityManager->expects($this->never())
-			->method('publish');
-
-		$this->invokePrivate($backend, 'triggerCalendarActivity', [Calendar::SUBJECT_DELETE, [
-			'principaluri' => 'principal/user/admin',
-			'id' => 42,
-			'uri' => 'this-uri',
-			'{DAV:}displayname' => 'Name of calendar',
-		], [], []]);
 	}
 
 	public function dataGetUsersForShares() {

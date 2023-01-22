@@ -37,7 +37,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\DB\Exception;
 use OCP\IConfig;
-use OCP\IEmojiHelper;
+use OCP\IUser;
 use OCP\UserStatus\IUserStatus;
 
 /**
@@ -56,7 +56,8 @@ class StatusService {
 	/** @var PredefinedStatusService */
 	private $predefinedStatusService;
 
-	private IEmojiHelper $emojiHelper;
+	/** @var EmojiService */
+	private $emojiService;
 
 	/** @var bool */
 	private $shareeEnumeration;
@@ -94,15 +95,24 @@ class StatusService {
 	/** @var int */
 	public const MAXIMUM_MESSAGE_LENGTH = 80;
 
+	/**
+	 * StatusService constructor.
+	 *
+	 * @param UserStatusMapper $mapper
+	 * @param ITimeFactory $timeFactory
+	 * @param PredefinedStatusService $defaultStatusService
+	 * @param EmojiService $emojiService
+	 * @param IConfig $config
+	 */
 	public function __construct(UserStatusMapper $mapper,
 								ITimeFactory $timeFactory,
 								PredefinedStatusService $defaultStatusService,
-								IEmojiHelper $emojiHelper,
+								EmojiService $emojiService,
 								IConfig $config) {
 		$this->mapper = $mapper;
 		$this->timeFactory = $timeFactory;
 		$this->predefinedStatusService = $defaultStatusService;
-		$this->emojiHelper = $emojiHelper;
+		$this->emojiService = $emojiService;
 		$this->shareeEnumeration = $config->getAppValue('core', 'shareapi_allow_share_dialog_user_enumeration', 'yes') === 'yes';
 		$this->shareeEnumerationInGroupOnly = $this->shareeEnumeration && $config->getAppValue('core', 'shareapi_restrict_user_enumeration_to_group', 'no') === 'yes';
 		$this->shareeEnumerationPhone = $this->shareeEnumeration && $config->getAppValue('core', 'shareapi_restrict_user_enumeration_to_phone', 'no') === 'yes';
@@ -302,7 +312,7 @@ class StatusService {
 	/**
 	 * @param string $userId
 	 * @param string|null $statusIcon
-	 * @param string|null $message
+	 * @param string $message
 	 * @param int|null $clearAt
 	 * @return UserStatus
 	 * @throws InvalidClearAtException
@@ -311,7 +321,7 @@ class StatusService {
 	 */
 	public function setCustomMessage(string $userId,
 									 ?string $statusIcon,
-									 ?string $message,
+									 string $message,
 									 ?int $clearAt): UserStatus {
 		try {
 			$userStatus = $this->mapper->findByUserId($userId);
@@ -324,11 +334,11 @@ class StatusService {
 		}
 
 		// Check if statusIcon contains only one character
-		if ($statusIcon !== null && !$this->emojiHelper->isValidSingleEmoji($statusIcon)) {
+		if ($statusIcon !== null && !$this->emojiService->isValidEmoji($statusIcon)) {
 			throw new InvalidStatusIconException('Status-Icon is longer than one character');
 		}
 		// Check for maximum length of custom message
-		if ($message !== null && \mb_strlen($message) > self::MAXIMUM_MESSAGE_LENGTH) {
+		if (\mb_strlen($message) > self::MAXIMUM_MESSAGE_LENGTH) {
 			throw new StatusMessageTooLongException('Message is longer than supported length of ' . self::MAXIMUM_MESSAGE_LENGTH . ' characters');
 		}
 		// Check that clearAt is in the future
@@ -432,7 +442,6 @@ class StatusService {
 			$this->cleanStatus($status);
 		}
 		if ($clearAt !== null && $clearAt < $this->timeFactory->getTime()) {
-			$this->cleanStatus($status);
 			$this->cleanStatusMessage($status);
 		}
 		if ($status->getMessageId() !== null) {

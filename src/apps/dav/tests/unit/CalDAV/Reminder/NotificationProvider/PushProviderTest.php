@@ -34,6 +34,7 @@ use OCA\DAV\CalDAV\Reminder\NotificationProvider\PushProvider;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IConfig;
 use OCP\IL10N;
+use OCP\ILogger;
 use OCP\IURLGenerator;
 use OCP\IUser;
 use OCP\L10N\IFactory as L10NFactory;
@@ -41,6 +42,21 @@ use OCP\Notification\IManager;
 use OCP\Notification\INotification;
 
 class PushProviderTest extends AbstractNotificationProviderTest {
+
+	/** @var ILogger|\PHPUnit\Framework\MockObject\MockObject */
+	protected $logger;
+
+	/** @var L10NFactory|\PHPUnit\Framework\MockObject\MockObject */
+	protected $l10nFactory;
+
+	/** @var IL10N|\PHPUnit\Framework\MockObject\MockObject */
+	protected $l10n;
+
+	/** @var IURLGenerator|\PHPUnit\Framework\MockObject\MockObject */
+	protected $urlGenerator;
+
+	/** @var IConfig|\PHPUnit\Framework\MockObject\MockObject */
+	protected $config;
 
 	/** @var IManager|\PHPUnit\Framework\MockObject\MockObject */
 	private $manager;
@@ -51,6 +67,7 @@ class PushProviderTest extends AbstractNotificationProviderTest {
 	protected function setUp(): void {
 		parent::setUp();
 
+		$this->config = $this->createMock(IConfig::class);
 		$this->manager = $this->createMock(IManager::class);
 		$this->timeFactory = $this->createMock(ITimeFactory::class);
 

@@ -22,7 +22,7 @@
 
 <template>
 	<div class="language">
-		<select :id="inputId"
+		<select id="language"
 			:placeholder="t('settings', 'Language')"
 			@change="onLanguageChange">
 			<option v-for="commonLanguage in commonLanguages"
@@ -53,19 +53,14 @@
 <script>
 import { showError } from '@nextcloud/dialogs'
 
-import { ACCOUNT_SETTING_PROPERTY_ENUM } from '../../../constants/AccountPropertyConstants.js'
-import { savePrimaryAccountProperty } from '../../../service/PersonalInfo/PersonalInfoService.js'
-import { validateLanguage } from '../../../utils/validate.js'
-import logger from '../../../logger.js'
+import { ACCOUNT_SETTING_PROPERTY_ENUM } from '../../../constants/AccountPropertyConstants'
+import { savePrimaryAccountProperty } from '../../../service/PersonalInfo/PersonalInfoService'
+import { validateLanguage } from '../../../utils/validate'
 
 export default {
 	name: 'Language',
 
 	props: {
-		inputId: {
-			type: String,
-			default: null,
-		},
 		commonLanguages: {
 			type: Array,
 			required: true,
@@ -134,7 +129,7 @@ export default {
 				this.initialLanguage = language
 			} else {
 				showError(errorMessage)
-				logger.error(errorMessage, error)
+				this.logger.error(errorMessage, error)
 			}
 		},
 
@@ -151,6 +146,16 @@ export default {
 
 	select {
 		width: 100%;
+		height: 34px;
+		margin: 3px 3px 3px 0;
+		padding: 6px 16px;
+		color: var(--color-main-text);
+		border: 1px solid var(--color-border-dark);
+		border-radius: var(--border-radius);
+		background: var(--icon-triangle-s-000) no-repeat right 4px center;
+		font-family: var(--font-face);
+		appearance: none;
+		cursor: pointer;
 	}
 
 	a {

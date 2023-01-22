@@ -40,7 +40,6 @@ use OCP\Files\IAppData;
 use OCP\Files\IRootFolder;
 use OCP\Files\NotFoundException;
 use OCP\Files\SimpleFS\ISimpleFile;
-use OCP\IBinaryFinder;
 use OCP\IConfig;
 use OCP\IPreview;
 use OCP\IServerContainer;
@@ -49,43 +48,81 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use function array_key_exists;
 
 class PreviewManager implements IPreview {
-	protected IConfig $config;
-	protected IRootFolder $rootFolder;
-	protected IAppData $appData;
-	protected IEventDispatcher $eventDispatcher;
-	protected EventDispatcherInterface $legacyEventDispatcher;
-	private ?Generator $generator = null;
-	private GeneratorHelper $helper;
-	protected bool $providerListDirty = false;
-	protected bool $registeredCoreProviders = false;
-	protected array $providers = [];
+	/** @var IConfig */
+	protected $config;
+
+	/** @var IRootFolder */
+	protected $rootFolder;
+
+	/** @var IAppData */
+	protected $appData;
+
+	/** @var IEventDispatcher */
+	protected $eventDispatcher;
+
+	/** @var EventDispatcherInterface */
+	protected $legacyEventDispatcher;
+
+	/** @var Generator */
+	private $generator;
+
+	/** @var GeneratorHelper */
+	private $helper;
+
+	/** @var bool */
+	protected $providerListDirty = false;
+
+	/** @var bool */
+	protected $registeredCoreProviders = false;
+
+	/** @var array */
+	protected $providers = [];
 
 	/** @var array mime type => support status */
-	protected array $mimeTypeSupportMap = [];
-	protected ?array $defaultProviders = null;
-	protected ?string $userId;
-	private Coordinator $bootstrapCoordinator;
+	protected $mimeTypeSupportMap = [];
+
+	/** @var array */
+	protected $defaultProviders;
+
+	/** @var string */
+	protected $userId;
+
+	/** @var Coordinator */
+	private $bootstrapCoordinator;
 
 	/**
 	 * Hash map (without value) of loaded bootstrap providers
+	 *
+	 * @var null[]
 	 * @psalm-var array<string, null>
 	 */
-	private array $loadedBootstrapProviders = [];
-	private IServerContainer $container;
-	private IBinaryFinder $binaryFinder;
+	private $loadedBootstrapProviders = [];
 
-	public function __construct(
-		IConfig                  $config,
-		IRootFolder              $rootFolder,
-		IAppData                 $appData,
-		IEventDispatcher 		 $eventDispatcher,
-		EventDispatcherInterface $legacyEventDispatcher,
-		GeneratorHelper          $helper,
-		?string                  $userId,
-		Coordinator              $bootstrapCoordinator,
-		IServerContainer         $container,
-		IBinaryFinder            $binaryFinder
-	) {
+	/** @var IServerContainer */
+	private $container;
+
+	/**
+	 * PreviewManager constructor.
+	 *
+	 * @param IConfig $config
+	 * @param IRootFolder $rootFolder
+	 * @param IAppData $appData
+	 * @param IEventDispatcher $eventDispatcher
+	 * @param EventDispatcherInterface $legacyEventDispatcher
+	 * @param GeneratorHelper $helper
+	 * @param string $userId
+	 * @param Coordinator $bootstrapCoordinator
+	 * @param IServerContainer $container
+	 */
+	public function __construct(IConfig $config,
+								IRootFolder $rootFolder,
+								IAppData $appData,
+								IEventDispatcher $eventDispatcher,
+								EventDispatcherInterface $legacyEventDispatcher,
+								GeneratorHelper $helper,
+								$userId,
+								Coordinator $bootstrapCoordinator,
+								IServerContainer $container) {
 		$this->config = $config;
 		$this->rootFolder = $rootFolder;
 		$this->appData = $appData;
@@ -95,7 +132,6 @@ class PreviewManager implements IPreview {
 		$this->userId = $userId;
 		$this->bootstrapCoordinator = $bootstrapCoordinator;
 		$this->container = $container;
-		$this->binaryFinder = $binaryFinder;
 	}
 
 	/**
@@ -108,7 +144,7 @@ class PreviewManager implements IPreview {
 	 * @param \Closure $callable
 	 * @return void
 	 */
-	public function registerProvider($mimeTypeRegex, \Closure $callable): void {
+	public function registerProvider($mimeTypeRegex, \Closure $callable) {
 		if (!$this->config->getSystemValue('enable_previews', true)) {
 			return;
 		}
@@ -122,8 +158,9 @@ class PreviewManager implements IPreview {
 
 	/**
 	 * Get all providers
+	 * @return array
 	 */
-	public function getProviders(): array {
+	public function getProviders() {
 		if (!$this->config->getSystemValue('enable_previews', true)) {
 			return [];
 		}
@@ -141,8 +178,9 @@ class PreviewManager implements IPreview {
 
 	/**
 	 * Does the manager have any providers
+	 * @return bool
 	 */
-	public function hasProviders(): bool {
+	public function hasProviders() {
 		$this->registerCoreProviders();
 		return !empty($this->providers);
 	}
@@ -230,8 +268,11 @@ class PreviewManager implements IPreview {
 
 	/**
 	 * Check if a preview can be generated for a file
+	 *
+	 * @param \OCP\Files\FileInfo $file
+	 * @return bool
 	 */
-	public function isAvailable(\OCP\Files\FileInfo $file): bool {
+	public function isAvailable(\OCP\Files\FileInfo $file) {
 		if (!$this->config->getSystemValue('enable_previews', true)) {
 			return false;
 		}
@@ -390,11 +431,11 @@ class PreviewManager implements IPreview {
 			if (count($checkImagick->queryFormats('PDF')) === 1) {
 				// Office requires openoffice or libreoffice
 				$officeBinary = $this->config->getSystemValue('preview_libreoffice_path', null);
-				if (!is_string($officeBinary)) {
-					$officeBinary = $this->binaryFinder->findBinaryPath('libreoffice');
+				if (is_null($officeBinary)) {
+					$officeBinary = \OC_Helper::findBinaryPath('libreoffice');
 				}
-				if (!is_string($officeBinary)) {
-					$officeBinary = $this->binaryFinder->findBinaryPath('openoffice');
+				if (is_null($officeBinary)) {
+					$officeBinary = \OC_Helper::findBinaryPath('openoffice');
 				}
 
 				if (is_string($officeBinary)) {
@@ -409,9 +450,9 @@ class PreviewManager implements IPreview {
 
 		// Video requires avconv or ffmpeg
 		if (in_array(Preview\Movie::class, $this->getEnabledDefaultProvider())) {
-			$movieBinary = $this->binaryFinder->findBinaryPath('avconv');
-			if (!is_string($movieBinary)) {
-				$movieBinary = $this->binaryFinder->findBinaryPath('ffmpeg');
+			$movieBinary = \OC_Helper::findBinaryPath('avconv');
+			if (is_null($movieBinary)) {
+				$movieBinary = \OC_Helper::findBinaryPath('ffmpeg');
 			}
 
 			if (is_string($movieBinary)) {
@@ -439,7 +480,7 @@ class PreviewManager implements IPreview {
 
 			$this->registerProvider($provider->getMimeTypeRegex(), function () use ($provider) {
 				try {
-					return $this->container->get($provider->getService());
+					return $this->container->query($provider->getService());
 				} catch (QueryException $e) {
 					return null;
 				}

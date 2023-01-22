@@ -34,7 +34,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Test extends Command {
-	private IEventDispatcher $eventDispatcher;
+
+	/** @var IEventDispatcher */
+	private $eventDispatcher;
 
 	public function __construct(IEventDispatcher $eventDispatcher) {
 		parent::__construct();

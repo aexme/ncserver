@@ -107,7 +107,6 @@
     "group" : "grupo",
     "remote" : "remoto",
     "guest" : "invitado",
-    "Copy to clipboard" : "Copiar al portapapeles",
     "Link copied" : "Vinculo copiado",
     "Password protection" : "Protección con contraseña",
     "Enter a password" : "Ingresa una contraseña",
@@ -116,6 +115,7 @@
     "Password protect" : "Proteger con contraseña",
     "Add another link" : "Añadir otro enlace",
     "Share link" : "Compartir liga",
+    "No recommendations. Start typing." : "Sin recomendaciones. Empiece a escribir.",
     "Resharing is not allowed" : "No está permitido recompartir",
     "Shared with you by {owner}" : "Compartido contigo por {owner}",
     "Shared" : "Compartido",
@@ -138,7 +138,7 @@
     "Uploaded files:" : "Archivos cargados:",
     "Add to your Nextcloud" : "Agregar a tu Nextcloud",
     "Wrong share ID, share doesn't exist" : "ID del elemento compartido equivocado, el elemento compartido no existe",
-    "Wrong path, file/folder doesn't exist" : "La ruta es incorrecta, el archivo/carpeta no existe",
+    "Copy to clipboard" : "Copiar al portapapeles",
     "Sorry, this link doesn’t seem to work anymore." : "Lo sentimos, parece que esta liga ya no funciona. "
 },"pluralForm" :"nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;"
 }

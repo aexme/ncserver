@@ -25,7 +25,6 @@ declare(strict_types=1);
  */
 namespace OCA\Files\Collaboration\Resources;
 
-use OCP\Server;
 use OCP\Collaboration\Resources\IManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -38,9 +37,9 @@ class Listener {
 
 	public static function shareModification(): void {
 		/** @var IManager $resourceManager */
-		$resourceManager = Server::get(IManager::class);
+		$resourceManager = \OC::$server->query(IManager::class);
 		/** @var ResourceProvider $resourceProvider */
-		$resourceProvider = Server::get(ResourceProvider::class);
+		$resourceProvider = \OC::$server->query(ResourceProvider::class);
 
 		$resourceManager->invalidateAccessCacheForProvider($resourceProvider);
 	}

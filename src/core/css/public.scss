@@ -14,7 +14,6 @@ $footer-height: 65px;
 			#header-actions-toggle {
 				background-color: transparent;
 				border-color: transparent;
-				filter: var(--background-invert-if-dark);
 
 				&:hover,
 				&:focus,
@@ -69,17 +68,12 @@ $footer-height: 65px;
 
 	/* public footer */
 	footer {
-		position: fixed;
+		position: relative;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		height: $footer-height;
 		flex-direction: column;
-		bottom: 0;
-		width: calc(100% - 16px);
-		margin: 8px;
-		background-color: var(--color-main-background);
-		border-radius: var(--border-radius-large);
 		p {
 			text-align: center;
 			color: var(--color-text-lighter);

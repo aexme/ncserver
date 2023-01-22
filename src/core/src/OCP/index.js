@@ -28,14 +28,12 @@ import * as AppConfig from './appconfig'
 import * as Comments from './comments'
 import * as WhatsNew from './whatsnew'
 
-import Accessibility from './accessibility'
 import Collaboration from './collaboration'
 import Loader from './loader'
 import Toast from './toast'
 
 /** @namespace OCP */
 export default {
-	Accessibility,
 	AppConfig,
 	Collaboration,
 	Comments,

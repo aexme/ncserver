@@ -75,33 +75,35 @@ class ClientTest extends \Test\TestCase {
 
 	public function testGetProxyUriProxyHostWithPassword(): void {
 		$this->config
-			->expects($this->exactly(3))
+			->expects($this->at(0))
 			->method('getSystemValue')
-			->withConsecutive(
-				[
-					$this->equalTo('proxy'),
-					$this->callback(function ($input) {
-						return $input === '';
-					})
-				],
-				[
-					$this->equalTo('proxyuserpwd'),
-					$this->callback(function ($input) {
-						return $input === '';
-					})
-				],
-				[
-					$this->equalTo('proxyexclude'),
-					$this->callback(function ($input) {
-						return $input === [];
-					})
-				],
+			->with(
+				$this->equalTo('proxy'),
+				$this->callback(function ($input) {
+					return $input === '';
+				})
 			)
-			->willReturnOnConsecutiveCalls(
-				'foo',
-				'username:password',
-				[],
-			);
+			->willReturn('foo');
+		$this->config
+			->expects($this->at(1))
+			->method('getSystemValue')
+			->with(
+				$this->equalTo('proxyuserpwd'),
+				$this->callback(function ($input) {
+					return $input === '';
+				})
+			)
+			->willReturn('username:password');
+		$this->config
+			->expects($this->at(2))
+			->method('getSystemValue')
+			->with(
+				$this->equalTo('proxyexclude'),
+				$this->callback(function ($input) {
+					return $input === [];
+				})
+			)
+			->willReturn([]);
 		$this->assertEquals([
 			'http' => 'username:password@foo',
 			'https' => 'username:password@foo'
@@ -110,33 +112,35 @@ class ClientTest extends \Test\TestCase {
 
 	public function testGetProxyUriProxyHostWithPasswordAndExclude(): void {
 		$this->config
-			->expects($this->exactly(3))
+			->expects($this->at(0))
 			->method('getSystemValue')
-			->withConsecutive(
-				[
-					$this->equalTo('proxy'),
-					$this->callback(function ($input) {
-						return $input === '';
-					})
-				],
-				[
-					$this->equalTo('proxyuserpwd'),
-					$this->callback(function ($input) {
-						return $input === '';
-					})
-				],
-				[
-					$this->equalTo('proxyexclude'),
-					$this->callback(function ($input) {
-						return $input === [];
-					})
-				],
+			->with(
+				$this->equalTo('proxy'),
+				$this->callback(function ($input) {
+					return $input === '';
+				})
 			)
-			->willReturnOnConsecutiveCalls(
-				'foo',
-				'username:password',
-				['bar'],
-			);
+			->willReturn('foo');
+		$this->config
+			->expects($this->at(1))
+			->method('getSystemValue')
+			->with(
+				$this->equalTo('proxyuserpwd'),
+				$this->callback(function ($input) {
+					return $input === '';
+				})
+			)
+			->willReturn('username:password');
+		$this->config
+			->expects($this->at(2))
+			->method('getSystemValue')
+			->with(
+				$this->equalTo('proxyexclude'),
+				$this->callback(function ($input) {
+					return $input === [];
+				})
+			)
+			->willReturn(['bar']);
 		$this->assertEquals([
 			'http' => 'username:password@foo',
 			'https' => 'username:password@foo',
@@ -466,16 +470,10 @@ class ClientTest extends \Test\TestCase {
 
 	public function testSetDefaultOptionsWithNotInstalled(): void {
 		$this->config
-			->expects($this->exactly(2))
+			->expects($this->at(1))
 			->method('getSystemValue')
-			->withConsecutive(
-				['proxy', ''],
-				['installed', false],
-			)
-			->willReturnOnConsecutiveCalls(
-				'',
-				false,
-			);
+			->with('installed', false)
+			->willReturn(false);
 		$this->certificateManager
 			->expects($this->never())
 			->method('listCertificates');
@@ -503,20 +501,20 @@ class ClientTest extends \Test\TestCase {
 
 	public function testSetDefaultOptionsWithProxy(): void {
 		$this->config
-			->expects($this->exactly(4))
+			->expects($this->at(0))
 			->method('getSystemValue')
-			->withConsecutive(
-				['proxy', ''],
-				['proxyuserpwd', ''],
-				['proxyexclude', []],
-				['installed', false],
-			)
-			->willReturnOnConsecutiveCalls(
-				'foo',
-				'',
-				[],
-				true,
-			);
+			->with('proxy', null)
+			->willReturn('foo');
+		$this->config
+			->expects($this->at(1))
+			->method('getSystemValue')
+			->with('proxyuserpwd', null)
+			->willReturn(null);
+		$this->config
+			->expects($this->at(2))
+			->method('getSystemValue')
+			->with('proxyexclude', [])
+			->willReturn([]);
 		$this->certificateManager
 			->expects($this->once())
 			->method('getAbsoluteBundlePath')
@@ -550,20 +548,20 @@ class ClientTest extends \Test\TestCase {
 
 	public function testSetDefaultOptionsWithProxyAndExclude(): void {
 		$this->config
-			->expects($this->exactly(4))
+			->expects($this->at(0))
 			->method('getSystemValue')
-			->withConsecutive(
-				['proxy', ''],
-				['proxyuserpwd', ''],
-				['proxyexclude', []],
-				['installed', false],
-			)
-			->willReturnOnConsecutiveCalls(
-				'foo',
-				'',
-				['bar'],
-				true,
-			);
+			->with('proxy', null)
+			->willReturn('foo');
+		$this->config
+			->expects($this->at(1))
+			->method('getSystemValue')
+			->with('proxyuserpwd', null)
+			->willReturn(null);
+		$this->config
+			->expects($this->at(2))
+			->method('getSystemValue')
+			->with('proxyexclude', [])
+			->willReturn(['bar']);
 		$this->certificateManager
 			->expects($this->once())
 			->method('getAbsoluteBundlePath')

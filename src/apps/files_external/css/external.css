@@ -1,3 +1,3 @@
-.files-filestable tbody tr.externalErroredRow {
+#filestable tbody tr.externalErroredRow {
 	background-color: #F2DEDE;
 }

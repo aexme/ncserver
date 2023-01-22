@@ -28,7 +28,6 @@
 				type="email"
 				:placeholder="inputPlaceholder"
 				:value="email"
-				:aria-describedby="helperText ? `${inputId}-helper-text` : ''"
 				autocapitalize="none"
 				autocomplete="on"
 				autocorrect="off"
@@ -36,12 +35,12 @@
 
 			<div class="email__actions-container">
 				<transition name="fade">
-					<Check v-if="showCheckmarkIcon" :size="20" />
-					<AlertOctagon v-else-if="showErrorIcon" :size="20" />
+					<span v-if="showCheckmarkIcon" class="icon-checkmark" />
+					<span v-else-if="showErrorIcon" class="icon-error" />
 				</transition>
 
 				<template v-if="!primary">
-					<FederationControl :readable="propertyReadable"
+					<FederationControl :account-property="accountProperty"
 						:additional="true"
 						:additional-value="email"
 						:disabled="federationDisabled"
@@ -50,34 +49,27 @@
 						@update:scope="onScopeChange" />
 				</template>
 
-				<NcActions class="email__actions"
+				<Actions class="email__actions"
 					:aria-label="t('settings', 'Email options')"
 					:force-menu="true">
-					<NcActionButton :aria-label="deleteEmailLabel"
+					<ActionButton :aria-label="deleteEmailLabel"
 						:close-after-click="true"
 						:disabled="deleteDisabled"
 						icon="icon-delete"
 						@click.stop.prevent="deleteEmail">
 						{{ deleteEmailLabel }}
-					</NcActionButton>
-					<NcActionButton v-if="!primary || !isNotificationEmail"
+					</ActionButton>
+					<ActionButton v-if="!primary || !isNotificationEmail"
 						:aria-label="setNotificationMailLabel"
 						:close-after-click="true"
 						:disabled="setNotificationMailDisabled"
 						icon="icon-favorite"
 						@click.stop.prevent="setNotificationMail">
 						{{ setNotificationMailLabel }}
-					</NcActionButton>
-				</NcActions>
+					</ActionButton>
+				</Actions>
 			</div>
 		</div>
-
-		<p v-if="helperText"
-			:id="`${inputId}-helper-text`"
-			class="email__helper-text-message email__helper-text-message--error">
-			<AlertCircle class="email__helper-text-message__icon" :size="18" />
-			{{ helperText }}
-		</p>
 
 		<em v-if="isNotificationEmail">
 			{{ t('settings', 'Primary email for password reset and notifications') }}
@@ -86,17 +78,14 @@
 </template>
 
 <script>
-import { NcActions, NcActionButton } from '@nextcloud/vue'
-import AlertCircle from 'vue-material-design-icons/AlertCircleOutline.vue'
-import AlertOctagon from 'vue-material-design-icons/AlertOctagon.vue'
-import Check from 'vue-material-design-icons/Check'
+import Actions from '@nextcloud/vue/dist/Components/Actions'
+import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
 import { showError } from '@nextcloud/dialogs'
 import debounce from 'debounce'
 
-import FederationControl from '../shared/FederationControl.vue'
-import logger from '../../../logger.js'
+import FederationControl from '../shared/FederationControl'
 
-import { ACCOUNT_PROPERTY_READABLE_ENUM, VERIFICATION_ENUM } from '../../../constants/AccountPropertyConstants.js'
+import { ACCOUNT_PROPERTY_READABLE_ENUM, VERIFICATION_ENUM } from '../../../constants/AccountPropertyConstants'
 import {
 	removeAdditionalEmail,
 	saveAdditionalEmail,
@@ -104,18 +93,15 @@ import {
 	saveNotificationEmail,
 	savePrimaryEmail,
 	updateAdditionalEmail,
-} from '../../../service/PersonalInfo/EmailService.js'
-import { validateEmail } from '../../../utils/validate.js'
+} from '../../../service/PersonalInfo/EmailService'
+import { validateEmail } from '../../../utils/validate'
 
 export default {
 	name: 'Email',
 
 	components: {
-		NcActions,
-		NcActionButton,
-		AlertCircle,
-		AlertOctagon,
-		Check,
+		Actions,
+		ActionButton,
 		FederationControl,
 	},
 
@@ -148,11 +134,10 @@ export default {
 
 	data() {
 		return {
-			propertyReadable: ACCOUNT_PROPERTY_READABLE_ENUM.EMAIL,
+			accountProperty: ACCOUNT_PROPERTY_READABLE_ENUM.EMAIL,
 			initialEmail: this.email,
 			localScope: this.scope,
 			saveAdditionalEmailScope,
-			helperText: null,
 			showCheckmarkIcon: false,
 			showErrorIcon: false,
 		}
@@ -228,11 +213,6 @@ export default {
 		},
 
 		debounceEmailChange: debounce(async function(email) {
-			this.helperText = null
-			if (this.$refs.email?.validationMessage) {
-				this.helperText = this.$refs.email.validationMessage
-				return
-			}
 			if (validateEmail(email) || email === '') {
 				if (this.primary) {
 					await this.updatePrimaryEmail(email)
@@ -359,7 +339,7 @@ export default {
 				setTimeout(() => { this.showCheckmarkIcon = false }, 2000)
 			} else {
 				showError(errorMessage)
-				logger.error(errorMessage, error)
+				this.logger.error(errorMessage, error)
 				this.showErrorIcon = true
 				setTimeout(() => { this.showErrorIcon = false }, 2000)
 			}
@@ -380,6 +360,15 @@ export default {
 	input {
 		grid-area: 1 / 1;
 		width: 100%;
+		height: 34px;
+		margin: 3px 3px 3px 0;
+		padding: 7px 6px;
+		color: var(--color-main-text);
+		border: 1px solid var(--color-border-dark);
+		border-radius: var(--border-radius);
+		background-color: var(--color-main-background);
+		font-family: var(--font-face);
+		cursor: text;
 	}
 
 	.email__actions-container {
@@ -407,21 +396,16 @@ export default {
 				min-width: 30px !important;
 			}
 		}
-	}
 
-	&__helper-text-message {
-		padding: 4px 0;
-		display: flex;
-		align-items: center;
-
-		&__icon {
-			margin-right: 8px;
-			align-self: start;
-			margin-top: 4px;
-		}
-
-		&--error {
-			color: var(--color-error);
+		.icon-checkmark,
+		.icon-error {
+			height: 30px !important;
+			min-height: 30px !important;
+			width: 30px !important;
+			min-width: 30px !important;
+			top: 0;
+			right: 0;
+			float: none;
 		}
 	}
 }

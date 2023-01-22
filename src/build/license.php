@@ -447,6 +447,7 @@ if (isset($argv[1])) {
 	$licenses->exec($argv[1], isset($argv[2]) ? $argv[1] : false);
 } else {
 	$licenses->exec([
+		'../apps/accessibility',
 		'../apps/admin_audit',
 		'../apps/cloud_federation_api',
 		'../apps/comments',

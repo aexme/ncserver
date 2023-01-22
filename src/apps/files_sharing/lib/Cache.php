@@ -39,7 +39,6 @@ use OCP\Files\Search\ISearchBinaryOperator;
 use OCP\Files\Search\ISearchComparison;
 use OCP\Files\Search\ISearchOperator;
 use OCP\Files\StorageNotAvailableException;
-use OCP\ICacheFactory;
 use OCP\IUserManager;
 
 /**
@@ -77,7 +76,7 @@ class Cache extends CacheJail {
 
 			// the sourceRootInfo path is the absolute path of the folder in the "real" storage
 			// in the case where a folder is shared from a Jail we need to ensure that the share Jail
-			// has its root set relative to the source Jail
+			// has it's root set relative to the source Jail
 			$currentStorage = $this->storage->getSourceStorage();
 			if ($currentStorage->instanceOfStorage(Jail::class)) {
 				/** @var Jail $currentStorage */
@@ -170,7 +169,7 @@ class Cache extends CacheJail {
 	private function getOwnerDisplayName() {
 		if (!$this->ownerDisplayName) {
 			$uid = $this->storage->getOwner('');
-			$this->ownerDisplayName = $this->displayNameCache->getDisplayName($uid) ?? $uid;
+			$this->ownerDisplayName = $this->displayNameCache->getDisplayName($uid);
 		}
 		return $this->ownerDisplayName;
 	}

@@ -32,7 +32,6 @@ use OCP\App\IAppManager;
 use OCP\IGroup;
 use OCP\IGroupManager;
 use OCP\IUser;
-use OCP\IUserManager;
 use OCP\IUserSession;
 use Sabre\CardDAV\Plugin;
 use Sabre\VObject\Reader;
@@ -51,19 +50,14 @@ class Backend {
 	/** @var IAppManager */
 	protected $appManager;
 
-	/** @var IUserManager */
-	protected $userManager;
-
 	public function __construct(IActivityManager $activityManager,
 								IGroupManager $groupManager,
 								IUserSession $userSession,
-								IAppManager $appManager,
-								IUserManager $userManager) {
+								IAppManager $appManager) {
 		$this->activityManager = $activityManager;
 		$this->groupManager = $groupManager;
 		$this->userSession = $userSession;
 		$this->appManager = $appManager;
-		$this->userManager = $userManager;
 	}
 
 	/**
@@ -109,14 +103,7 @@ class Backend {
 			return;
 		}
 
-		$principalUri = $addressbookData['principaluri'];
-
-		// We are not interested in changes from the system addressbook
-		if ($principalUri === 'principals/system/system') {
-			return;
-		}
-
-		$principal = explode('/', $principalUri);
+		$principal = explode('/', $addressbookData['principaluri']);
 		$owner = array_pop($principal);
 
 		$currentUser = $this->userSession->getUser();
@@ -145,11 +132,6 @@ class Backend {
 		}
 
 		foreach ($users as $user) {
-			if ($action === Addressbook::SUBJECT_DELETE && !$this->userManager->userExists($user)) {
-				// Avoid creating addressbook_delete activities for deleted users
-				continue;
-			}
-
 			$event->setAffectedUser($user)
 				->setSubject(
 					$user === $currentUser ? $action . '_self' : $action,
@@ -411,14 +393,7 @@ class Backend {
 			return;
 		}
 
-		$principalUri = $addressbookData['principaluri'];
-
-		// We are not interested in changes from the system addressbook
-		if ($principalUri === 'principals/system/system') {
-			return;
-		}
-
-		$principal = explode('/', $principalUri);
+		$principal = explode('/', $addressbookData['principaluri']);
 		$owner = array_pop($principal);
 
 		$currentUser = $this->userSession->getUser();

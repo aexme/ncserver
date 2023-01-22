@@ -23,15 +23,12 @@
  *
  */
 use OCP\Share\IManager;
-use OCP\Server;
-use OCP\IConfig;
-use OCP\IUserSession;
 
-$config = Server::get(IConfig::class);
-$userSession = Server::get(IUserSession::class);
+$config = \OC::$server->getConfig();
+$userSession = \OC::$server->getUserSession();
 // TODO: move this to the generated config.js
 /** @var IManager $shareManager */
-$shareManager = Server::get(IManager::class);
+$shareManager = \OC::$server->get(IManager::class);
 $publicUploadEnabled = $shareManager->shareApiLinkAllowPublicUpload() ? 'yes' : 'no';
 
 $showgridview = $config->getUserValue($userSession->getUser()->getUID(), 'files', 'show_grid', false);

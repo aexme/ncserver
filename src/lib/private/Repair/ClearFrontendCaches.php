@@ -25,6 +25,7 @@
 namespace OC\Repair;
 
 use OC\Template\JSCombiner;
+use OC\Template\SCSSCacher;
 use OCP\ICacheFactory;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -34,12 +35,17 @@ class ClearFrontendCaches implements IRepairStep {
 	/** @var ICacheFactory */
 	protected $cacheFactory;
 
+	/** @var SCSSCacher */
+	protected $scssCacher;
+
 	/** @var JSCombiner */
 	protected $jsCombiner;
 
 	public function __construct(ICacheFactory $cacheFactory,
+								SCSSCacher $SCSSCacher,
 								JSCombiner $JSCombiner) {
 		$this->cacheFactory = $cacheFactory;
+		$this->scssCacher = $SCSSCacher;
 		$this->jsCombiner = $JSCombiner;
 	}
 
@@ -52,6 +58,9 @@ class ClearFrontendCaches implements IRepairStep {
 			$c = $this->cacheFactory->createDistributed('imagePath');
 			$c->clear();
 			$output->info('Image cache cleared');
+
+			$this->scssCacher->resetCache();
+			$output->info('SCSS cache cleared');
 
 			$this->jsCombiner->resetCache();
 			$output->info('JS cache cleared');

@@ -22,7 +22,7 @@
 
 <template>
 	<div id="app-content" class="user-list-grid" @scroll.passive="onScroll">
-		<NcModal v-if="showConfig.showNewUserForm" size="small" @close="closeModal">
+		<Modal v-if="showConfig.showNewUserForm" size="small" @close="closeModal">
 			<form id="new-user"
 				:disabled="loading.all"
 				class="modal__content"
@@ -84,7 +84,7 @@
 						:value="newUser.groups"
 						tabindex="-1"
 						type="text">
-					<NcMultiselect v-model="newUser.groups"
+					<Multiselect v-model="newUser.groups"
 						:close-on-select="false"
 						:disabled="loading.groups||loading.all"
 						:multiple="true"
@@ -101,11 +101,11 @@
 							Subadmins can't create users outside their groups
 							Therefore, empty select is forbidden -->
 						<span slot="noResult">{{ t('settings', 'No results') }}</span>
-					</NcMultiselect>
+					</Multiselect>
 				</div>
 				<div v-if="subAdminsGroups.length>0 && settings.isAdmin"
 					class="subadmins modal__item">
-					<NcMultiselect v-model="newUser.subAdminsGroups"
+					<Multiselect v-model="newUser.subAdminsGroups"
 						:close-on-select="false"
 						:multiple="true"
 						:options="subAdminsGroups"
@@ -115,10 +115,10 @@
 						label="name"
 						track-by="id">
 						<span slot="noResult">{{ t('settings', 'No results') }}</span>
-					</NcMultiselect>
+					</Multiselect>
 				</div>
 				<div class="quota modal__item">
-					<NcMultiselect v-model="newUser.quota"
+					<Multiselect v-model="newUser.quota"
 						:allow-empty="false"
 						:options="quotaOptions"
 						:placeholder="t('settings', 'Select user quota')"
@@ -129,7 +129,7 @@
 						@tag="validateQuota" />
 				</div>
 				<div v-if="showConfig.showLanguages" class="languages modal__item">
-					<NcMultiselect v-model="newUser.language"
+					<Multiselect v-model="newUser.language"
 						:allow-empty="false"
 						:options="languages"
 						:placeholder="t('settings', 'Default language')"
@@ -143,15 +143,15 @@
 				<div v-if="showConfig.showUserBackend" class="userBackend" />
 				<div v-if="showConfig.showLastLogin" class="lastLogin" />
 				<div class="user-actions">
-					<NcButton id="newsubmit"
+					<Button id="newsubmit"
 						type="primary"
 						native-type="submit"
 						value="">
 						{{ t('settings', 'Add a new user') }}
-					</NcButton>
+					</Button>
 				</div>
 			</form>
-		</NcModal>
+		</Modal>
 		<div id="grid-header"
 			:class="{'sticky': scrolled && !showConfig.showNewUserForm}"
 			class="row">
@@ -213,8 +213,7 @@
 			:settings="settings"
 			:show-config="showConfig"
 			:sub-admins-groups="subAdminsGroups"
-			:user="user"
-			:is-dark-theme="isDarkTheme" />
+			:user="user" />
 		<InfiniteLoading ref="infiniteLoading" @infinite="infiniteHandler">
 			<div slot="spinner">
 				<div class="users-icon-loading icon-loading" />
@@ -236,9 +235,9 @@
 import { subscribe, unsubscribe } from '@nextcloud/event-bus'
 import InfiniteLoading from 'vue-infinite-loading'
 import Vue from 'vue'
-import NcModal from '@nextcloud/vue/dist/Components/NcModal'
-import NcButton from '@nextcloud/vue/dist/Components/NcButton'
-import NcMultiselect from '@nextcloud/vue/dist/Components/NcMultiselect'
+import Modal from '@nextcloud/vue/dist/Components/Modal'
+import Button from '@nextcloud/vue/dist/Components/Button'
+import Multiselect from '@nextcloud/vue/dist/Components/Multiselect'
 
 import userRow from './UserList/UserRow'
 
@@ -267,11 +266,11 @@ const newUser = {
 export default {
 	name: 'UserList',
 	components: {
-		NcModal,
+		Modal,
 		userRow,
-		NcMultiselect,
+		Multiselect,
 		InfiniteLoading,
-		NcButton,
+		Button,
 	},
 	props: {
 		users: {
@@ -379,10 +378,6 @@ export default {
 					languages: this.settings.languages.otherLanguages,
 				},
 			]
-		},
-		isDarkTheme() {
-			return window.getComputedStyle(this.$el)
-				.getPropertyValue('--background-invert-if-dark') === 'invert(100%)'
 		},
 	},
 	watch: {

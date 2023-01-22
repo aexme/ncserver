@@ -25,6 +25,7 @@
 
 			<LoginButton v-if="validCredentials"
 				:loading="loading"
+				:inverted-colors="invertedColors"
 				@click="authenticate" />
 		</fieldset>
 	</form>
@@ -71,6 +72,10 @@ export default {
 		},
 		redirectUrl: {
 			type: [String, Boolean],
+			default: false,
+		},
+		invertedColors: {
+			type: Boolean,
 			default: false,
 		},
 		autoCompleteAllowed: {

@@ -33,28 +33,31 @@ use OCP\AppFramework\QueryException;
 use OCP\Contacts\ContactsMenu\IProvider;
 use OCP\IServerContainer;
 use OCP\IUser;
-use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use Test\TestCase;
 
 class ActionProviderStoreTest extends TestCase {
 
-	/** @var IServerContainer|MockObject */
+	/** @var IServerContainer|\PHPUnit\Framework\MockObject\MockObject */
 	private $serverContainer;
 
-	/** @var IAppManager|MockObject */
+	/** @var IAppManager|\PHPUnit\Framework\MockObject\MockObject */
 	private $appManager;
 
-	private ActionProviderStore $actionProviderStore;
+	/** @var LoggerInterface|\PHPUnit\Framework\MockObject\MockObject */
+	private $logger;
+
+	/** @var ActionProviderStore */
+	private $actionProviderStore;
 
 	protected function setUp(): void {
 		parent::setUp();
 
 		$this->serverContainer = $this->createMock(IServerContainer::class);
 		$this->appManager = $this->createMock(AppManager::class);
-		$logger = $this->createMock(LoggerInterface::class);
+		$this->logger = $this->createMock(LoggerInterface::class);
 
-		$this->actionProviderStore = new ActionProviderStore($this->serverContainer, $this->appManager, $logger);
+		$this->actionProviderStore = new ActionProviderStore($this->serverContainer, $this->appManager, $this->logger);
 	}
 
 	public function testGetProviders() {
@@ -76,11 +79,11 @@ class ActionProviderStoreTest extends TestCase {
 				],
 			]);
 		$this->serverContainer->expects($this->exactly(3))
-			->method('get')
+			->method('query')
 			->willReturnMap([
-				[ProfileProvider::class, $provider1],
-				[EMailProvider::class, $provider2],
-				['OCA\Contacts\Provider1', $provider3]
+				[ProfileProvider::class, true, $provider1],
+				[EMailProvider::class, true, $provider2],
+				['OCA\Contacts\Provider1', true, $provider3]
 			]);
 
 		$providers = $this->actionProviderStore->getProviders($user);
@@ -104,10 +107,10 @@ class ActionProviderStoreTest extends TestCase {
 			->with('contacts')
 			->willReturn([/* Empty info.xml */]);
 		$this->serverContainer->expects($this->exactly(2))
-			->method('get')
+			->method('query')
 			->willReturnMap([
-				[ProfileProvider::class, $provider1],
-				[EMailProvider::class, $provider2],
+				[ProfileProvider::class, true, $provider1],
+				[EMailProvider::class, true, $provider2],
 			]);
 
 		$providers = $this->actionProviderStore->getProviders($user);
@@ -127,7 +130,7 @@ class ActionProviderStoreTest extends TestCase {
 			->with($user)
 			->willReturn([]);
 		$this->serverContainer->expects($this->once())
-			->method('get')
+			->method('query')
 			->willThrowException(new QueryException());
 
 		$this->actionProviderStore->getProviders($user);

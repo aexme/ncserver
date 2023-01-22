@@ -61,8 +61,7 @@
 </template>
 
 <script>
-import { confirmPassword } from '@nextcloud/password-confirmation'
-import '@nextcloud/password-confirmation/dist/style.css'
+import confirmPassword from '@nextcloud/password-confirmation'
 
 import logger from '../../logger'
 import {

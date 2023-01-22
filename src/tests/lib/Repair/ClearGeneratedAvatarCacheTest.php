@@ -25,7 +25,6 @@ namespace Test\Repair;
 
 use OC\Avatar\AvatarManager;
 use OC\Repair\ClearGeneratedAvatarCache;
-use OCP\BackgroundJob\IJobList;
 use OCP\IConfig;
 use OCP\Migration\IOutput;
 
@@ -40,10 +39,8 @@ class ClearGeneratedAvatarCacheTest extends \Test\TestCase {
 	/** @var IConfig */
 	private $config;
 
-	/** @var IJobList */
-	private $jobList;
-
-	protected ClearGeneratedAvatarCache $repair;
+	/** @var ClearGeneratedAvatarCache */
+	protected $repair;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -51,9 +48,8 @@ class ClearGeneratedAvatarCacheTest extends \Test\TestCase {
 		$this->outputMock = $this->createMock(IOutput::class);
 		$this->avatarManager = $this->createMock(AvatarManager::class);
 		$this->config = $this->createMock(IConfig::class);
-		$this->jobList = $this->createMock(IJobList::class);
 
-		$this->repair = new ClearGeneratedAvatarCache($this->config, $this->avatarManager, $this->jobList);
+		$this->repair = new ClearGeneratedAvatarCache($this->config, $this->avatarManager);
 	}
 
 	public function shouldRunDataProvider() {
@@ -62,10 +58,10 @@ class ClearGeneratedAvatarCacheTest extends \Test\TestCase {
 			['15.0.0.3', true],
 			['13.0.5.2', true],
 			['12.0.0.0', true],
-			['26.0.0.1', false],
+			['16.0.0.1', false],
 			['15.0.0.2', true],
 			['13.0.0.0', true],
-			['27.0.0.5', false]
+			['15.0.0.5', false]
 		];
 	}
 

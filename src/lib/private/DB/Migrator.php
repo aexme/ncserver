@@ -27,41 +27,48 @@
  */
 namespace OC\DB;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\Type;
 use OCP\IConfig;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use function preg_match;
-use OCP\EventDispatcher\IEventDispatcher;
 
 class Migrator {
 
-	/** @var Connection */
+	/** @var \Doctrine\DBAL\Connection */
 	protected $connection;
 
 	/** @var IConfig */
 	protected $config;
 
-	private ?IEventDispatcher $dispatcher;
+	/** @var EventDispatcherInterface  */
+	private $dispatcher;
 
 	/** @var bool */
 	private $noEmit = false;
 
-	public function __construct(Connection $connection,
+	/**
+	 * @param \Doctrine\DBAL\Connection $connection
+	 * @param IConfig $config
+	 * @param EventDispatcherInterface $dispatcher
+	 */
+	public function __construct(\Doctrine\DBAL\Connection $connection,
 								IConfig $config,
-								?IEventDispatcher $dispatcher = null) {
+								EventDispatcherInterface $dispatcher = null) {
 		$this->connection = $connection;
 		$this->config = $config;
 		$this->dispatcher = $dispatcher;
 	}
 
 	/**
+	 * @param \Doctrine\DBAL\Schema\Schema $targetSchema
+	 *
 	 * @throws Exception
 	 */
 	public function migrate(Schema $targetSchema) {
@@ -70,6 +77,7 @@ class Migrator {
 	}
 
 	/**
+	 * @param \Doctrine\DBAL\Schema\Schema $targetSchema
 	 * @return string
 	 */
 	public function generateChangeScript(Schema $targetSchema) {
@@ -100,9 +108,11 @@ class Migrator {
 	}
 
 	/**
-	 * @return SchemaDiff
+	 * @param Schema $targetSchema
+	 * @param \Doctrine\DBAL\Connection $connection
+	 * @return \Doctrine\DBAL\Schema\SchemaDiff
 	 */
-	protected function getDiff(Schema $targetSchema, Connection $connection) {
+	protected function getDiff(Schema $targetSchema, \Doctrine\DBAL\Connection $connection) {
 		// adjust varchar columns with a length higher then getVarcharMaxLength to clob
 		foreach ($targetSchema->getTables() as $table) {
 			foreach ($table->getColumns() as $column) {
@@ -143,9 +153,12 @@ class Migrator {
 	}
 
 	/**
+	 * @param \Doctrine\DBAL\Schema\Schema $targetSchema
+	 * @param \Doctrine\DBAL\Connection $connection
+	 *
 	 * @throws Exception
 	 */
-	protected function applySchema(Schema $targetSchema, Connection $connection = null) {
+	protected function applySchema(Schema $targetSchema, \Doctrine\DBAL\Connection $connection = null) {
 		if (is_null($connection)) {
 			$connection = $this->connection;
 		}
@@ -181,13 +194,13 @@ class Migrator {
 		return '/^' . preg_quote($this->config->getSystemValue('dbtableprefix', 'oc_')) . '/';
 	}
 
-	protected function emit(string $sql, int $step, int $max): void {
+	protected function emit($sql, $step, $max) {
 		if ($this->noEmit) {
 			return;
 		}
 		if (is_null($this->dispatcher)) {
 			return;
 		}
-		$this->dispatcher->dispatchTyped(new MigratorExecuteSqlEvent($sql, $step, $max));
+		$this->dispatcher->dispatch('\OC\DB\Migrator::executeSql', new GenericEvent($sql, [$step + 1, $max]));
 	}
 }

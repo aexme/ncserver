@@ -31,7 +31,6 @@ use OCA\DAV\Exception\UnsupportedLimitOnInitialSyncException;
 use Sabre\CalDAV\Backend\BackendInterface;
 use Sabre\DAV\Exception\MethodNotAllowed;
 use Sabre\DAV\Exception\NotFound;
-use Sabre\DAV\INode;
 use Sabre\DAV\PropPatch;
 
 /**
@@ -52,7 +51,7 @@ class CachedSubscription extends \Sabre\CalDAV\Calendar {
 	/**
 	 * @return array
 	 */
-	public function getACL() {
+	public function getACL():array {
 		return [
 			[
 				'privilege' => '{DAV:}read',
@@ -80,7 +79,7 @@ class CachedSubscription extends \Sabre\CalDAV\Calendar {
 	/**
 	 * @return array
 	 */
-	public function getChildACL() {
+	public function getChildACL():array {
 		return [
 			[
 				'privilege' => '{DAV:}read',
@@ -140,9 +139,9 @@ class CachedSubscription extends \Sabre\CalDAV\Calendar {
 	}
 
 	/**
-	 * @return INode[]
+	 * @return array
 	 */
-	public function getChildren(): array {
+	public function getChildren():array {
 		$objs = $this->caldavBackend->getCalendarObjects($this->calendarInfo['id'], CalDavBackend::CALENDAR_TYPE_SUBSCRIPTION);
 
 		$children = [];
@@ -170,8 +169,8 @@ class CachedSubscription extends \Sabre\CalDAV\Calendar {
 
 	/**
 	 * @param string $name
-	 * @param null|resource|string $calendarData
-	 * @return null|string
+	 * @param null $calendarData
+	 * @return null|string|void
 	 * @throws MethodNotAllowed
 	 */
 	public function createFile($name, $calendarData = null) {

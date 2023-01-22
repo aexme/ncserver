@@ -26,79 +26,56 @@ declare(strict_types=1);
 namespace OCA\Theming\Listener;
 
 use OCA\Theming\AppInfo\Application;
-use OCA\Theming\Service\BackgroundService;
 use OCA\Theming\Service\JSDataService;
-use OCA\Theming\Service\ThemeInjectionService;
-use OCP\AppFramework\Http\Events\BeforeTemplateRenderedEvent;
-use OCP\AppFramework\Http\TemplateResponse;
-use OCP\AppFramework\Services\IInitialState;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\IConfig;
-use OCP\IUserSession;
-use Psr\Container\ContainerInterface;
+use OCP\IInitialStateService;
+use OCP\IServerContainer;
+use OCP\IURLGenerator;
 
 class BeforeTemplateRenderedListener implements IEventListener {
 
-	private IInitialState $initialState;
-	private ContainerInterface $container;
-	private ThemeInjectionService $themeInjectionService;
-	private IUserSession $userSession;
-	private IConfig $config;
+	/** @var IInitialStateService */
+	private $initialStateService;
+	/** @var IURLGenerator */
+	private $urlGenerator;
+	/** @var IConfig */
+	private $config;
+	/** @var IServerContainer */
+	private $serverContainer;
 
 	public function __construct(
-		IInitialState $initialState,
-		ContainerInterface $container,
-		ThemeInjectionService $themeInjectionService,
-		IUserSession $userSession,
-		IConfig $config
+		IInitialStateService $initialStateService,
+		IURLGenerator $urlGenerator,
+		IConfig $config,
+		IServerContainer $serverContainer
 	) {
-		$this->initialState = $initialState;
-		$this->container = $container;
-		$this->themeInjectionService = $themeInjectionService;
-		$this->userSession = $userSession;
+		$this->initialStateService = $initialStateService;
+		$this->urlGenerator = $urlGenerator;
 		$this->config = $config;
+		$this->serverContainer = $serverContainer;
 	}
 
 	public function handle(Event $event): void {
-		$this->initialState->provideLazyInitialState(
-			'data',
-			fn () => $this->container->get(JSDataService::class),
+		$serverContainer = $this->serverContainer;
+		$this->initialStateService->provideLazyInitialState(Application::APP_ID, 'data', function () use ($serverContainer) {
+			return $serverContainer->query(JSDataService::class);
+		});
+
+		$linkToCSS = $this->urlGenerator->linkToRoute(
+			'theming.Theming.getStylesheet',
+			[
+				'v' => $this->config->getAppValue('theming', 'cachebuster', '0'),
+			]
 		);
-
-		/** @var BeforeTemplateRenderedEvent $event */
-		if ($event->getResponse()->getRenderAs() === TemplateResponse::RENDER_AS_USER) {
-			$this->initialState->provideLazyInitialState('shortcutsDisabled', function () {
-				if ($this->userSession->getUser()) {
-					$uid = $this->userSession->getUser()->getUID();
-					return $this->config->getUserValue($uid, Application::APP_ID, 'shortcuts_disabled', 'no') === 'yes';
-				}
-				return false;
-			});
-		}
-
-		$this->themeInjectionService->injectHeaders();
-
-		$user = $this->userSession->getUser();
-
-		if (!empty($user)) {
-			$userId = $user->getUID();
-
-			$this->initialState->provideInitialState(
-				'background',
-				$this->config->getUserValue($userId, Application::APP_ID, 'background', 'default'),
-			);
-
-			$this->initialState->provideInitialState(
-				'themingDefaultBackground',
-				 $this->config->getAppValue('theming', 'backgroundMime', ''),
-			);
-
-			$this->initialState->provideInitialState(
-				'shippedBackgrounds',
-				 BackgroundService::SHIPPED_BACKGROUNDS,
-			);
-		}
+		\OCP\Util::addHeader(
+			'link',
+			[
+				'rel' => 'stylesheet',
+				'href' => $linkToCSS,
+			]
+		);
 
 		// Making sure to inject just after core
 		\OCP\Util::addScript('theming', 'theming', 'core');

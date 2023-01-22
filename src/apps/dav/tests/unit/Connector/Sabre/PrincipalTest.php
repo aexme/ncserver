@@ -35,10 +35,6 @@ use OC\User\User;
 use OCA\DAV\CalDAV\Proxy\Proxy;
 use OCA\DAV\CalDAV\Proxy\ProxyMapper;
 use OCA\DAV\Connector\Sabre\Principal;
-use OCP\Accounts\IAccount;
-use OCP\Accounts\IAccountManager;
-use OCP\Accounts\IAccountProperty;
-use OCP\Accounts\IAccountPropertyCollection;
 use OCP\App\IAppManager;
 use OCP\IConfig;
 use OCP\IGroup;
@@ -64,9 +60,6 @@ class PrincipalTest extends TestCase {
 	/** @var IGroupManager | MockObject */
 	private $groupManager;
 
-	/** @var IAccountManager|MockObject */
-	private $accountManager;
-
 	/** @var IManager | MockObject */
 	private $shareManager;
 
@@ -89,7 +82,6 @@ class PrincipalTest extends TestCase {
 	protected function setUp(): void {
 		$this->userManager = $this->createMock(IUserManager::class);
 		$this->groupManager = $this->createMock(IGroupManager::class);
-		$this->accountManager = $this->createMock(IAccountManager::class);
 		$this->shareManager = $this->createMock(IManager::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->appManager = $this->createMock(IAppManager::class);
@@ -101,7 +93,6 @@ class PrincipalTest extends TestCase {
 		$this->connector = new Principal(
 			$this->userManager,
 			$this->groupManager,
-			$this->accountManager,
 			$this->shareManager,
 			$this->userSession,
 			$this->appManager,
@@ -153,45 +144,6 @@ class PrincipalTest extends TestCase {
 			->withConsecutive([$fooUser], [$barUser])
 			->willReturnOnConsecutiveCalls('de', 'en');
 
-		$fooAccountPropertyCollection = $this->createMock(IAccountPropertyCollection::class);
-		$fooAccountPropertyCollection->expects($this->once())
-			->method('getProperties')
-			->with()
-			->willReturn([]);
-		$fooAccount = $this->createMock(IAccount::class);
-		$fooAccount->expects($this->once())
-			->method('getPropertyCollection')
-			->with(IAccountManager::COLLECTION_EMAIL)
-			->willReturn($fooAccountPropertyCollection);
-
-		$emailPropertyOne = $this->createMock(IAccountProperty::class);
-		$emailPropertyOne->expects($this->once())
-			->method('getValue')
-			->with()
-			->willReturn('alias@nextcloud.com');
-		$emailPropertyTwo = $this->createMock(IAccountProperty::class);
-		$emailPropertyTwo->expects($this->once())
-			->method('getValue')
-			->with()
-			->willReturn('alias2@nextcloud.com');
-
-		$barAccountPropertyCollection = $this->createMock(IAccountPropertyCollection::class);
-		$barAccountPropertyCollection->expects($this->once())
-			->method('getProperties')
-			->with()
-			->willReturn([$emailPropertyOne, $emailPropertyTwo]);
-		$barAccount = $this->createMock(IAccount::class);
-		$barAccount->expects($this->once())
-			->method('getPropertyCollection')
-			->with(IAccountManager::COLLECTION_EMAIL)
-			->willReturn($barAccountPropertyCollection);
-
-		$this->accountManager
-			->expects($this->exactly(2))
-			->method('getAccount')
-			->withConsecutive([$fooUser], [$barUser])
-			->willReturnOnConsecutiveCalls($fooAccount, $barAccount);
-
 		$expectedResponse = [
 			0 => [
 				'uri' => 'principals/users/foo',
@@ -205,7 +157,6 @@ class PrincipalTest extends TestCase {
 				'{urn:ietf:params:xml:ns:caldav}calendar-user-type' => 'INDIVIDUAL',
 				'{http://nextcloud.com/ns}language' => 'en',
 				'{http://sabredav.org/ns}email-address' => 'bar@nextcloud.com',
-				'{DAV:}alternate-URI-set' => ['mailto:alias@nextcloud.com', 'mailto:alias2@nextcloud.com']
 			]
 		];
 		$response = $this->connector->getPrincipalsByPrefix('principals/users');

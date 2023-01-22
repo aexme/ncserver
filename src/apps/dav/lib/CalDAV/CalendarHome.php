@@ -206,6 +206,7 @@ class CalendarHome extends \Sabre\CalDAV\CalendarHome {
 		return $this->caldavBackend->calendarSearch($principalUri, $filters, $limit, $offset);
 	}
 
+
 	public function enableCachedSubscriptionsForThisRequest() {
 		$this->returnCachedSubscriptions = true;
 	}

@@ -304,23 +304,36 @@ class RoutingTest extends \Test\TestCase {
 
 		$urlWithParam = $url . '/{' . $paramName . '}';
 
-		// we expect create to be called five times:
+		// we expect create to be called once:
 		$router
-			->expects($this->exactly(5))
+			->expects($this->at(0))
 			->method('create')
-			->withConsecutive(
-				[$this->equalTo('ocs.app1.' . $resourceName . '.index'), $this->equalTo($url)],
-				[$this->equalTo('ocs.app1.' . $resourceName . '.show'), $this->equalTo($urlWithParam)],
-				[$this->equalTo('ocs.app1.' . $resourceName . '.create'), $this->equalTo($url)],
-				[$this->equalTo('ocs.app1.' . $resourceName . '.update'), $this->equalTo($urlWithParam)],
-				[$this->equalTo('ocs.app1.' . $resourceName . '.destroy'), $this->equalTo($urlWithParam)],
-			)->willReturnOnConsecutiveCalls(
-				$indexRoute,
-				$showRoute,
-				$createRoute,
-				$updateRoute,
-				$destroyRoute,
-			);
+			->with($this->equalTo('ocs.app1.' . $resourceName . '.index'), $this->equalTo($url))
+			->willReturn($indexRoute);
+
+		$router
+			->expects($this->at(1))
+			->method('create')
+			->with($this->equalTo('ocs.app1.' . $resourceName . '.show'), $this->equalTo($urlWithParam))
+			->willReturn($showRoute);
+
+		$router
+			->expects($this->at(2))
+			->method('create')
+			->with($this->equalTo('ocs.app1.' . $resourceName . '.create'), $this->equalTo($url))
+			->willReturn($createRoute);
+
+		$router
+			->expects($this->at(3))
+			->method('create')
+			->with($this->equalTo('ocs.app1.' . $resourceName . '.update'), $this->equalTo($urlWithParam))
+			->willReturn($updateRoute);
+
+		$router
+			->expects($this->at(4))
+			->method('create')
+			->with($this->equalTo('ocs.app1.' . $resourceName . '.destroy'), $this->equalTo($urlWithParam))
+			->willReturn($destroyRoute);
 
 		// load route configuration
 		$config = new RouteConfig($container, $router, $yaml);
@@ -351,23 +364,36 @@ class RoutingTest extends \Test\TestCase {
 
 		$urlWithParam = $url . '/{' . $paramName . '}';
 
-		// we expect create to be called five times:
+		// we expect create to be called once:
 		$router
-			->expects($this->exactly(5))
+			->expects($this->at(0))
 			->method('create')
-			->withConsecutive(
-				[$this->equalTo('app1.' . $resourceName . '.index'), $this->equalTo($url)],
-				[$this->equalTo('app1.' . $resourceName . '.show'), $this->equalTo($urlWithParam)],
-				[$this->equalTo('app1.' . $resourceName . '.create'), $this->equalTo($url)],
-				[$this->equalTo('app1.' . $resourceName . '.update'), $this->equalTo($urlWithParam)],
-				[$this->equalTo('app1.' . $resourceName . '.destroy'), $this->equalTo($urlWithParam)],
-			)->willReturnOnConsecutiveCalls(
-				$indexRoute,
-				$showRoute,
-				$createRoute,
-				$updateRoute,
-				$destroyRoute,
-			);
+			->with($this->equalTo('app1.' . $resourceName . '.index'), $this->equalTo($url))
+			->willReturn($indexRoute);
+
+		$router
+			->expects($this->at(1))
+			->method('create')
+			->with($this->equalTo('app1.' . $resourceName . '.show'), $this->equalTo($urlWithParam))
+			->willReturn($showRoute);
+
+		$router
+			->expects($this->at(2))
+			->method('create')
+			->with($this->equalTo('app1.' . $resourceName . '.create'), $this->equalTo($url))
+			->willReturn($createRoute);
+
+		$router
+			->expects($this->at(3))
+			->method('create')
+			->with($this->equalTo('app1.' . $resourceName . '.update'), $this->equalTo($urlWithParam))
+			->willReturn($updateRoute);
+
+		$router
+			->expects($this->at(4))
+			->method('create')
+			->with($this->equalTo('app1.' . $resourceName . '.destroy'), $this->equalTo($urlWithParam))
+			->willReturn($destroyRoute);
 
 		// load route configuration
 		$config = new RouteConfig($container, $router, $yaml);

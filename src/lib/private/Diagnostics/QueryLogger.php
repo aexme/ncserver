@@ -24,14 +24,19 @@
  */
 namespace OC\Diagnostics;
 
-use OCP\Cache\CappedMemoryCache;
+use OC\Cache\CappedMemoryCache;
 use OCP\Diagnostics\IQueryLogger;
 
 class QueryLogger implements IQueryLogger {
-	protected int $index = 0;
-	protected ?Query $activeQuery = null;
-	/** @var CappedMemoryCache<Query> */
-	protected CappedMemoryCache $queries;
+	/**
+	 * @var \OC\Diagnostics\Query
+	 */
+	protected $activeQuery;
+
+	/**
+	 * @var CappedMemoryCache
+	 */
+	protected $queries;
 
 	/**
 	 * QueryLogger constructor.
@@ -69,8 +74,7 @@ class QueryLogger implements IQueryLogger {
 	public function stopQuery() {
 		if ($this->activated && $this->activeQuery) {
 			$this->activeQuery->end(microtime(true));
-			$this->queries[(string)$this->index] = $this->activeQuery;
-			$this->index++;
+			$this->queries[] = $this->activeQuery;
 			$this->activeQuery = null;
 		}
 	}

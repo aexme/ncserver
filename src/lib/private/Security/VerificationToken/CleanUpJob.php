@@ -28,20 +28,27 @@ namespace OC\Security\VerificationToken;
 
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IConfig;
+use OCP\ILogger;
 use OCP\IUserManager;
-use OCP\BackgroundJob\IJobList;
-use OCP\BackgroundJob\Job;
 use OCP\Security\VerificationToken\InvalidTokenException;
 use OCP\Security\VerificationToken\IVerificationToken;
 
-class CleanUpJob extends Job {
-	protected ?int $runNotBefore = null;
-	protected ?string $userId = null;
-	protected ?string $subject = null;
-	protected ?string $pwdPrefix = null;
-	private IConfig $config;
-	private IVerificationToken $verificationToken;
-	private IUserManager $userManager;
+class CleanUpJob extends \OCP\BackgroundJob\Job {
+
+	/** @var int */
+	protected $runNotBefore;
+	/** @var string */
+	protected $userId;
+	/** @var string */
+	protected $subject;
+	/** @var string */
+	protected $pwdPrefix;
+	/** @var IConfig */
+	private $config;
+	/** @var IVerificationToken */
+	private $verificationToken;
+	/** @var IUserManager */
+	private $userManager;
 
 	public function __construct(ITimeFactory $time, IConfig $config, IVerificationToken $verificationToken, IUserManager $userManager) {
 		parent::__construct($time);
@@ -74,10 +81,10 @@ class CleanUpJob extends Job {
 		}
 	}
 
-	public function start(IJobList $jobList): void {
+	public function execute($jobList, ILogger $logger = null) {
 		if ($this->time->getTime() >= $this->runNotBefore) {
 			$jobList->remove($this, $this->argument);
-			parent::start($jobList);
+			parent::execute($jobList, $logger);
 		}
 	}
 }

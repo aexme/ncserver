@@ -43,7 +43,7 @@ abstract class Bundled extends ProviderV2 {
 			$zip = new ZIP($sourceTmp);
 			$zip->extractFile($path, $targetTmp);
 
-			$image = new \OCP\Image();
+			$image = new \OC_Image();
 			$image->loadFromFile($targetTmp);
 			$image->fixOrientation();
 

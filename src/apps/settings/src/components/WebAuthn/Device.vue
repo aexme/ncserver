@@ -23,23 +23,23 @@
 	<div class="webauthn-device">
 		<span class="icon-webauthn-device" />
 		{{ name || t('settings', 'Unnamed device') }}
-		<NcActions :force-menu="true">
-			<NcActionButton icon="icon-delete" @click="$emit('delete')">
+		<Actions :force-menu="true">
+			<ActionButton icon="icon-delete" @click="$emit('delete')">
 				{{ t('settings', 'Delete') }}
-			</NcActionButton>
-		</NcActions>
+			</ActionButton>
+		</Actions>
 	</div>
 </template>
 
 <script>
-import NcActions from '@nextcloud/vue/dist/Components/NcActions'
-import NcActionButton from '@nextcloud/vue/dist/Components/NcActionButton'
+import Actions from '@nextcloud/vue/dist/Components/Actions'
+import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
 
 export default {
 	name: 'Device',
 	components: {
-		NcActionButton,
-		NcActions,
+		ActionButton,
+		Actions,
 	},
 	props: {
 		name: {

@@ -45,7 +45,7 @@ declare(strict_types=1);
  */
 namespace OC\User;
 
-use OCP\Cache\CappedMemoryCache;
+use OC\Cache\CappedMemoryCache;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IDBConnection;
 use OCP\Security\Events\ValidatePasswordPolicyEvent;
@@ -212,13 +212,11 @@ class Database extends ABackend implements
 	 * @param string $displayName The new display name
 	 * @return bool
 	 *
-	 * @throws \InvalidArgumentException
-	 *
 	 * Change the display name of a user
 	 */
 	public function setDisplayName(string $uid, string $displayName): bool {
 		if (mb_strlen($displayName) > 64) {
-			throw new \InvalidArgumentException('Invalid displayname');
+			return false;
 		}
 
 		$this->fixDI();
@@ -281,7 +279,7 @@ class Database extends ABackend implements
 			->setMaxResults($limit)
 			->setFirstResult($offset);
 
-		$result = $query->executeQuery();
+		$result = $query->execute();
 		$displayNames = [];
 		while ($row = $result->fetch()) {
 			$displayNames[(string)$row['uid']] = (string)$row['displayname'];

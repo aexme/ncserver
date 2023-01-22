@@ -20,36 +20,32 @@
   -->
 
 <template>
-	<div v-if="!adding" class="row spacing">
-		<!-- Port to TextField component when available -->
+	<div v-if="!adding">
 		<input v-model="deviceName"
 			type="text"
 			:maxlength="120"
 			:disabled="loading"
 			:placeholder="t('settings', 'App name')"
 			@keydown.enter="submit">
-		<NcButton :disabled="loading || deviceName.length === 0"
-			type="primary"
+		<Button :disabled="loading"
 			@click="submit">
 			{{ t('settings', 'Create new app password') }}
-		</NcButton>
+		</Button>
 	</div>
-	<div v-else class="spacing">
+	<div v-else>
 		{{ t('settings', 'Use the credentials below to configure your app or device.') }}
 		{{ t('settings', 'For security reasons this password will only be shown once.') }}
 		<div class="app-password-row">
-			<label for="app-username" class="app-password-label">{{ t('settings', 'Username') }}</label>
-			<input id="app-username"
-				:value="loginName"
+			<span class="app-password-label">{{ t('settings', 'Username') }}</span>
+			<input :value="loginName"
 				type="text"
 				class="monospaced"
 				readonly="readonly"
 				@focus="selectInput">
 		</div>
 		<div class="app-password-row">
-			<label for="app-password" class="app-password-label">{{ t('settings', 'Password') }}</label>
-			<input id="app-password"
-				ref="appPassword"
+			<span class="app-password-label">{{ t('settings', 'Password') }}</span>
+			<input ref="appPassword"
 				:value="appPassword"
 				type="text"
 				class="monospaced"
@@ -63,9 +59,9 @@
 				class="icon icon-clippy"
 				@mouseover="hoveringCopyButton = true"
 				@mouseleave="hoveringCopyButton = false" />
-			<NcButton @click="reset">
+			<Button @click="reset">
 				{{ t('settings', 'Done') }}
-			</NcButton>
+			</Button>
 		</div>
 		<div class="app-password-row">
 			<span class="app-password-label" />
@@ -81,16 +77,15 @@
 
 <script>
 import QR from '@chenfengyuan/vue-qrcode'
-import { confirmPassword } from '@nextcloud/password-confirmation'
-import '@nextcloud/password-confirmation/dist/style.css'
+import confirmPassword from '@nextcloud/password-confirmation'
 import { getRootUrl } from '@nextcloud/router'
-import NcButton from '@nextcloud/vue/dist/Components/NcButton'
+import Button from '@nextcloud/vue/dist/Components/Button'
 
 export default {
 	name: 'AuthTokenSetupDialogue',
 	components: {
 		QR,
-		NcButton,
+		Button,
 	},
 	props: {
 		add: {
@@ -185,8 +180,7 @@ export default {
 
 <style lang="scss" scoped>
 	.app-password-row {
-		display: flex;
-		align-items: center;
+		display: table-row;
 
 		.icon {
 			background-size: 16px 16px;
@@ -204,14 +198,6 @@ export default {
 		padding-right: 1em;
 		text-align: right;
 		vertical-align: middle;
-		width: 100px;
-	}
-
-	.row input {
-		height: 44px !important;
-		padding: 7px 12px;
-		margin-right: 12px;
-		width: 200px;
 	}
 
 	.monospaced {
@@ -224,12 +210,4 @@ export default {
 		margin: 3px 3px 3px 3px;
 	}
 
-	.row {
-		display: flex;
-		align-items: center;
-	}
-
-	.spacing {
-		padding-top: 16px;
-	}
 </style>

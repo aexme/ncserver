@@ -106,7 +106,6 @@
 					self._onScopeChanged(field, scope);
 				});
 				$icon.append(scopeMenu.$el);
-				$icon.attr('aria-expanded', 'false');
 				$icon.on('click', _.bind(scopeMenu.show, scopeMenu));
 				$icon.on('keydown', function(e) {
 					if (e.keyCode === 32) {
@@ -130,11 +129,7 @@
 				if (
 					field === 'avatar' ||
 					field === 'email' ||
-					field === 'displayname' ||
-					field === 'twitter' ||
-					field === 'address' ||
-					field === 'website' ||
-					field === 'phone'
+					field === 'displayname'
 				) {
 					return;
 				}

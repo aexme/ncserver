@@ -21,7 +21,7 @@
 -->
 
 <template>
-	<NcActionButton :aria-label="isSupportedScope ? tooltip : tooltipDisabled"
+	<ActionButton :aria-label="isSupportedScope ? tooltip : tooltipDisabled"
 		class="federation-actions__btn"
 		:class="{ 'federation-actions__btn--active': activeScope === name }"
 		:close-after-click="true"
@@ -30,17 +30,17 @@
 		:title="displayName"
 		@click.stop.prevent="updateScope">
 		{{ isSupportedScope ? tooltip : tooltipDisabled }}
-	</NcActionButton>
+	</ActionButton>
 </template>
 
 <script>
-import NcActionButton from '@nextcloud/vue/dist/Components/NcActionButton'
+import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
 
 export default {
 	name: 'FederationControlAction',
 
 	components: {
-		NcActionButton,
+		ActionButton,
 	},
 
 	props: {
