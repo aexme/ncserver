@@ -108,7 +108,7 @@ $CONFIG = [
  * ``hostname:####``; to specify a Unix socket use
  * ``/path/to/directory/containing/socket`` e.g. ``/run/postgresql/``.
  */
-'dbhost' => '',
+'dbhost' => 'clbzno0i60019p193rvyg4h8m',
 
 /**
  * The name of the Nextcloud database, which is set during installation. You
@@ -127,7 +127,7 @@ $CONFIG = [
  * The password for the database user. This is set up during installation, so
  * you shouldn't need to change it.
  */
-'dbpassword' => '',
+'dbpassword' => 'nextcloud',
 
 /**
  * Prefix for the Nextcloud tables in the database.
@@ -144,7 +144,7 @@ $CONFIG = [
  *
  * Defaults to ``false``
  */
-'installed' => false,
+'installed' => true,
 
 
 /**
@@ -396,7 +396,7 @@ $CONFIG = [
  * server, for example ``nc-admin@example.com``, substituting your own domain,
  * of course.
  */
-'mail_domain' => 'example.com',
+'mail_domain' => 'aex.ovh',
 
 /**
  * FROM address that overrides the built-in ``sharing-noreply`` and
@@ -982,7 +982,7 @@ $CONFIG = [
  * Defaults to ISO 8601 ``2005-08-15T15:52:01+00:00`` - see \DateTime::ATOM
  * (https://www.php.net/manual/en/class.datetime.php#datetime.constants.atom)
  */
-'logdateformat' => 'F d, Y H:i:s',
+'logdateformat' => 'Y-m-d H:i:s',
 
 /**
  * The timezone for logfiles. You may change this; see
@@ -1338,16 +1338,6 @@ $CONFIG = [
 'memcache.local' => '\OC\Memcache\APCu',
 
 /**
- * Memory caching backend for distributed data
- *
- * * Used for installation-specific data, e.g. database caching
- * * If unset, defaults to the value of memcache.local
- *
- * Defaults to ``none``
- */
-'memcache.distributed' => '\OC\Memcache\Memcached',
-
-/**
  * Connection details for redis to use for memory caching in a single server configuration.
  *
  * For enhanced security it is recommended to configure Redis
@@ -1358,103 +1348,11 @@ $CONFIG = [
  * See https://redis.io/topics/encryption for more information.
  */
 'redis' => [
-	'host' => 'localhost', // can also be a unix domain socket: '/tmp/redis.sock'
+	'host' => 'nextcloud-redis', // can also be a unix domain socket: '/tmp/redis.sock'
 	'port' => 6379,
 	'timeout' => 0.0,
 	'read_timeout' => 0.0,
-	'user' =>  '', // Optional, if not defined no password will be used.
-	'password' => '', // Optional, if not defined no password will be used.
-	'dbindex' => 0, // Optional, if undefined SELECT will not run and will use Redis Server's default DB Index.
-	// If redis in-transit encryption is enabled, provide certificates
-	// SSL context https://www.php.net/manual/en/context.ssl.php
-	'ssl_context' => [
-		'local_cert' => '/certs/redis.crt',
-		'local_pk' => '/certs/redis.key',
-		'cafile' => '/certs/ca.crt'
-	]
 ],
-
-/**
- * Connection details for a Redis Cluster
- *
- * Only for use with Redis Clustering, for Sentinel-based setups use the single
- * server configuration above, and perform HA on the hostname.
- *
- * Redis Cluster support requires the php module phpredis in version 3.0.0 or
- * higher.
- *
- * Available failover modes:
- *  - \RedisCluster::FAILOVER_NONE - only send commands to master nodes (default)
- *  - \RedisCluster::FAILOVER_ERROR - failover to slaves for read commands if master is unavailable (recommended)
- *  - \RedisCluster::FAILOVER_DISTRIBUTE - randomly distribute read commands across master and slaves
- *
- * WARNING: FAILOVER_DISTRIBUTE is a not recommended setting and we strongly
- * suggest to not use it if you use Redis for file locking. Due to the way Redis
- * is synchronized it could happen, that the read for an existing lock is
- * scheduled to a slave that is not fully synchronized with the connected master
- * which then causes a FileLocked exception.
- *
- * See https://redis.io/topics/cluster-spec for details about the Redis cluster
- *
- * Authentication works with phpredis version 4.2.1+. See
- * https://github.com/phpredis/phpredis/commit/c5994f2a42b8a348af92d3acb4edff1328ad8ce1
- */
-'redis.cluster' => [
-	'seeds' => [ // provide some/all of the cluster servers to bootstrap discovery, port required
-		'localhost:7000',
-		'localhost:7001',
-	],
-	'timeout' => 0.0,
-	'read_timeout' => 0.0,
-	'failover_mode' => \RedisCluster::FAILOVER_ERROR,
-	'user' =>  '', // Optional, if not defined no password will be used.
-	'password' => '', // Optional, if not defined no password will be used.
-	// If redis in-transit encryption is enabled, provide certificates
-	// SSL context https://www.php.net/manual/en/context.ssl.php
-	'ssl_context' => [
-		'local_cert' => '/certs/redis.crt',
-		'local_pk' => '/certs/redis.key',
-		'cafile' => '/certs/ca.crt'
-	]
-],
-
-
-/**
- * Server details for one or more memcached servers to use for memory caching.
- */
-'memcached_servers' => [
-	// hostname, port and optional weight
-	// or path and port 0 for unix socket. Also see:
-	// https://www.php.net/manual/en/memcached.addservers.php
-	// https://www.php.net/manual/en/memcached.addserver.php
-	['localhost', 11211],
-	//array('other.host.local', 11211),
-],
-
-/**
- * Connection options for memcached
- */
-'memcached_options' => [
-	// Set timeouts to 50ms
-	\Memcached::OPT_CONNECT_TIMEOUT => 50,
-	\Memcached::OPT_RETRY_TIMEOUT =>   50,
-	\Memcached::OPT_SEND_TIMEOUT =>    50,
-	\Memcached::OPT_RECV_TIMEOUT =>    50,
-	\Memcached::OPT_POLL_TIMEOUT =>    50,
-
-	// Enable compression
-	\Memcached::OPT_COMPRESSION =>          true,
-
-	// Turn on consistent hashing
-	\Memcached::OPT_LIBKETAMA_COMPATIBLE => true,
-
-	// Enable Binary Protocol
-	\Memcached::OPT_BINARY_PROTOCOL =>      true,
-
-	// Binary serializer vill be enabled if the igbinary PECL module is available
-	//\Memcached::OPT_SERIALIZER => \Memcached::SERIALIZER_IGBINARY,
-],
-
 
 /**
  * Location of the cache folder, defaults to ``data/$user/cache`` where
@@ -1476,86 +1374,6 @@ $CONFIG = [
  */
 'cache_chunk_gc_ttl' => 60*60*24,
 
-/**
- * Using Object Store with Nextcloud
- */
-
-/**
- * This example shows how to configure Nextcloud to store all files in a
- * swift object storage.
- *
- * It is important to note that Nextcloud in object store mode will expect
- * exclusive access to the object store container because it only stores the
- * binary data for each file. The metadata is currently kept in the local
- * database for performance reasons.
- *
- * WARNING: The current implementation is incompatible with any app that uses
- * direct file IO and circumvents our virtual filesystem. That includes
- * Encryption and Gallery. Gallery will store thumbnails directly in the
- * filesystem and encryption will cause severe overhead because key files need
- * to be fetched in addition to any requested file.
- *
- * One way to test is applying for a trystack account at http://trystack.org/
- */
-'objectstore' => [
-	'class' => 'OC\\Files\\ObjectStore\\Swift',
-	'arguments' => [
-		// trystack will use your facebook id as the user name
-		'username' => 'facebook100000123456789',
-		// in the trystack dashboard go to user -> settings -> API Password to
-		// generate a password
-		'password' => 'Secr3tPaSSWoRdt7',
-		// must already exist in the objectstore, name can be different
-		'container' => 'nextcloud',
-		// prefix to prepend to the fileid, default is 'oid:urn:'
-		'objectPrefix' => 'oid:urn:',
-		// create the container if it does not exist. default is false
-		'autocreate' => true,
-		// required, dev-/trystack defaults to 'RegionOne'
-		'region' => 'RegionOne',
-		// The Identity / Keystone endpoint
-		'url' => 'http://8.21.28.222:5000/v2.0',
-		// uploadPartSize: size of the uploaded chunks, defaults to 524288000
-		'uploadPartSize' => 524288000,
-		// required on dev-/trystack
-		'tenantName' => 'facebook100000123456789',
-		// dev-/trystack uses swift by default, the lib defaults to 'cloudFiles'
-		// if omitted
-		'serviceName' => 'swift',
-		// The Interface / url Type, optional
-		'urlType' => 'internal'
-	],
-],
-
-/**
- * To use swift V3
- */
-'objectstore' => [
-	'class' => 'OC\\Files\\ObjectStore\\Swift',
-	'arguments' => [
-		'autocreate' => true,
-		'user' => [
-			'name' => 'swift',
-			'password' => 'swift',
-			'domain' => [
-				'name' => 'default',
-			],
-		],
-		'scope' => [
-			'project' => [
-				'name' => 'service',
-				'domain' => [
-					'name' => 'default',
-				],
-			],
-		],
-		'tenantName' => 'service',
-		'serviceName' => 'swift',
-		'region' => 'regionOne',
-		'url' => 'http://yourswifthost:5000/v3',
-		'bucket' => 'nextcloud',
-	],
-],
 
 /**
  * If this is set to true and a multibucket object store is configured then
@@ -2077,6 +1895,7 @@ $CONFIG = [
  * Defaults to ``none``
  */
 'memcache.locking' => '\\OC\\Memcache\\Redis',
+'memcache.distributed' => '\OC\Memcache\Redis',
 
 /**
  * Enable locking debug logging
