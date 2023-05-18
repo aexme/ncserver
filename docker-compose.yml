@@ -5,8 +5,8 @@
     ports:
       - 8082:80
     volumes:
-      - ./src:/var/www/html
-      - ./data:/var/www/nextcloud/data
+      - /var/www/nextcloud/src:/var/www/html
+      - /var/www/nextcloud/data:/var/www/nextcloud/data
     environment:
       - NEXTCLOUD_DATA_DIR=/var/www/nextcloud/data
       - MYSQL_DATABASE=nextcloud
