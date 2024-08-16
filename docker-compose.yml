@@ -1,6 +1,6 @@
  services:
   nextcloud:
-    image: nextcloud:26-apache
+    image: nextcloud:27-apache
     restart: always
     ports:
       - 8082:80
